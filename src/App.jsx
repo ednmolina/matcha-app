@@ -86,6 +86,123 @@ const PROFILE_ROWS = [
   ["Astringency", "astringent", "#7a6a8a"],
   ["Body", "body", "#4a6a6a"],
 ];
+const CULTIVAR_PROFILE_ROWS = [
+  ["Umami", "umami", "#5a8a3a"],
+  ["Sweetness", "sweet", "#c4a040"],
+  ["Bitterness", "bitter", "#8a5a3a"],
+  ["Aroma", "aroma", "#7a6a8a"],
+  ["Body", "body", "#4a6a6a"],
+];
+const CULTIVARS = [
+  {
+    id: "cv01",
+    name: "Asahi",
+    kanji: "あさひ",
+    origin: "Kyoto / Uji",
+    style: "Ultra-premium Kyoto cultivar",
+    bestFor: "Top ceremonial usucha and koicha",
+    notes: { umami: 5, sweet: 5, bitter: 1, aroma: 4, body: 4 },
+    tags: ["rare", "creamy", "elegant", "low bitterness"],
+    desc: "Prestigious Kyoto cultivar prized for premium tencha and matcha. Expect deep umami, elegant sweetness, and a calm, dense body with very little bitterness.",
+    src: "d:matcha Asahi; Origin Uji; Matcha & Greens",
+  },
+  {
+    id: "cv02",
+    name: "Samidori",
+    kanji: "さみどり",
+    origin: "Kyoto / Uji",
+    style: "Classic Uji tencha cultivar",
+    bestFor: "Traditional usucha, refined daily ceremonial",
+    notes: { umami: 4, sweet: 4, bitter: 1, aroma: 4, body: 4 },
+    tags: ["creamy", "sweet", "classic Uji", "balanced"],
+    desc: "Iconic Uji cultivar associated with smooth texture, soft sweetness, and classic Kyoto-style refinement. It tends to feel balanced, creamy, and easy to enjoy straight.",
+    src: "d:matcha Samidori; Nagocha Samidori; Uji Matcha Tea",
+  },
+  {
+    id: "cv03",
+    name: "Gokou",
+    kanji: "ごこう",
+    origin: "Kyoto / Uji",
+    style: "Deep umami heritage cultivar",
+    bestFor: "Koicha, intense ceremonial bowls, premium blends",
+    notes: { umami: 5, sweet: 4, bitter: 2, aroma: 5, body: 5 },
+    tags: ["cacao-like aroma", "deep umami", "creamy", "competition-friendly"],
+    desc: "One of Kyoto's most respected cultivars for high-grade matcha. Gokou usually shows dense umami, a creamy mouthfeel, and a distinctive aromatic depth that can lean cacao-like or savory.",
+    src: "d:matcha Gokou; Nagocha Gokou; Onecha",
+  },
+  {
+    id: "cv04",
+    name: "Ujihikari",
+    kanji: "うじひかり",
+    origin: "Kyoto / Uji",
+    style: "Rare Kyoto native selection",
+    bestFor: "High-grade single-cultivar ceremonial matcha",
+    notes: { umami: 4, sweet: 4, bitter: 1, aroma: 4, body: 4 },
+    tags: ["rare", "bright green", "nutty", "refined"],
+    desc: "Rare Kyoto-native cultivar selected from Uji zairai. Known for vivid green color, rich umami, and low astringency, with a bright but polished personality in matcha.",
+    src: "d:matcha Ujihikari; Origin Uji; Teawiki",
+  },
+  {
+    id: "cv05",
+    name: "Okumidori",
+    kanji: "おくみどり",
+    origin: "Shizuoka-bred, used in Kyoto and Kagoshima",
+    style: "Smooth late-budding all-rounder",
+    bestFor: "Premium ceremonial matcha and elegant blends",
+    notes: { umami: 4, sweet: 3, bitter: 1, aroma: 3, body: 4 },
+    tags: ["smooth", "deep green", "gentle astringency", "blend-friendly"],
+    desc: "A later-budding cultivar that often gives vivid color, smooth body, and medium-high umami with gentle astringency. It is frequently used when producers want polish without aggressive bitterness.",
+    src: "d:matcha Okumidori; Matcha Society AU; Kyozen Matcha",
+  },
+  {
+    id: "cv06",
+    name: "Saemidori",
+    kanji: "さえみどり",
+    origin: "Kagoshima-focused modern cultivar",
+    style: "Bright sweet low-bitterness cultivar",
+    bestFor: "Vivid usucha, approachable premium matcha, colorful lattes",
+    notes: { umami: 4, sweet: 4, bitter: 1, aroma: 3, body: 3 },
+    tags: ["vibrant green", "sweet", "gentle", "low bitterness"],
+    desc: "Saemidori is widely loved for its bright color, sweet mellow profile, and low bitterness. It makes cultivar differences obvious because it often tastes softer and friendlier than Yabukita-led bowls.",
+    src: "Matcha & Greens; Onecha; Blossom Matcha",
+  },
+  {
+    id: "cv07",
+    name: "Yabukita",
+    kanji: "やぶきた",
+    origin: "Shizuoka workhorse grown across Japan",
+    style: "Classic balanced standard cultivar",
+    bestFor: "Daily matcha, blends, lattes, beginner-friendly reference point",
+    notes: { umami: 3, sweet: 2, bitter: 3, aroma: 3, body: 3 },
+    tags: ["grassy", "balanced", "workhorse", "widely grown"],
+    desc: "Japan's dominant tea cultivar and a useful baseline for comparison. In matcha it often tastes balanced and fresh but more vegetal and slightly more bitter than the sweeter Kyoto-heavy cultivars.",
+    src: "Matcha Society AU; Matcha & Greens; Blossom Matcha",
+  },
+  {
+    id: "cv08",
+    name: "Asatsuyu",
+    kanji: "あさつゆ",
+    origin: "Tokyo-selected cultivar used in warmer regions",
+    style: "Naturally sweet aromatic cultivar",
+    bestFor: "Sweet aromatic single-cultivar bowls and expressive blends",
+    notes: { umami: 4, sweet: 4, bitter: 2, aroma: 4, body: 3 },
+    tags: ["natural gyokuro", "sweet", "expressive aroma", "lush"],
+    desc: "Asatsuyu is famous in sencha for its naturally sweet, premium feel and can also produce bold, memorable single-cultivar matcha. Expect a lush aromatic profile and deeper sweetness than a basic daily blend.",
+    src: "Cha Circle Asatsuyu; Gulfood Asatsuyu listing",
+  },
+  {
+    id: "cv09",
+    name: "Yutakamidori",
+    kanji: "ゆたかみどり",
+    origin: "Kagoshima-oriented cultivar",
+    style: "Powerful full-bodied modern cultivar",
+    bestFor: "Stronger lattes, bold blends, fuller-bodied matcha",
+    notes: { umami: 3, sweet: 2, bitter: 3, aroma: 3, body: 4 },
+    tags: ["full-bodied", "strong", "bold", "latte-friendly"],
+    desc: "A more powerful cultivar that tends to show fuller body and a firmer edge than the gentler ceremonial favorites. Useful when you want structure, color, and presence in blends or milk drinks.",
+    src: "Matcha & Greens; cultivar comparison guides",
+  },
+];
 
 function normalizeText(value = "") {
   return value
@@ -522,13 +639,317 @@ function Card({ tea, expanded, onToggle, compared, onCompareToggle }) {
   );
 }
 
+function CultivarComparePanel({ cultivars, onRemove, onClear }) {
+  if (!cultivars.length) {
+    return (
+      <section
+        style={{
+          marginBottom: 16,
+          padding: "16px 18px",
+          borderRadius: 18,
+          border: "1px dashed #c7b799",
+          background: "rgba(253,251,247,0.72)",
+          color: "#5b4b32",
+          boxShadow: "inset 0 1px 0 rgba(255,255,255,.5)",
+        }}
+      >
+        <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", fontWeight: 700, color: "#8a7858" }}>
+          Cultivar Compare
+        </div>
+        <div style={{ marginTop: 6, fontSize: 14, lineHeight: 1.5 }}>
+          Tap <strong>Compare</strong> on any cultivar to pin it here and see how varietal traits like umami, sweetness, aroma, and body differ.
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section
+      style={{
+        position: "sticky",
+        top: 10,
+        zIndex: 5,
+        marginBottom: 18,
+        padding: "14px 14px 16px",
+        borderRadius: 20,
+        background: "linear-gradient(140deg,rgba(52,70,43,.96),rgba(37,53,31,.96))",
+        color: "#eef3e7",
+        boxShadow: "0 14px 36px rgba(30,45,22,.2)",
+        border: "1px solid rgba(210,226,190,.28)",
+        backdropFilter: "blur(10px)",
+      }}
+    >
+      <div style={{ display: "flex", gap: 12, alignItems: "center", justifyContent: "space-between", flexWrap: "wrap" }}>
+        <div>
+          <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", fontWeight: 700, color: "#c9dab9" }}>
+            Cultivar Compare
+          </div>
+          <div style={{ marginTop: 4, fontSize: 16, fontWeight: 700 }}>
+            {cultivars.length} cultivar{cultivars.length > 1 ? "s" : ""} selected
+          </div>
+          <div style={{ marginTop: 3, fontSize: 12, color: "#dfead4" }}>
+            Swipe sideways on mobile to compare flavor traits and best-use differences.
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={onClear}
+          style={{
+            border: "1px solid rgba(238,243,231,.35)",
+            background: "rgba(238,243,231,.08)",
+            color: "#eef3e7",
+            borderRadius: 999,
+            padding: "8px 14px",
+            fontSize: 11,
+            fontWeight: 700,
+            letterSpacing: 1,
+            textTransform: "uppercase",
+            cursor: "pointer",
+          }}
+        >
+          Clear Compare
+        </button>
+      </div>
+
+      <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingTop: 14, paddingBottom: 2 }}>
+        {cultivars.map((cultivar) => (
+          <article
+            key={cultivar.id}
+            style={{
+              flex: "0 0 265px",
+              minWidth: 265,
+              borderRadius: 18,
+              background: "#f0f5e8",
+              color: "#2d321f",
+              padding: "14px 14px 16px",
+              border: "1px solid #c9d8b7",
+              boxShadow: "0 6px 18px rgba(31,22,12,.12)",
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "flex-start" }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: 20, lineHeight: 1.05, fontWeight: 700, color: "#29301d" }}>{cultivar.name}</h3>
+                <div style={{ marginTop: 3, fontSize: 13, color: "#6b7854" }}>{cultivar.kanji}</div>
+              </div>
+              <button
+                type="button"
+                onClick={() => onRemove(cultivar.id)}
+                aria-label={`Remove ${cultivar.name} from compare`}
+                style={{
+                  border: "none",
+                  background: "#d9e5c8",
+                  color: "#4a5b31",
+                  borderRadius: 999,
+                  width: 28,
+                  height: 28,
+                  fontSize: 16,
+                  cursor: "pointer",
+                  lineHeight: 1,
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 999, background: "#406237", color: "#eef3e7", fontWeight: 600 }}>
+                {cultivar.origin}
+              </span>
+              <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 999, background: "#dee8cf", color: "#4b5837" }}>
+                {cultivar.style}
+              </span>
+            </div>
+
+            <div style={{ marginTop: 10, fontSize: 11, color: "#52623d", lineHeight: 1.45 }}>
+              <strong>Best For:</strong> {cultivar.bestFor}
+            </div>
+
+            <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid #d7e1c8" }}>
+              <div style={{ fontSize: 10, color: "#768461", marginBottom: 6, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>
+                Cultivar Profile
+              </div>
+              {CULTIVAR_PROFILE_ROWS.map(([label, key, color]) => (
+                <Bar key={key} label={label} value={cultivar.notes[key]} color={color} />
+              ))}
+            </div>
+
+            <div style={{ marginTop: 12 }}>
+              <div style={{ fontSize: 10, color: "#768461", marginBottom: 6, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>
+                Signature Traits
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+                {cultivar.tags.map((tag) => (
+                  <span
+                    key={`${cultivar.id}-${tag}`}
+                    style={{
+                      fontSize: 10,
+                      padding: "3px 8px",
+                      borderRadius: 999,
+                      background: "#e6eed9",
+                      color: "#4a5934",
+                      border: "1px solid #cedabf",
+                    }}
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <p
+              style={{
+                margin: "12px 0 0",
+                fontSize: 12,
+                lineHeight: 1.55,
+                color: "#3d472d",
+                fontFamily: "'EB Garamond','Cormorant Garamond',serif",
+              }}
+            >
+              {cultivar.desc}
+            </p>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function CultivarCard({ cultivar, expanded, compared, onToggle, onCompareToggle }) {
+  return (
+    <div
+      onClick={onToggle}
+      style={{
+        background: compared ? "#eef4e3" : "#fdfbf7",
+        border: `1px solid ${compared ? "#6f8a4f" : "#d8cdb8"}`,
+        borderRadius: 14,
+        padding: "14px 16px",
+        marginBottom: 10,
+        cursor: "pointer",
+        boxShadow: expanded || compared ? "0 8px 24px rgba(85,110,58,.12)" : "0 1px 4px rgba(0,0,0,.06)",
+        transition: "all .3s",
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
+            <h3 style={{ margin: 0, fontFamily: "'Cormorant Garamond',serif", fontSize: 18, fontWeight: 700, color: "#2f3821" }}>
+              {cultivar.name}
+            </h3>
+            <span style={{ fontFamily: "serif", fontSize: 14, color: "#788567" }}>{cultivar.kanji}</span>
+          </div>
+          <div style={{ display: "flex", gap: 5, marginTop: 5, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 10, padding: "1px 7px", borderRadius: 10, background: "#355331", color: "#eef3e7", fontWeight: 600 }}>
+              {cultivar.origin}
+            </span>
+            <span style={{ fontSize: 10, padding: "1px 7px", borderRadius: 10, background: "#e1ead5", color: "#4d5d39" }}>
+              {cultivar.style}
+            </span>
+          </div>
+        </div>
+
+        <div style={{ textAlign: "right", minWidth: 94 }}>
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              onCompareToggle(cultivar.id);
+            }}
+            style={{
+              marginBottom: 8,
+              borderRadius: 999,
+              border: compared ? "1px solid #496131" : "1px solid #b7c89f",
+              background: compared ? "#3d542b" : "#f0f5e8",
+              color: compared ? "#eef3e7" : "#556640",
+              padding: "6px 10px",
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: 1,
+              textTransform: "uppercase",
+              cursor: "pointer",
+            }}
+          >
+            {compared ? "Added" : "Compare"}
+          </button>
+          <div style={{ fontSize: 11, color: "#5e6e48", fontWeight: 600 }}>{cultivar.bestFor}</div>
+        </div>
+      </div>
+
+      {expanded && (
+        <div style={{ marginTop: 12, borderTop: "1px solid #dfe5d4", paddingTop: 10, animation: "fadeIn .3s ease" }}>
+          <p
+            style={{
+              fontSize: 12,
+              lineHeight: 1.6,
+              color: "#415036",
+              margin: "0 0 10px 0",
+              fontFamily: "'EB Garamond','Cormorant Garamond',serif",
+            }}
+          >
+            {cultivar.desc}
+          </p>
+          <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+            <div style={{ flex: "1 1 160px", minWidth: 160 }}>
+              <div style={{ fontSize: 10, color: "#768461", marginBottom: 4, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>
+                Cultivar Profile
+              </div>
+              {CULTIVAR_PROFILE_ROWS.map(([label, key, color]) => (
+                <Bar key={key} label={label} value={cultivar.notes[key]} color={color} />
+              ))}
+            </div>
+            <div style={{ flex: "1 1 160px", minWidth: 160 }}>
+              <div style={{ fontSize: 10, color: "#768461", marginBottom: 4, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>
+                Signature Traits
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                {cultivar.tags.map((tag) => (
+                  <span
+                    key={`${cultivar.id}-${tag}`}
+                    style={{
+                      fontSize: 10,
+                      padding: "2px 8px",
+                      borderRadius: 12,
+                      background: "#e7eddc",
+                      color: "#4d5a3a",
+                      border: "1px solid #d1dcc1",
+                    }}
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+              <div style={{ marginTop: 8 }}>
+                <div style={{ fontSize: 10, color: "#768461", fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>
+                  Best For
+                </div>
+                <div style={{ fontSize: 11, color: "#4e5b3b", marginTop: 2 }}>{cultivar.bestFor}</div>
+              </div>
+              <div style={{ marginTop: 6 }}>
+                <div style={{ fontSize: 10, color: "#768461", fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>
+                  Origin
+                </div>
+                <div style={{ fontSize: 11, color: "#4e5b3b", marginTop: 2 }}>{cultivar.origin}</div>
+              </div>
+            </div>
+          </div>
+          <div style={{ fontSize: 9, color: "#8d9a7a", marginTop: 8, fontStyle: "italic" }}>Sources: {cultivar.src}</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function App() {
+  const [view, setView] = useState("teas");
   const [cat, setCat] = useState("All");
   const [prod, setProd] = useState("All");
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(null);
   const [sort, setSort] = useState("grade");
   const [compareIds, setCompareIds] = useState([]);
+  const [cultivarQ, setCultivarQ] = useState("");
+  const [cultivarSort, setCultivarSort] = useState("alpha");
+  const [cultivarOpen, setCultivarOpen] = useState(null);
+  const [cultivarCompareIds, setCultivarCompareIds] = useState([]);
 
   const filtered = useMemo(() => {
     const items = TEAS.filter((tea) => {
@@ -575,9 +996,47 @@ export default function App() {
     () => compareIds.map((id) => TEAS.find((tea) => tea.id === id)).filter(Boolean),
     [compareIds]
   );
+  const filteredCultivars = useMemo(() => {
+    const items = CULTIVARS.filter((cultivar) => {
+      if (!cultivarQ) return true;
+
+      const search = normalizeText(cultivarQ);
+      const searchFields = [
+        cultivar.name,
+        cultivar.kanji,
+        cultivar.origin,
+        cultivar.style,
+        cultivar.bestFor,
+        cultivar.desc,
+        ...(cultivar.tags ?? []),
+      ];
+
+      return searchFields.some((value) => normalizeText(value).includes(search));
+    });
+
+    items.sort((a, b) => {
+      if (cultivarSort === "alpha") return a.name.localeCompare(b.name);
+      if (cultivarSort === "umami") return b.notes.umami - a.notes.umami;
+      if (cultivarSort === "sweet") return b.notes.sweet - a.notes.sweet;
+      if (cultivarSort === "aroma") return b.notes.aroma - a.notes.aroma;
+      if (cultivarSort === "bitter") return a.notes.bitter - b.notes.bitter;
+      return 0;
+    });
+
+    return items;
+  }, [cultivarQ, cultivarSort]);
+  const comparedCultivars = useMemo(
+    () => cultivarCompareIds.map((id) => CULTIVARS.find((cultivar) => cultivar.id === id)).filter(Boolean),
+    [cultivarCompareIds]
+  );
 
   function toggleCompare(id) {
     setCompareIds((current) =>
+      current.includes(id) ? current.filter((item) => item !== id) : [...current, id]
+    );
+  }
+  function toggleCultivarCompare(id) {
+    setCultivarCompareIds((current) =>
       current.includes(id) ? current.filter((item) => item !== id) : [...current, id]
     );
   }
@@ -603,132 +1062,253 @@ export default function App() {
           <div style={{ fontSize: 14, color: "#6a5a3a", fontStyle: "italic" }}>
             Yamamasa Koyamaen · Marukyu Koyamaen
           </div>
-          <div style={{ fontSize: 11, color: "#9a8a6a", marginTop: 4 }}>{TEAS.length} teas catalogued · Uji, Kyoto</div>
+          <div style={{ fontSize: 11, color: "#9a8a6a", marginTop: 4 }}>
+            {view === "teas"
+              ? `${TEAS.length} teas catalogued · Uji, Kyoto`
+              : `${CULTIVARS.length} major matcha cultivars compared · guide mode`}
+          </div>
         </div>
 
-        <ComparePanel
-          teas={comparedTeas}
-          onRemove={(id) => setCompareIds((current) => current.filter((item) => item !== id))}
-          onClear={() => setCompareIds([])}
-        />
-
-        <div
-          style={{
-            marginBottom: 16,
-            padding: "16px 16px 14px",
-            borderRadius: 18,
-            border: "1px solid rgba(182,158,119,.35)",
-            background: "rgba(253,251,247,.84)",
-            boxShadow: "0 10px 30px rgba(75,53,23,.08)",
-          }}
-        >
-          <input
-            type="text"
-            placeholder="Search name, kanji, flavor, school…"
-            value={q}
-            onChange={(event) => setQ(event.target.value)}
-            style={{
-              width: "100%",
-              padding: "11px 14px",
-              border: "1px solid #c8bca4",
-              borderRadius: 10,
-              background: "#fdfbf7",
-              fontSize: 13,
-              fontFamily: "inherit",
-              color: "#3a2e1e",
-              marginBottom: 10,
-            }}
-          />
-
-          <div style={{ display: "flex", gap: 6, marginBottom: 8, flexWrap: "wrap" }}>
-            {PRODS.map((value) => (
-              <button
-                key={value}
-                type="button"
-                onClick={() => setProd(value)}
-                style={{
-                  flex: "1 1 180px",
-                  padding: "8px 4px",
-                  border: prod === value ? "2px solid #7a6a3a" : "1px solid #c8bca4",
-                  borderRadius: 8,
-                  background: prod === value ? "#3a2e1e" : "#fdfbf7",
-                  color: prod === value ? "#f5eed8" : "#5a4a30",
-                  fontSize: 11,
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  transition: "all .2s",
-                }}
-              >
-                {value === "All" ? "Both Houses" : value === "Yamamasa Koyamaen" ? "山政 Yamamasa" : "丸久 Marukyu"}
-              </button>
-            ))}
-          </div>
-
-          <div style={{ display: "flex", gap: 5, marginBottom: 10, flexWrap: "wrap" }}>
-            {CATS.map((value) => (
-              <button
-                key={value}
-                type="button"
-                onClick={() => setCat(value)}
-                style={{
-                  padding: "5px 12px",
-                  border: cat === value ? "2px solid #8a7a3a" : "1px solid #c8bca4",
-                  borderRadius: 20,
-                  background: cat === value ? "#5a4a2a" : "transparent",
-                  color: cat === value ? "#f5eed8" : "#6a5a3a",
-                  fontSize: 11,
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  transition: "all .2s",
-                }}
-              >
-                {value} <span style={{ fontSize: 9, opacity: 0.7 }}>({counts[value]})</span>
-              </button>
-            ))}
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-            <span style={{ fontSize: 10, color: "#8a7a5a", fontWeight: 700, letterSpacing: 1 }}>SORT</span>
-            <select
-              value={sort}
-              onChange={(event) => setSort(event.target.value)}
+        <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
+          {[
+            { id: "teas", label: "Tea Catalog", count: TEAS.length },
+            { id: "cultivars", label: "Cultivar Guide", count: CULTIVARS.length },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setView(tab.id)}
               style={{
-                padding: "6px 8px",
-                border: "1px solid #c8bca4",
-                borderRadius: 6,
-                background: "#fdfbf7",
-                fontSize: 11,
-                fontFamily: "inherit",
-                color: "#4a3e2e",
+                flex: "1 1 220px",
+                padding: "11px 14px",
+                borderRadius: 14,
+                border: view === tab.id ? "2px solid #6f7f47" : "1px solid #c8bca4",
+                background: view === tab.id ? (tab.id === "cultivars" ? "#445b30" : "#3a2e1e") : "rgba(253,251,247,.84)",
+                color: view === tab.id ? "#f5eed8" : "#5a4a30",
+                fontSize: 13,
+                fontWeight: 700,
                 cursor: "pointer",
+                textAlign: "left",
               }}
             >
-              <option value="alpha">A-Z</option>
-              <option value="grade">Active first</option>
-              <option value="rating">Highest Rating</option>
-              <option value="umami">Most Umami</option>
-            </select>
-            <span style={{ fontSize: 10, color: "#9a8a6a", marginLeft: "auto" }}>
-              {filtered.length} results · {comparedTeas.length} comparing
-            </span>
-          </div>
+              {tab.label}
+              <span style={{ marginLeft: 8, opacity: 0.7, fontSize: 11 }}>{tab.count}</span>
+            </button>
+          ))}
         </div>
 
-        {filtered.map((tea) => (
-          <Card
-            key={tea.id}
-            tea={tea}
-            expanded={open === tea.id}
-            compared={compareIds.includes(tea.id)}
-            onToggle={() => setOpen(open === tea.id ? null : tea.id)}
-            onCompareToggle={toggleCompare}
-          />
-        ))}
+        {view === "teas" ? (
+          <>
+            <ComparePanel
+              teas={comparedTeas}
+              onRemove={(id) => setCompareIds((current) => current.filter((item) => item !== id))}
+              onClear={() => setCompareIds([])}
+            />
 
-        {filtered.length === 0 && (
-          <div style={{ textAlign: "center", padding: 40, color: "#9a8a6a", fontStyle: "italic" }}>
-            No teas match your search.
-          </div>
+            <div
+              style={{
+                marginBottom: 16,
+                padding: "16px 16px 14px",
+                borderRadius: 18,
+                border: "1px solid rgba(182,158,119,.35)",
+                background: "rgba(253,251,247,.84)",
+                boxShadow: "0 10px 30px rgba(75,53,23,.08)",
+              }}
+            >
+              <input
+                type="text"
+                placeholder="Search name, kanji, flavor, school…"
+                value={q}
+                onChange={(event) => setQ(event.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "11px 14px",
+                  border: "1px solid #c8bca4",
+                  borderRadius: 10,
+                  background: "#fdfbf7",
+                  fontSize: 13,
+                  fontFamily: "inherit",
+                  color: "#3a2e1e",
+                  marginBottom: 10,
+                }}
+              />
+
+              <div style={{ display: "flex", gap: 6, marginBottom: 8, flexWrap: "wrap" }}>
+                {PRODS.map((value) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setProd(value)}
+                    style={{
+                      flex: "1 1 180px",
+                      padding: "8px 4px",
+                      border: prod === value ? "2px solid #7a6a3a" : "1px solid #c8bca4",
+                      borderRadius: 8,
+                      background: prod === value ? "#3a2e1e" : "#fdfbf7",
+                      color: prod === value ? "#f5eed8" : "#5a4a30",
+                      fontSize: 11,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      transition: "all .2s",
+                    }}
+                  >
+                    {value === "All" ? "Both Houses" : value === "Yamamasa Koyamaen" ? "山政 Yamamasa" : "丸久 Marukyu"}
+                  </button>
+                ))}
+              </div>
+
+              <div style={{ display: "flex", gap: 5, marginBottom: 10, flexWrap: "wrap" }}>
+                {CATS.map((value) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setCat(value)}
+                    style={{
+                      padding: "5px 12px",
+                      border: cat === value ? "2px solid #8a7a3a" : "1px solid #c8bca4",
+                      borderRadius: 20,
+                      background: cat === value ? "#5a4a2a" : "transparent",
+                      color: cat === value ? "#f5eed8" : "#6a5a3a",
+                      fontSize: 11,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      transition: "all .2s",
+                    }}
+                  >
+                    {value} <span style={{ fontSize: 9, opacity: 0.7 }}>({counts[value]})</span>
+                  </button>
+                ))}
+              </div>
+
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 10, color: "#8a7a5a", fontWeight: 700, letterSpacing: 1 }}>SORT</span>
+                <select
+                  value={sort}
+                  onChange={(event) => setSort(event.target.value)}
+                  style={{
+                    padding: "6px 8px",
+                    border: "1px solid #c8bca4",
+                    borderRadius: 6,
+                    background: "#fdfbf7",
+                    fontSize: 11,
+                    fontFamily: "inherit",
+                    color: "#4a3e2e",
+                    cursor: "pointer",
+                  }}
+                >
+                  <option value="alpha">A-Z</option>
+                  <option value="grade">Active first</option>
+                  <option value="rating">Highest Rating</option>
+                  <option value="umami">Most Umami</option>
+                </select>
+                <span style={{ fontSize: 10, color: "#9a8a6a", marginLeft: "auto" }}>
+                  {filtered.length} results · {comparedTeas.length} comparing
+                </span>
+              </div>
+            </div>
+
+            {filtered.map((tea) => (
+              <Card
+                key={tea.id}
+                tea={tea}
+                expanded={open === tea.id}
+                compared={compareIds.includes(tea.id)}
+                onToggle={() => setOpen(open === tea.id ? null : tea.id)}
+                onCompareToggle={toggleCompare}
+              />
+            ))}
+
+            {filtered.length === 0 && (
+              <div style={{ textAlign: "center", padding: 40, color: "#9a8a6a", fontStyle: "italic" }}>
+                No teas match your search.
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            <CultivarComparePanel
+              cultivars={comparedCultivars}
+              onRemove={(id) => setCultivarCompareIds((current) => current.filter((item) => item !== id))}
+              onClear={() => setCultivarCompareIds([])}
+            />
+
+            <div
+              style={{
+                marginBottom: 16,
+                padding: "16px 16px 14px",
+                borderRadius: 18,
+                border: "1px solid rgba(141,171,114,.35)",
+                background: "rgba(248,252,243,.88)",
+                boxShadow: "0 10px 30px rgba(60,85,37,.08)",
+              }}
+            >
+              <input
+                type="text"
+                placeholder="Search cultivar, flavor, region…"
+                value={cultivarQ}
+                onChange={(event) => setCultivarQ(event.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "11px 14px",
+                  border: "1px solid #c6d4b2",
+                  borderRadius: 10,
+                  background: "#fdfbf7",
+                  fontSize: 13,
+                  fontFamily: "inherit",
+                  color: "#334125",
+                  marginBottom: 10,
+                }}
+              />
+
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 10, color: "#73825e", fontWeight: 700, letterSpacing: 1 }}>SORT</span>
+                <select
+                  value={cultivarSort}
+                  onChange={(event) => setCultivarSort(event.target.value)}
+                  style={{
+                    padding: "6px 8px",
+                    border: "1px solid #c6d4b2",
+                    borderRadius: 6,
+                    background: "#fdfbf7",
+                    fontSize: 11,
+                    fontFamily: "inherit",
+                    color: "#445333",
+                    cursor: "pointer",
+                  }}
+                >
+                  <option value="alpha">A-Z</option>
+                  <option value="umami">Most Umami</option>
+                  <option value="sweet">Sweetest</option>
+                  <option value="aroma">Most Aromatic</option>
+                  <option value="bitter">Least Bitter</option>
+                </select>
+                <span style={{ fontSize: 10, color: "#83906f", marginLeft: "auto" }}>
+                  {filteredCultivars.length} results · {comparedCultivars.length} comparing
+                </span>
+              </div>
+
+              <div style={{ marginTop: 10, fontSize: 11, color: "#6e7b5a", lineHeight: 1.5 }}>
+                Major matcha cultivars only. Profiles are directional: shading, terroir, harvest timing, and blending can still change the final cup dramatically.
+              </div>
+            </div>
+
+            {filteredCultivars.map((cultivar) => (
+              <CultivarCard
+                key={cultivar.id}
+                cultivar={cultivar}
+                expanded={cultivarOpen === cultivar.id}
+                compared={cultivarCompareIds.includes(cultivar.id)}
+                onToggle={() => setCultivarOpen(cultivarOpen === cultivar.id ? null : cultivar.id)}
+                onCompareToggle={toggleCultivarCompare}
+              />
+            ))}
+
+            {filteredCultivars.length === 0 && (
+              <div style={{ textAlign: "center", padding: 40, color: "#7d8a67", fontStyle: "italic" }}>
+                No cultivars match your search.
+              </div>
+            )}
+          </>
         )}
 
         <div
@@ -742,13 +1322,27 @@ export default function App() {
             lineHeight: 1.6,
           }}
         >
-          Sources: Sazen Tea · The Steeping Room · Kanso Tea · Wakokoro Tea · Nara Tea Co
-          <br />
-          Senchoju · Teance · Steepster · Japanese Select · Dragon Tea House · MatchaEasy
-          <br />
-          MEM Tea · MK & YK Official Catalogs · Community Reviews
-          <br />
-          <span style={{ fontStyle: "italic" }}>Ratings reflect aggregated internet sentiment. Prices approximate. March 2026.</span>
+          {view === "teas" ? (
+            <>
+              Sources: Sazen Tea · The Steeping Room · Kanso Tea · Wakokoro Tea · Nara Tea Co
+              <br />
+              Senchoju · Teance · Steepster · Japanese Select · Dragon Tea House · MatchaEasy
+              <br />
+              MEM Tea · MK & YK Official Catalogs · Community Reviews
+              <br />
+              <span style={{ fontStyle: "italic" }}>Ratings reflect aggregated internet sentiment. Prices approximate. March 2026.</span>
+            </>
+          ) : (
+            <>
+              Cultivar guide sources: d:matcha Kyoto · Origin Uji · Matcha & Greens · Matcha Society AU · Onecha
+              <br />
+              Cha Circle · Kyozen Matcha · Nagocha · educational cultivar comparison pages
+              <br />
+              <span style={{ fontStyle: "italic" }}>
+                Cultivar traits are directional rather than absolute. Blending, shading, harvest timing, and milling style can shift the cup.
+              </span>
+            </>
+          )}
         </div>
       </div>
     </div>
