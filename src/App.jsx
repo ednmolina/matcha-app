@@ -93,6 +93,13 @@ const CULTIVAR_PROFILE_ROWS = [
   ["Aroma", "aroma", "#7a6a8a"],
   ["Body", "body", "#4a6a6a"],
 ];
+const REGION_PROFILE_ROWS = [
+  ["Umami", "umami", "#5a8a3a"],
+  ["Sweetness", "sweet", "#c4a040"],
+  ["Bitterness", "bitter", "#8a5a3a"],
+  ["Aroma", "aroma", "#7a6a8a"],
+  ["Body", "body", "#4a6a6a"],
+];
 const CULTIVARS = [
   {
     id: "cv01",
@@ -201,6 +208,116 @@ const CULTIVARS = [
     tags: ["full-bodied", "strong", "bold", "latte-friendly"],
     desc: "A more powerful cultivar that tends to show fuller body and a firmer edge than the gentler ceremonial favorites. Useful when you want structure, color, and presence in blends or milk drinks.",
     src: "Matcha & Greens; cultivar comparison guides",
+  },
+];
+const MATCHA_REGIONS = [
+  { id: "rg01", name: "Kyoto", subregion: "Uji Area", kanji: "京都・宇治", production: 1068, style: "Historic ceremonial benchmark", notes: { umami: 5, sweet: 5, bitter: 1, aroma: 5, body: 4 }, tags: ["deep umami", "ooika", "ceremonial", "stone-milled"], desc: "Japan's benchmark matcha region. Uji-area matcha is prized for rich umami, elegant sweetness, and the classic shaded aroma tied to tea ceremony culture.", source: "MAFF Uji Tea; Zennoh R6 tencha table", mapX: 101, mapY: 187 },
+  { id: "rg02", name: "Aichi", subregion: "Nishio / Nishi-Mikawa", kanji: "愛知・西尾", production: 428, style: "Mellow large-scale matcha center", notes: { umami: 4, sweet: 4, bitter: 1, aroma: 4, body: 4 }, tags: ["vivid green", "mellow", "long umami", "GI"], desc: "Nishio matcha is officially recognized for vivid blue-green color, delicate mellow taste, and strong umami that lingers without harshness.", source: "MAFF GI Nishio Matcha; Zennoh R6 tencha table", mapX: 120, mapY: 212 },
+  { id: "rg03", name: "Fukuoka", subregion: "Yame / Hoshino", kanji: "福岡・八女", production: 192, style: "Fragrant rich Kyushu premium", notes: { umami: 4, sweet: 4, bitter: 1, aroma: 5, body: 4 }, tags: ["deep fragrance", "mellow", "rich", "gyokuro-adjacent"], desc: "Yame is best known for deeply fragrant, mellow tea. Its matcha tends to read rich, aromatic, and smooth, with a more rounded sweetness than harder-edged daily matcha.", source: "Kyushu MAFF Yame Tea; Zennoh R6 tencha table", mapX: 44, mapY: 300 },
+  { id: "rg04", name: "Shizuoka", subregion: "Fuji / Makinohara / Kakegawa", kanji: "静岡", production: 611, style: "Clean balanced everyday powerhouse", notes: { umami: 3, sweet: 3, bitter: 2, aroma: 4, body: 3 }, tags: ["fresh", "balanced", "clean", "approachable"], desc: "Shizuoka's matcha profile is usually cleaner and more straightforward than Kyoto's, with balanced flavor, fresher aroma, and broad appeal for daily drinking and blends.", source: "JETRO matcha overview; Zennoh R6 tencha table", mapX: 132, mapY: 173 },
+  { id: "rg05", name: "Kagoshima", subregion: "Prefecture-wide", kanji: "鹿児島", production: 2150, style: "Japan's biggest tencha engine", notes: { umami: 4, sweet: 3, bitter: 2, aroma: 4, body: 4 }, tags: ["warm climate", "vivid", "high volume", "blend-friendly"], desc: "Kagoshima is now Japan's largest tencha producer. Warm-climate matcha from here often shows vivid color, early-harvest sweetness, and enough structure to work beautifully in blends and lattes.", source: "MAFF Kagoshima Tea; Zennoh R6 tencha table", mapX: 28, mapY: 377 },
+  { id: "rg06", name: "Mie", subregion: "Ise Tea", kanji: "三重・伊勢", production: 332, style: "Covered-tea richness from Ise", notes: { umami: 4, sweet: 3, bitter: 2, aroma: 4, body: 3 }, tags: ["mellow", "covered tea", "green", "savory"], desc: "Mie's tea culture is strongly shaped by shaded teas such as kabusecha, and its tencha/matcha tends to feel mellow, green, and savory rather than aggressively bitter.", source: "MAFF Ise Tea; Zennoh R6 tencha table", mapX: 111, mapY: 229 },
+  { id: "rg07", name: "Nara", subregion: "Yamato Tea", kanji: "奈良", production: 220, style: "Quiet Uji-adjacent traditional region", notes: { umami: 4, sweet: 3, bitter: 2, aroma: 3, body: 3 }, tags: ["balanced", "historic", "subtle", "traditional"], desc: "Nara is historically tied to the broader Uji tea world. Its small-but-real tencha output suggests matcha that is balanced and traditional in profile, without the scale of Kyoto or Nishio.", source: "MAFF Uji Tea definition; Zennoh R6 tencha table", mapX: 103, mapY: 215 },
+  { id: "rg08", name: "Shiga", subregion: "Omi Tea", kanji: "滋賀", production: 97, style: "Cool-climate Uji supply region", notes: { umami: 3, sweet: 3, bitter: 2, aroma: 3, body: 3 }, tags: ["clean", "adjacent to Uji", "gentle", "supporting region"], desc: "Part of the legally recognized Uji tea supply area. Shiga's matcha contribution is smaller and generally read as clean, elegant, and less heavy than the most famous Kyoto bowls.", source: "MAFF Uji Tea definition; Zennoh R6 tencha table", mapX: 96, mapY: 204 },
+  { id: "rg09", name: "Miyazaki", subregion: "Southern Kyushu", kanji: "宮崎", production: 182, style: "Warm-climate southern upstart", notes: { umami: 3, sweet: 3, bitter: 2, aroma: 4, body: 4 }, tags: ["sunny", "fuller body", "lively", "southern"], desc: "Miyazaki's tencha output is still modest, but its warm climate points toward aromatic, fuller-bodied matcha with more energy and color than austere old-school northern profiles.", source: "Zennoh R6 tencha table; southern tea region comparisons", mapX: 50, mapY: 343 },
+  { id: "rg10", name: "Nagasaki", subregion: "Western Kyushu", kanji: "長崎", production: 34, style: "Small coastal producer", notes: { umami: 3, sweet: 3, bitter: 2, aroma: 3, body: 3 }, tags: ["small volume", "coastal", "soft", "emerging"], desc: "A small-volume tencha region. Expect softer, less standardized matcha styles here, often with a gentler profile shaped by coastal humidity and small-batch production.", source: "Zennoh R6 tencha table", mapX: 14, mapY: 309 },
+  { id: "rg11", name: "Oita", subregion: "Northeastern Kyushu", kanji: "大分", production: 7, style: "Tiny experimental producer", notes: { umami: 3, sweet: 2, bitter: 2, aroma: 3, body: 3 }, tags: ["tiny volume", "regional", "mild", "small-batch"], desc: "Oita's tencha output is tiny. Regionally this is better understood as a niche or experimental matcha source than as a major standardized matcha identity.", source: "Zennoh R6 tencha table", mapX: 60, mapY: 318 },
+  { id: "rg12", name: "Shimane", subregion: "San'in coast", kanji: "島根", production: 6, style: "Micro-scale western Honshu producer", notes: { umami: 3, sweet: 2, bitter: 2, aroma: 3, body: 2 }, tags: ["micro-scale", "rustic", "cooler climate", "rare"], desc: "Shimane appears in the national tencha table at very small scale. Matcha from here is best treated as rare, local, and stylistically less fixed than the major producing prefectures.", source: "Zennoh R6 tencha table", mapX: 49, mapY: 216 },
+  { id: "rg13", name: "Tottori", subregion: "San'in coast", kanji: "鳥取", production: 1, style: "Very small current producer", notes: { umami: 2, sweet: 2, bitter: 2, aroma: 2, body: 2 }, tags: ["very small", "niche", "rare", "local"], desc: "Tottori currently records only trace tencha production. It belongs in the exhaustive list, but not in the same flavor-confidence tier as Kyoto, Aichi, or Fukuoka.", source: "Zennoh R6 tencha table", mapX: 65, mapY: 212 },
+  { id: "rg14", name: "Saitama", subregion: "Sayama area", kanji: "埼玉", production: 8, style: "Tiny Kanto producer", notes: { umami: 2, sweet: 2, bitter: 3, aroma: 3, body: 2 }, tags: ["Kanto", "small volume", "clean", "brisk"], desc: "Saitama is famous more for Sayama tea than for matcha, and its tencha production is very small. Expect brisker, cleaner, less umami-heavy tendencies than classic Uji matcha.", source: "Zennoh R6 tencha table", mapX: 148, mapY: 130 },
+  { id: "rg15", name: "Kanagawa", subregion: "Ashigara / Tanzawa side", kanji: "神奈川", production: 1, style: "Trace tencha producer", notes: { umami: 2, sweet: 2, bitter: 3, aroma: 3, body: 2 }, tags: ["trace production", "Kanto", "fresh", "niche"], desc: "Kanagawa currently appears only at trace tencha scale. It counts in an exhaustive region guide, but it is better understood as a niche local producer than a recognizable national matcha style.", source: "Zennoh R6 tencha table", mapX: 142, mapY: 151 },
+];
+const REGIONS = [
+  {
+    id: "rg01",
+    name: "Uji",
+    prefecture: "Kyoto",
+    area: "Uji / Southern Kyoto",
+    map: { x: 70, y: 64 },
+    status: "Historic ceremonial center",
+    bestFor: "Classic high-ceremonial matcha and tea-school styles",
+    notes: { umami: 5, sweet: 4, bitter: 1, aroma: 4, body: 5 },
+    tags: ["refined", "ceremonial", "deep umami", "oishita heritage"],
+    desc: "Japan's best-known ceremonial matcha region. Uji sets the reference point for elegant umami, polish, structure, and traditional tea-culture blending. In practice, Uji-style matcha often tastes calm, layered, and composed rather than loud.",
+    src: "MAFF Uji Tea; Kyoto Prefecture tea pages",
+  },
+  {
+    id: "rg02",
+    name: "Yame",
+    prefecture: "Fukuoka",
+    area: "Yame region / Yabe River basin",
+    map: { x: 18, y: 84 },
+    status: "Shaded-tea stronghold",
+    bestFor: "Rich, mellow, fog-grown shaded teas and premium matcha",
+    notes: { umami: 5, sweet: 4, bitter: 1, aroma: 4, body: 4 },
+    tags: ["mellow", "rich", "misty terroir", "full-bodied"],
+    desc: "Yame is best known for deeply shaded premium teas and has the fog, mountain shelter, and day-night temperature swings that favor concentrated umami. Its matcha direction tends to feel rich, mellow, and rounded with strong depth.",
+    src: "Fukuoka Prefecture Yame tea pages; MAFF Yame GI background",
+  },
+  {
+    id: "rg03",
+    name: "Nishio",
+    prefecture: "Aichi",
+    area: "Nishio / Anjo",
+    map: { x: 78, y: 74 },
+    status: "GI matcha production hub",
+    bestFor: "Mellow daily-to-premium matcha and foodservice-quality consistency",
+    notes: { umami: 4, sweet: 4, bitter: 1, aroma: 4, body: 4 },
+    tags: ["mellow", "long umami", "brick ovens", "tana shading"],
+    desc: "Nishio is one of Japan's biggest true matcha production zones and has a GI-protected identity. Official descriptions emphasize vivid color, elegant aroma, mellow texture, and umami that lingers without harshness.",
+    src: "MAFF Nishio Matcha GI; Nishio City; Aichi Prefecture",
+  },
+  {
+    id: "rg04",
+    name: "Shizuoka",
+    prefecture: "Shizuoka",
+    area: "Makinohara / Kakegawa / Tenryu and wider prefecture",
+    map: { x: 84, y: 69 },
+    status: "Large-scale modern tea powerhouse",
+    bestFor: "Balanced to brighter matcha, efficient modern production, broad style range",
+    notes: { umami: 3, sweet: 3, bitter: 2, aroma: 3, body: 3 },
+    tags: ["balanced", "fresh", "modern", "deep-steamed influence"],
+    desc: "Shizuoka is historically Japan's dominant tea prefecture and is actively expanding tencha. Regional tea culture leans fresh, straightforward, and drinkable, so Shizuoka-style matcha often reads as cleaner and brighter than the deepest ceremonial Kyoto bowls.",
+    src: "MAFF tea situation report; Shizuoka tencha expansion docs; Shizuoka tea pages",
+  },
+  {
+    id: "rg05",
+    name: "Kagoshima",
+    prefecture: "Kagoshima",
+    area: "Southern Kyushu including Chiran and surrounding districts",
+    map: { x: 16, y: 92 },
+    status: "Fast-growing tencha leader",
+    bestFor: "Vivid modern matcha, cultivar diversity, broad price-quality range",
+    notes: { umami: 4, sweet: 3, bitter: 2, aroma: 3, body: 3 },
+    tags: ["vivid", "modern", "cultivar-diverse", "broad style range"],
+    desc: "Kagoshima is now the largest tencha-producing prefecture by volume. Its warm climate and broad cultivar mix create huge stylistic range, but the region is especially associated with vivid color, freshness, and scalable modern production.",
+    src: "MAFF tea situation report; Kagoshima Prefecture tea pages",
+  },
+  {
+    id: "rg06",
+    name: "Ise",
+    prefecture: "Mie",
+    area: "Hokusei and wider Mie tea areas",
+    map: { x: 75, y: 72 },
+    status: "Kabuse-heavy region with tencha overlap",
+    bestFor: "Mellow shaded teas, softer umami, Uji-linked leaf supply",
+    notes: { umami: 4, sweet: 3, bitter: 2, aroma: 3, body: 3 },
+    tags: ["mellow", "beautiful green", "covered aroma", "kabuse influence"],
+    desc: "Mie is better known for kabuse-cha than pure matcha branding, but official sources note tencha production as well, especially in the Hokusei area. Regionally the cup direction tends toward mellow, covered-leaf sweetness with a soft green profile.",
+    src: "MAFF Ise Tea; Uji Tea regional definition",
+  },
+  {
+    id: "rg07",
+    name: "Yamato",
+    prefecture: "Nara",
+    area: "Yamato Highlands / Nara tea areas",
+    map: { x: 68, y: 68 },
+    status: "Historic highland tencha region",
+    bestFor: "Fragrant, cooler-climate teas and small-scale historic matcha supply",
+    notes: { umami: 3, sweet: 3, bitter: 2, aroma: 4, body: 3 },
+    tags: ["highland-grown", "aromatic", "historic", "cooler climate"],
+    desc: "Nara matters because Yamato Tea officially includes tencha and because Nara leaf is part of the broader Uji processing definition. Higher elevations and strong day-night swings point to fragrant, lively, aromatic teas rather than the softest coastal-style sweetness.",
+    src: "MAFF Yamato Tea; Nara Prefecture Yamato Tea",
   },
 ];
 
@@ -1024,6 +1141,364 @@ function CultivarCard({ cultivar, expanded, compared, onToggle, onCompareToggle 
   );
 }
 
+function JapanRegionMap({ regions, selectedIds, onSelect }) {
+  return (
+    <section
+      style={{
+        marginBottom: 16,
+        padding: "14px 14px 12px",
+        borderRadius: 18,
+        border: "1px solid rgba(119,151,177,.28)",
+        background: "linear-gradient(180deg,rgba(246,250,252,.95),rgba(239,245,248,.95))",
+        boxShadow: "0 10px 30px rgba(53,78,106,.08)",
+      }}
+    >
+      <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", fontWeight: 700, color: "#6a7d90" }}>
+        Matcha Map
+      </div>
+      <div style={{ marginTop: 5, fontSize: 13, color: "#415466", lineHeight: 1.5 }}>
+        Schematic map of all current prefectures with nonzero tencha production. Tap a marker to jump into that region's card.
+      </div>
+
+      <div style={{ marginTop: 12, borderRadius: 16, overflow: "hidden", border: "1px solid #d8e2e8", background: "#fbfdfe" }}>
+        <svg viewBox="0 0 210 430" style={{ width: "100%", height: "auto", display: "block" }} aria-label="Japan matcha production map">
+          <rect x="0" y="0" width="210" height="430" fill="#f5fafc" />
+          <path d="M156 42C165 32 177 27 188 31C179 42 174 53 176 65C165 63 157 55 156 42Z" fill="#e1eaef" stroke="#c7d4de" />
+          <path d="M143 88C154 84 163 89 165 98C167 107 161 117 151 122C142 126 135 136 133 147C131 161 121 173 107 185C95 195 91 210 88 226C84 244 69 255 57 259C44 264 38 274 39 286C40 300 52 307 58 321C63 332 61 345 55 359C50 371 44 379 38 387C47 389 57 385 66 377C77 367 85 353 89 339C93 323 101 312 111 301C120 291 125 278 128 262C131 244 142 232 151 225C163 215 169 205 169 193C169 179 159 167 159 154C159 142 168 132 171 119C174 105 171 95 163 89C156 84 149 84 143 88Z" fill="#e1eaef" stroke="#c7d4de" />
+          <path d="M96 242C103 241 109 245 111 251C112 258 108 264 101 266C95 268 89 266 86 260C84 254 88 245 96 242Z" fill="#e1eaef" stroke="#c7d4de" />
+          <path d="M33 289C43 285 55 288 60 297C64 305 62 316 53 323C44 329 31 329 23 322C16 316 16 303 23 295C26 291 29 290 33 289Z" fill="#e1eaef" stroke="#c7d4de" />
+          {regions.map((region) => {
+            const selected = selectedIds.includes(region.id);
+            return (
+              <g key={region.id}>
+                <line x1={region.mapX} y1={region.mapY} x2={region.mapX + 11} y2={region.mapY - 10} stroke={selected ? "#355b85" : "#7f96ad"} strokeWidth="1.5" />
+                <circle
+                  cx={region.mapX}
+                  cy={region.mapY}
+                  r={selected ? 7 : 5.5}
+                  fill={selected ? "#2f5b86" : "#7ca15e"}
+                  stroke="#f7fbfd"
+                  strokeWidth="2"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => onSelect(region.id)}
+                />
+                <text x={region.mapX + 14} y={region.mapY - 10} fontSize="9" fill="#4b6073" style={{ pointerEvents: "none" }}>
+                  {region.name}
+                </text>
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+    </section>
+  );
+}
+
+function RegionComparePanel({ regions, onRemove, onClear }) {
+  const mostProducedId = regions.reduce(
+    (best, region) => (!best || region.production > best.production ? region : best),
+    null
+  )?.id;
+
+  if (!regions.length) {
+    return (
+      <section
+        style={{
+          marginBottom: 16,
+          padding: "16px 18px",
+          borderRadius: 18,
+          border: "1px dashed #b9c9d6",
+          background: "rgba(251,253,254,0.82)",
+          color: "#425364",
+          boxShadow: "inset 0 1px 0 rgba(255,255,255,.55)",
+        }}
+      >
+        <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", fontWeight: 700, color: "#6a7d90" }}>
+          Region Compare
+        </div>
+        <div style={{ marginTop: 6, fontSize: 14, lineHeight: 1.5 }}>
+          Tap <strong>Compare</strong> on any region to pin it here and see how Uji, Yame, Nishio, Shizuoka, Kagoshima, and the smaller prefectures differ.
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section
+      className="compare-panel"
+      style={{
+        position: "sticky",
+        top: 8,
+        zIndex: 5,
+        marginBottom: 18,
+        padding: "12px 12px 14px",
+        borderRadius: 18,
+        background: "linear-gradient(140deg,rgba(51,86,113,.96),rgba(37,61,83,.96))",
+        color: "#eef6fb",
+        boxShadow: "0 14px 36px rgba(34,59,79,.2)",
+        border: "1px solid rgba(204,224,238,.28)",
+        backdropFilter: "blur(10px)",
+      }}
+    >
+      <div style={{ display: "flex", gap: 12, alignItems: "center", justifyContent: "space-between", flexWrap: "wrap" }}>
+        <div>
+          <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", fontWeight: 700, color: "#c4dae8" }}>
+            Region Compare
+          </div>
+          <div style={{ marginTop: 2, fontSize: 13, fontWeight: 700 }}>
+            {regions.length} region{regions.length > 1 ? "s" : ""} selected
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={onClear}
+          style={{
+            border: "1px solid rgba(238,246,251,.35)",
+            background: "rgba(238,246,251,.08)",
+            color: "#eef6fb",
+            borderRadius: 999,
+            padding: "7px 12px",
+            fontSize: 10,
+            fontWeight: 700,
+            letterSpacing: 1,
+            textTransform: "uppercase",
+            cursor: "pointer",
+          }}
+        >
+          Clear Compare
+        </button>
+      </div>
+
+      <div className="compare-scroll" style={{ display: "flex", gap: 10, overflowX: "auto", paddingTop: 12, paddingBottom: 2 }}>
+        {regions.map((region) => (
+          <article
+            key={region.id}
+            className="compare-card"
+            style={{
+              flex: "0 0 228px",
+              minWidth: 228,
+              borderRadius: 16,
+              background: "#f4f8fb",
+              color: "#2e4152",
+              padding: "12px 12px 14px",
+              border: "1px solid #d1dfe8",
+              boxShadow: "0 6px 18px rgba(31,22,12,.12)",
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "flex-start" }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: 18, lineHeight: 1.05, fontWeight: 700, color: "#273746" }}>{region.name}</h3>
+                <div style={{ marginTop: 3, fontSize: 12, color: "#6d7e8d" }}>{region.subregion}</div>
+              </div>
+              <button
+                type="button"
+                onClick={() => onRemove(region.id)}
+                aria-label={`Remove ${region.name} from compare`}
+                style={{
+                  border: "none",
+                  background: "#dce7ee",
+                  color: "#51697d",
+                  borderRadius: 999,
+                  width: 24,
+                  height: 24,
+                  fontSize: 14,
+                  cursor: "pointer",
+                  lineHeight: 1,
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 999, background: "#406684", color: "#eef6fb", fontWeight: 600 }}>
+                {region.production} t
+              </span>
+              {region.id === mostProducedId && (
+                <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 999, background: "#d7c36f", color: "#534214", fontWeight: 700 }}>
+                  Largest
+                </span>
+              )}
+            </div>
+
+            <div style={{ marginTop: 10, fontSize: 11, color: "#5b6e7f", lineHeight: 1.45 }}>
+              <strong>Style:</strong> {region.style}
+            </div>
+
+            <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid #dbe6ed" }}>
+              <div style={{ fontSize: 10, color: "#75889a", marginBottom: 6, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>
+                Matcha Profile
+              </div>
+              {REGION_PROFILE_ROWS.map(([label, key, color]) => (
+                <Bar key={key} label={label} value={region.notes[key]} color={color} />
+              ))}
+            </div>
+
+            <div style={{ marginTop: 10, display: "flex", flexWrap: "wrap", gap: 5 }}>
+              {region.tags.slice(0, 3).map((tag) => (
+                <span
+                  key={`${region.id}-${tag}`}
+                  style={{
+                    fontSize: 10,
+                    padding: "3px 8px",
+                    borderRadius: 999,
+                    background: "#e8f0f5",
+                    color: "#55697b",
+                    border: "1px solid #d3dfe8",
+                  }}
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+
+            <p
+              className="compare-description"
+              style={{
+                margin: "10px 0 0",
+                fontSize: 11,
+                lineHeight: 1.45,
+                color: "#405465",
+                fontFamily: "'EB Garamond','Cormorant Garamond',serif",
+                display: "-webkit-box",
+                WebkitLineClamp: 3,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+              }}
+            >
+              {region.desc}
+            </p>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function RegionCard({ region, expanded, compared, onToggle, onCompareToggle }) {
+  return (
+    <div
+      onClick={onToggle}
+      style={{
+        background: compared ? "#eef5fa" : "#fdfbf7",
+        border: `1px solid ${compared ? "#5c7d9a" : "#d8cdb8"}`,
+        borderRadius: 14,
+        padding: "14px 16px",
+        marginBottom: 10,
+        cursor: "pointer",
+        boxShadow: expanded || compared ? "0 8px 24px rgba(84,116,146,.12)" : "0 1px 4px rgba(0,0,0,.06)",
+        transition: "all .3s",
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
+            <h3 style={{ margin: 0, fontFamily: "'Cormorant Garamond',serif", fontSize: 18, fontWeight: 700, color: "#2a3c4a" }}>
+              {region.name}
+            </h3>
+            <span style={{ fontFamily: "serif", fontSize: 14, color: "#748698" }}>{region.kanji}</span>
+          </div>
+          <div style={{ display: "flex", gap: 5, marginTop: 5, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 10, padding: "1px 7px", borderRadius: 10, background: "#3e6280", color: "#eef6fb", fontWeight: 600 }}>
+              {region.production} t tencha
+            </span>
+            <span style={{ fontSize: 10, padding: "1px 7px", borderRadius: 10, background: "#e3edf4", color: "#55697b" }}>
+              {region.subregion}
+            </span>
+          </div>
+        </div>
+
+        <div style={{ textAlign: "right", minWidth: 94 }}>
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              onCompareToggle(region.id);
+            }}
+            style={{
+              marginBottom: 8,
+              borderRadius: 999,
+              border: compared ? "1px solid #4c6680" : "1px solid #b8c9d8",
+              background: compared ? "#466781" : "#f0f6fa",
+              color: compared ? "#eef6fb" : "#566a7c",
+              padding: "6px 10px",
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: 1,
+              textTransform: "uppercase",
+              cursor: "pointer",
+            }}
+          >
+            {compared ? "Added" : "Compare"}
+          </button>
+          <div style={{ fontSize: 11, color: "#607387", fontWeight: 600 }}>{region.style}</div>
+        </div>
+      </div>
+
+      {expanded && (
+        <div style={{ marginTop: 12, borderTop: "1px solid #dfe7ed", paddingTop: 10, animation: "fadeIn .3s ease" }}>
+          <p
+            style={{
+              fontSize: 12,
+              lineHeight: 1.6,
+              color: "#425567",
+              margin: "0 0 10px 0",
+              fontFamily: "'EB Garamond','Cormorant Garamond',serif",
+            }}
+          >
+            {region.desc}
+          </p>
+          <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+            <div style={{ flex: "1 1 160px", minWidth: 160 }}>
+              <div style={{ fontSize: 10, color: "#75889a", marginBottom: 4, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>
+                Matcha Profile
+              </div>
+              {REGION_PROFILE_ROWS.map(([label, key, color]) => (
+                <Bar key={key} label={label} value={region.notes[key]} color={color} />
+              ))}
+            </div>
+            <div style={{ flex: "1 1 160px", minWidth: 160 }}>
+              <div style={{ fontSize: 10, color: "#75889a", marginBottom: 4, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>
+                Signature Traits
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                {region.tags.map((tag) => (
+                  <span
+                    key={`${region.id}-${tag}`}
+                    style={{
+                      fontSize: 10,
+                      padding: "2px 8px",
+                      borderRadius: 12,
+                      background: "#e8f0f5",
+                      color: "#55697b",
+                      border: "1px solid #d3dfe8",
+                    }}
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+              <div style={{ marginTop: 8 }}>
+                <div style={{ fontSize: 10, color: "#75889a", fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>
+                  Production Scale
+                </div>
+                <div style={{ fontSize: 11, color: "#55697b", marginTop: 2 }}>{region.production} metric tons of tencha</div>
+              </div>
+              <div style={{ marginTop: 6 }}>
+                <div style={{ fontSize: 10, color: "#75889a", fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>
+                  Subregion
+                </div>
+                <div style={{ fontSize: 11, color: "#55697b", marginTop: 2 }}>{region.subregion}</div>
+              </div>
+            </div>
+          </div>
+          <div style={{ fontSize: 9, color: "#8b9cad", marginTop: 8, fontStyle: "italic" }}>Sources: {region.source}</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function App() {
   const [view, setView] = useState("teas");
   const [cat, setCat] = useState("All");
@@ -1036,6 +1511,10 @@ export default function App() {
   const [cultivarSort, setCultivarSort] = useState("alpha");
   const [cultivarOpen, setCultivarOpen] = useState(null);
   const [cultivarCompareIds, setCultivarCompareIds] = useState([]);
+  const [regionQ, setRegionQ] = useState("");
+  const [regionSort, setRegionSort] = useState("production");
+  const [regionOpen, setRegionOpen] = useState(null);
+  const [regionCompareIds, setRegionCompareIds] = useState([]);
 
   const filtered = useMemo(() => {
     const items = TEAS.filter((tea) => {
@@ -1117,6 +1596,38 @@ export default function App() {
     () => cultivarCompareIds.map((id) => CULTIVARS.find((cultivar) => cultivar.id === id)).filter(Boolean),
     [cultivarCompareIds]
   );
+  const filteredRegions = useMemo(() => {
+    const items = MATCHA_REGIONS.filter((region) => {
+      if (!regionQ) return true;
+
+      const search = normalizeText(regionQ);
+      const searchFields = [
+        region.name,
+        region.kanji,
+        region.subregion,
+        region.style,
+        region.desc,
+        ...(region.tags ?? []),
+      ];
+
+      return searchFields.some((value) => normalizeText(value).includes(search));
+    });
+
+    items.sort((a, b) => {
+      if (regionSort === "production") return b.production - a.production;
+      if (regionSort === "alpha") return a.name.localeCompare(b.name);
+      if (regionSort === "umami") return b.notes.umami - a.notes.umami;
+      if (regionSort === "sweet") return b.notes.sweet - a.notes.sweet;
+      if (regionSort === "aroma") return b.notes.aroma - a.notes.aroma;
+      return 0;
+    });
+
+    return items;
+  }, [regionQ, regionSort]);
+  const comparedRegions = useMemo(
+    () => regionCompareIds.map((id) => MATCHA_REGIONS.find((region) => region.id === id)).filter(Boolean),
+    [regionCompareIds]
+  );
 
   function toggleCompare(id) {
     setCompareIds((current) =>
@@ -1125,6 +1636,11 @@ export default function App() {
   }
   function toggleCultivarCompare(id) {
     setCultivarCompareIds((current) =>
+      current.includes(id) ? current.filter((item) => item !== id) : [...current, id]
+    );
+  }
+  function toggleRegionCompare(id) {
+    setRegionCompareIds((current) =>
       current.includes(id) ? current.filter((item) => item !== id) : [...current, id]
     );
   }
@@ -1153,7 +1669,9 @@ export default function App() {
           <div style={{ fontSize: 11, color: "#9a8a6a", marginTop: 4 }}>
             {view === "teas"
               ? `${TEAS.length} teas catalogued · Uji, Kyoto`
-              : `${CULTIVARS.length} major matcha cultivars compared · guide mode`}
+              : view === "cultivars"
+                ? `${CULTIVARS.length} major matcha cultivars compared · guide mode`
+                : `${MATCHA_REGIONS.length} current tencha-producing prefectures mapped`}
           </div>
         </div>
 
@@ -1161,6 +1679,7 @@ export default function App() {
           {[
             { id: "teas", label: "Tea Catalog", count: TEAS.length },
             { id: "cultivars", label: "Cultivar Guide", count: CULTIVARS.length },
+            { id: "regions", label: "Region Guide", count: MATCHA_REGIONS.length },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -1171,7 +1690,7 @@ export default function App() {
                 padding: "11px 14px",
                 borderRadius: 14,
                 border: view === tab.id ? "2px solid #6f7f47" : "1px solid #c8bca4",
-                background: view === tab.id ? (tab.id === "cultivars" ? "#445b30" : "#3a2e1e") : "rgba(253,251,247,.84)",
+                background: view === tab.id ? (tab.id === "cultivars" ? "#445b30" : tab.id === "regions" ? "#35566f" : "#3a2e1e") : "rgba(253,251,247,.84)",
                 color: view === tab.id ? "#f5eed8" : "#5a4a30",
                 fontSize: 13,
                 fontWeight: 700,
@@ -1312,7 +1831,7 @@ export default function App() {
               </div>
             )}
           </>
-        ) : (
+        ) : view === "cultivars" ? (
           <>
             <CultivarComparePanel
               cultivars={comparedCultivars}
@@ -1397,6 +1916,97 @@ export default function App() {
               </div>
             )}
           </>
+        ) : (
+          <>
+            <RegionComparePanel
+              regions={comparedRegions}
+              onRemove={(id) => setRegionCompareIds((current) => current.filter((item) => item !== id))}
+              onClear={() => setRegionCompareIds([])}
+            />
+
+            <JapanRegionMap
+              regions={MATCHA_REGIONS}
+              selectedIds={regionCompareIds}
+              onSelect={(id) => setRegionOpen(id)}
+            />
+
+            <div
+              style={{
+                marginBottom: 16,
+                padding: "16px 16px 14px",
+                borderRadius: 18,
+                border: "1px solid rgba(119,151,177,.28)",
+                background: "rgba(247,251,253,.9)",
+                boxShadow: "0 10px 30px rgba(53,78,106,.08)",
+              }}
+            >
+              <input
+                type="text"
+                placeholder="Search prefecture, subregion, style…"
+                value={regionQ}
+                onChange={(event) => setRegionQ(event.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "11px 14px",
+                  border: "1px solid #cddbe5",
+                  borderRadius: 10,
+                  background: "#fdfbf7",
+                  fontSize: 13,
+                  fontFamily: "inherit",
+                  color: "#354b5e",
+                  marginBottom: 10,
+                }}
+              />
+
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 10, color: "#6f8194", fontWeight: 700, letterSpacing: 1 }}>SORT</span>
+                <select
+                  value={regionSort}
+                  onChange={(event) => setRegionSort(event.target.value)}
+                  style={{
+                    padding: "6px 8px",
+                    border: "1px solid #cddbe5",
+                    borderRadius: 6,
+                    background: "#fdfbf7",
+                    fontSize: 11,
+                    fontFamily: "inherit",
+                    color: "#4a6275",
+                    cursor: "pointer",
+                  }}
+                >
+                  <option value="production">Most Production</option>
+                  <option value="alpha">A-Z</option>
+                  <option value="umami">Most Umami</option>
+                  <option value="sweet">Sweetest</option>
+                  <option value="aroma">Most Aromatic</option>
+                </select>
+                <span style={{ fontSize: 10, color: "#8193a4", marginLeft: "auto" }}>
+                  {filteredRegions.length} results · {comparedRegions.length} comparing
+                </span>
+              </div>
+
+              <div style={{ marginTop: 10, fontSize: 11, color: "#6f8193", lineHeight: 1.5 }}>
+                Exhaustive here means every prefecture in the current national tencha table with nonzero production. The biggest names still define most of the real market.
+              </div>
+            </div>
+
+            {filteredRegions.map((region) => (
+              <RegionCard
+                key={region.id}
+                region={region}
+                expanded={regionOpen === region.id}
+                compared={regionCompareIds.includes(region.id)}
+                onToggle={() => setRegionOpen(regionOpen === region.id ? null : region.id)}
+                onCompareToggle={toggleRegionCompare}
+              />
+            ))}
+
+            {filteredRegions.length === 0 && (
+              <div style={{ textAlign: "center", padding: 40, color: "#8093a4", fontStyle: "italic" }}>
+                No regions match your search.
+              </div>
+            )}
+          </>
         )}
 
         <div
@@ -1420,7 +2030,7 @@ export default function App() {
               <br />
               <span style={{ fontStyle: "italic" }}>Ratings reflect aggregated internet sentiment. Prices approximate. March 2026.</span>
             </>
-          ) : (
+          ) : view === "cultivars" ? (
             <>
               Cultivar guide sources: d:matcha Kyoto · Origin Uji · Matcha & Greens · Matcha Society AU · Onecha
               <br />
@@ -1428,6 +2038,16 @@ export default function App() {
               <br />
               <span style={{ fontStyle: "italic" }}>
                 Cultivar traits are directional rather than absolute. Blending, shading, harvest timing, and milling style can shift the cup.
+              </span>
+            </>
+          ) : (
+            <>
+              Region guide sources: Zennoh national tea production table (R6 tea-type production) · MAFF Uji Tea · MAFF GI Nishio Matcha
+              <br />
+              MAFF regional tea pages for Yame, Ise, Kagoshima and related tea regions
+              <br />
+              <span style={{ fontStyle: "italic" }}>
+                Exhaustive region list = all prefectures with nonzero tencha production. Flavor profiles for very small producers are directional and less standardized than Kyoto, Aichi, Fukuoka, Shizuoka, Mie, or Kagoshima.
               </span>
             </>
           )}
