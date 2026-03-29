@@ -708,6 +708,11 @@ function Card({ tea, expanded, onToggle, compared, onCompareToggle }) {
               </span>
             )}
           </div>
+
+          {/* Top flavor tags */}
+          <div style={{ marginTop: 5, fontSize: 11, color: "#7a6848", fontStyle: "italic" }}>
+            {tea.tags.slice(0, 3).join(" · ")}
+          </div>
         </div>
 
         <div style={{ textAlign: "right", minWidth: 86 }}>
@@ -1162,7 +1167,7 @@ function JapanRegionMap({ regions, selectedIds, onSelect }) {
         Tencha-producing prefectures — tap a marker to explore that region.
       </div>
 
-      <div style={{ marginTop: 12, borderRadius: 14, overflow: "hidden", height: 340, boxShadow: "0 2px 12px rgba(30,60,30,.15)" }}>
+      <div style={{ marginTop: 12, borderRadius: 14, overflow: "hidden", height: 340, boxShadow: "0 2px 12px rgba(30,60,30,.15)", position: "relative", zIndex: 0 }}>
         <MapContainer
           center={[35.5, 136.5]}
           zoom={5}
