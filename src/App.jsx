@@ -95,14 +95,12 @@ function normalizeText(value = "") {
 }
 
 function Stars({ r }) {
-  const f = Math.floor(r);
-  const h = r - f >= 0.4;
-  const e = 5 - f - (h ? 1 : 0);
+  const rounded = Math.round(r);
+  const empty = 5 - rounded;
   return (
     <span style={{ color: "#b8860b", fontSize: 13, letterSpacing: 1 }}>
-      {"★".repeat(f)}
-      {h ? "⯪" : ""}
-      {"☆".repeat(e)}
+      {"★".repeat(rounded)}
+      {"☆".repeat(empty)}
       <span style={{ color: "#8a7a5a", fontSize: 11, marginLeft: 4 }}>{r.toFixed(1)}</span>
     </span>
   );
