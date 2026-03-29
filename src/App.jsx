@@ -1167,9 +1167,9 @@ function JapanRegionMap({ regions, selectedIds, onSelect }) {
           center={[35.5, 136.5]}
           zoom={5}
           style={{ width: "100%", height: "100%" }}
-          zoomControl={false}
+          zoomControl={true}
           attributionControl={false}
-          scrollWheelZoom={false}
+          scrollWheelZoom={true}
         >
           <TileLayer
             url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
@@ -1243,9 +1243,6 @@ function RegionComparePanel({ regions, onRemove, onClear }) {
     <section
       className="compare-panel"
       style={{
-        position: "sticky",
-        top: 8,
-        zIndex: 5,
         marginBottom: 18,
         padding: "12px 12px 14px",
         borderRadius: 18,
