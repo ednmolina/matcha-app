@@ -1146,43 +1146,105 @@ function JapanRegionMap({ regions, selectedIds, onSelect }) {
     <section
       style={{
         marginBottom: 16,
-        padding: "14px 14px 12px",
-        borderRadius: 18,
-        border: "1px solid rgba(119,151,177,.28)",
-        background: "linear-gradient(180deg,rgba(246,250,252,.95),rgba(239,245,248,.95))",
-        boxShadow: "0 10px 30px rgba(53,78,106,.08)",
+        padding: "16px 16px 14px",
+        borderRadius: 20,
+        border: "1px solid rgba(100,130,100,.18)",
+        background: "linear-gradient(160deg,rgba(245,249,244,.98),rgba(236,244,236,.97))",
+        boxShadow: "0 4px 24px rgba(40,70,40,.10), 0 1px 4px rgba(40,70,40,.06)",
       }}
     >
-      <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", fontWeight: 700, color: "#6a7d90" }}>
+      <div style={{ fontSize: 10, letterSpacing: 2.5, textTransform: "uppercase", fontWeight: 700, color: "#7a9b78", marginBottom: 2 }}>
         Matcha Map
       </div>
-      <div style={{ marginTop: 5, fontSize: 13, color: "#415466", lineHeight: 1.5 }}>
-        Schematic map of all current prefectures with nonzero tencha production. Tap a marker to jump into that region's card.
+      <div style={{ fontSize: 12, color: "#5a7060", lineHeight: 1.5, opacity: 0.85 }}>
+        Tencha-producing prefectures — tap a marker to explore that region.
       </div>
 
-      <div style={{ marginTop: 12, borderRadius: 16, overflow: "hidden", border: "1px solid #d8e2e8", background: "#fbfdfe" }}>
+      <div style={{ marginTop: 12, borderRadius: 14, overflow: "hidden", boxShadow: "inset 0 1px 4px rgba(0,0,0,.12), 0 2px 10px rgba(30,60,30,.10)" }}>
         <svg viewBox="0 0 210 430" style={{ width: "100%", height: "auto", display: "block" }} aria-label="Japan matcha production map">
-          <rect x="0" y="0" width="210" height="430" fill="#f5fafc" />
-          <path d="M156 42C165 32 177 27 188 31C179 42 174 53 176 65C165 63 157 55 156 42Z" fill="#e1eaef" stroke="#c7d4de" />
-          <path d="M143 88C154 84 163 89 165 98C167 107 161 117 151 122C142 126 135 136 133 147C131 161 121 173 107 185C95 195 91 210 88 226C84 244 69 255 57 259C44 264 38 274 39 286C40 300 52 307 58 321C63 332 61 345 55 359C50 371 44 379 38 387C47 389 57 385 66 377C77 367 85 353 89 339C93 323 101 312 111 301C120 291 125 278 128 262C131 244 142 232 151 225C163 215 169 205 169 193C169 179 159 167 159 154C159 142 168 132 171 119C174 105 171 95 163 89C156 84 149 84 143 88Z" fill="#e1eaef" stroke="#c7d4de" />
-          <path d="M96 242C103 241 109 245 111 251C112 258 108 264 101 266C95 268 89 266 86 260C84 254 88 245 96 242Z" fill="#e1eaef" stroke="#c7d4de" />
-          <path d="M33 289C43 285 55 288 60 297C64 305 62 316 53 323C44 329 31 329 23 322C16 316 16 303 23 295C26 291 29 290 33 289Z" fill="#e1eaef" stroke="#c7d4de" />
+          <defs>
+            <linearGradient id="oceanGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#1e3a4a" />
+              <stop offset="100%" stopColor="#2a4f5e" />
+            </linearGradient>
+            <linearGradient id="landGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#c8d9b0" />
+              <stop offset="100%" stopColor="#b8ca9c" />
+            </linearGradient>
+            <filter id="markerGlow" x="-80%" y="-80%" width="260%" height="260%">
+              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+            </filter>
+            <filter id="markerGlowSelected" x="-80%" y="-80%" width="260%" height="260%">
+              <feGaussianBlur stdDeviation="4" result="blur" />
+              <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+            </filter>
+          </defs>
+
+          {/* Ocean background */}
+          <rect x="0" y="0" width="210" height="430" fill="url(#oceanGrad)" />
+
+          {/* Subtle wave texture lines */}
+          {[60,110,160,210,260,310,360,410].map(y => (
+            <line key={y} x1="0" y1={y} x2="210" y2={y} stroke="rgba(255,255,255,.03)" strokeWidth="1" />
+          ))}
+
+          {/* Japan landmasses */}
+          <path d="M156 42C165 32 177 27 188 31C179 42 174 53 176 65C165 63 157 55 156 42Z"
+            fill="url(#landGrad)" stroke="#8faa70" strokeWidth="1" />
+          <path d="M143 88C154 84 163 89 165 98C167 107 161 117 151 122C142 126 135 136 133 147C131 161 121 173 107 185C95 195 91 210 88 226C84 244 69 255 57 259C44 264 38 274 39 286C40 300 52 307 58 321C63 332 61 345 55 359C50 371 44 379 38 387C47 389 57 385 66 377C77 367 85 353 89 339C93 323 101 312 111 301C120 291 125 278 128 262C131 244 142 232 151 225C163 215 169 205 169 193C169 179 159 167 159 154C159 142 168 132 171 119C174 105 171 95 163 89C156 84 149 84 143 88Z"
+            fill="url(#landGrad)" stroke="#8faa70" strokeWidth="1" />
+          <path d="M96 242C103 241 109 245 111 251C112 258 108 264 101 266C95 268 89 266 86 260C84 254 88 245 96 242Z"
+            fill="url(#landGrad)" stroke="#8faa70" strokeWidth="1" />
+          <path d="M33 289C43 285 55 288 60 297C64 305 62 316 53 323C44 329 31 329 23 322C16 316 16 303 23 295C26 291 29 290 33 289Z"
+            fill="url(#landGrad)" stroke="#8faa70" strokeWidth="1" />
+
+          {/* Region markers */}
           {regions.map((region) => {
             const selected = selectedIds.includes(region.id);
             return (
-              <g key={region.id}>
-                <line x1={region.mapX} y1={region.mapY} x2={region.mapX + 11} y2={region.mapY - 10} stroke={selected ? "#355b85" : "#7f96ad"} strokeWidth="1.5" />
-                <circle
-                  cx={region.mapX}
-                  cy={region.mapY}
-                  r={selected ? 7 : 5.5}
-                  fill={selected ? "#2f5b86" : "#7ca15e"}
-                  stroke="#f7fbfd"
-                  strokeWidth="2"
-                  style={{ cursor: "pointer" }}
-                  onClick={() => onSelect(region.id)}
+              <g key={region.id} style={{ cursor: "pointer" }} onClick={() => onSelect(region.id)}>
+                {/* Connector line */}
+                <line
+                  x1={region.mapX} y1={region.mapY}
+                  x2={region.mapX + 12} y2={region.mapY - 11}
+                  stroke={selected ? "rgba(200,240,160,.8)" : "rgba(180,220,140,.4)"}
+                  strokeWidth={selected ? 1.2 : 0.8}
                 />
-                <text x={region.mapX + 14} y={region.mapY - 10} fontSize="9" fill="#4b6073" style={{ pointerEvents: "none" }}>
+                {/* Outer glow ring for selected */}
+                {selected && (
+                  <circle
+                    cx={region.mapX} cy={region.mapY}
+                    r={11}
+                    fill="rgba(160,220,100,.18)"
+                    stroke="rgba(160,220,100,.35)"
+                    strokeWidth="1"
+                  />
+                )}
+                {/* Main dot */}
+                <circle
+                  cx={region.mapX} cy={region.mapY}
+                  r={selected ? 5.5 : 4}
+                  fill={selected ? "#b8e870" : "#7ab85a"}
+                  stroke={selected ? "rgba(255,255,255,.9)" : "rgba(255,255,255,.6)"}
+                  strokeWidth={selected ? 1.8 : 1.2}
+                  filter={selected ? "url(#markerGlowSelected)" : "url(#markerGlow)"}
+                />
+                {/* Inner highlight */}
+                <circle
+                  cx={region.mapX - 1} cy={region.mapY - 1}
+                  r={selected ? 1.5 : 1}
+                  fill="rgba(255,255,255,.55)"
+                  style={{ pointerEvents: "none" }}
+                />
+                {/* Label */}
+                <text
+                  x={region.mapX + 15} y={region.mapY - 9}
+                  fontSize="8.5"
+                  fontWeight={selected ? "700" : "500"}
+                  fill={selected ? "rgba(220,255,180,.95)" : "rgba(200,230,170,.75)"}
+                  style={{ pointerEvents: "none", fontFamily: "system-ui, sans-serif" }}
+                >
                   {region.name}
                 </text>
               </g>
