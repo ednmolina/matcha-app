@@ -252,7 +252,18 @@ function Bar({ label, value, color }) {
   );
 }
 
+function extractPriceValue(price) {
+  if (!price) return null;
+  const match = price.match(/\$([\d.]+)/);
+  return match ? Number(match[1]) : null;
+}
+
 function ComparePanel({ teas, onRemove, onClear }) {
+  const topRatedId = teas.reduce(
+    (best, tea) => (!best || tea.rating > best.rating ? tea : best),
+    null
+  )?.id;
+
   if (!teas.length) {
     return (
       <section
@@ -294,15 +305,12 @@ function ComparePanel({ teas, onRemove, onClear }) {
       }}
     >
       <div style={{ display: "flex", gap: 12, alignItems: "center", justifyContent: "space-between", flexWrap: "wrap" }}>
-          <div>
-            <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", fontWeight: 700, color: "#cdbb98" }}>
-              Compare Tray
-            </div>
-          <div style={{ marginTop: 4, fontSize: 15, fontWeight: 700 }}>
-            {teas.length} tea{teas.length > 1 ? "s" : ""} selected
+        <div>
+          <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", fontWeight: 700, color: "#cdbb98" }}>
+            Compare Tray
           </div>
-          <div style={{ marginTop: 3, fontSize: 11, color: "#e2d5bc" }}>
-            Swipe sideways on mobile to compare flavor profile, price, and rating.
+          <div style={{ marginTop: 2, fontSize: 13, fontWeight: 700 }}>
+            {teas.length} tea{teas.length > 1 ? "s" : ""} selected
           </div>
         </div>
         <button
@@ -382,20 +390,23 @@ function ComparePanel({ teas, onRemove, onClear }) {
               <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 999, background: "#e7d8bc", color: "#5a4529" }}>
                 {tea.sub}
               </span>
-              <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 999, background: "#efe5d2", color: "#705b3d" }}>
-                {tea.category}
-              </span>
+              {tea.id === topRatedId && (
+                <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 999, background: "#d9c36f", color: "#4d3b10", fontWeight: 700 }}>
+                  Top Rated
+                </span>
+              )}
             </div>
 
-            <div style={{ marginTop: 10, display: "flex", justifyContent: "space-between", gap: 10, alignItems: "flex-start" }}>
+            <div style={{ marginTop: 10, display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center" }}>
               <div>
                 <Stars r={tea.rating} />
-                <div style={{ marginTop: 4, fontSize: 11, color: "#6d5c40", fontWeight: 600 }}>{tea.price}</div>
+                {tea.price && <div style={{ marginTop: 3, fontSize: 10, color: "#6d5c40", fontWeight: 600 }}>{tea.price}</div>}
               </div>
-              <div style={{ textAlign: "right", fontSize: 11, color: "#5c4a33" }}>
-                <div style={{ fontWeight: 700 }}>{tea.grade}</div>
-                <div style={{ marginTop: 2, color: "#806f55" }}>{tea.sizes.join(" · ")}</div>
-              </div>
+              {extractPriceValue(tea.price) !== null && (
+                <div style={{ textAlign: "right", fontSize: 10, color: "#7d6b51", fontWeight: 600 }}>
+                  ${extractPriceValue(tea.price).toFixed(0)}
+                </div>
+              )}
             </div>
 
             <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid #dfcfb1" }}>
@@ -407,39 +418,34 @@ function ComparePanel({ teas, onRemove, onClear }) {
               ))}
             </div>
 
-            <div style={{ marginTop: 12 }}>
-              <div style={{ fontSize: 10, color: "#8a7a5a", marginBottom: 6, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>
-                Flavor Notes
-              </div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
-                {tea.tags.map((tag) => (
-                  <span
-                    key={`${tea.id}-${tag}`}
-                    style={{
-                      fontSize: 10,
-                      padding: "3px 8px",
-                      borderRadius: 999,
-                      background: "#efe6d5",
-                      color: "#5c4930",
-                      border: "1px solid #dbcab0",
-                    }}
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
+            <div style={{ marginTop: 10, display: "flex", flexWrap: "wrap", gap: 5 }}>
+              {tea.tags.slice(0, 3).map((tag) => (
+                <span
+                  key={`${tea.id}-${tag}`}
+                  style={{
+                    fontSize: 10,
+                    padding: "3px 8px",
+                    borderRadius: 999,
+                    background: "#efe6d5",
+                    color: "#5c4930",
+                    border: "1px solid #dbcab0",
+                  }}
+                >
+                  {tag}
+                </span>
+              ))}
             </div>
 
             <p
               className="compare-description"
               style={{
-                margin: "12px 0 0",
+                margin: "10px 0 0",
                 fontSize: 11,
                 lineHeight: 1.45,
                 color: "#4a3a28",
                 fontFamily: "'EB Garamond','Cormorant Garamond',serif",
                 display: "-webkit-box",
-                WebkitLineClamp: 4,
+                WebkitLineClamp: 3,
                 WebkitBoxOrient: "vertical",
                 overflow: "hidden",
               }}
@@ -688,15 +694,12 @@ function CultivarComparePanel({ cultivars, onRemove, onClear }) {
       }}
     >
       <div style={{ display: "flex", gap: 12, alignItems: "center", justifyContent: "space-between", flexWrap: "wrap" }}>
-          <div>
-            <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", fontWeight: 700, color: "#c9dab9" }}>
-              Cultivar Compare
-            </div>
-          <div style={{ marginTop: 4, fontSize: 15, fontWeight: 700 }}>
-            {cultivars.length} cultivar{cultivars.length > 1 ? "s" : ""} selected
+        <div>
+          <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", fontWeight: 700, color: "#c9dab9" }}>
+            Cultivar Compare
           </div>
-          <div style={{ marginTop: 3, fontSize: 11, color: "#dfead4" }}>
-            Swipe sideways on mobile to compare flavor traits and best-use differences.
+          <div style={{ marginTop: 2, fontSize: 13, fontWeight: 700 }}>
+            {cultivars.length} cultivar{cultivars.length > 1 ? "s" : ""} selected
           </div>
         </div>
         <button
@@ -782,39 +785,34 @@ function CultivarComparePanel({ cultivars, onRemove, onClear }) {
               ))}
             </div>
 
-            <div style={{ marginTop: 12 }}>
-              <div style={{ fontSize: 10, color: "#768461", marginBottom: 6, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>
-                Signature Traits
-              </div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
-                {cultivar.tags.map((tag) => (
-                  <span
-                    key={`${cultivar.id}-${tag}`}
-                    style={{
-                      fontSize: 10,
-                      padding: "3px 8px",
-                      borderRadius: 999,
-                      background: "#e6eed9",
-                      color: "#4a5934",
-                      border: "1px solid #cedabf",
-                    }}
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
+            <div style={{ marginTop: 10, display: "flex", flexWrap: "wrap", gap: 5 }}>
+              {cultivar.tags.slice(0, 3).map((tag) => (
+                <span
+                  key={`${cultivar.id}-${tag}`}
+                  style={{
+                    fontSize: 10,
+                    padding: "3px 8px",
+                    borderRadius: 999,
+                    background: "#e6eed9",
+                    color: "#4a5934",
+                    border: "1px solid #cedabf",
+                  }}
+                >
+                  {tag}
+                </span>
+              ))}
             </div>
 
             <p
               className="compare-description"
               style={{
-                margin: "12px 0 0",
+                margin: "10px 0 0",
                 fontSize: 11,
                 lineHeight: 1.45,
                 color: "#3d472d",
                 fontFamily: "'EB Garamond','Cormorant Garamond',serif",
                 display: "-webkit-box",
-                WebkitLineClamp: 4,
+                WebkitLineClamp: 3,
                 WebkitBoxOrient: "vertical",
                 overflow: "hidden",
               }}
@@ -1064,7 +1062,7 @@ export default function App() {
         fontFamily: "'Cormorant Garamond',Georgia,serif",
       }}
     >
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=EB+Garamond:ital@0;1&display=swap');@keyframes fadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}*{box-sizing:border-box}input:focus,select:focus,button:focus{outline:2px solid #b8a070;outline-offset:2px}button{font-family:inherit}::-webkit-scrollbar{height:10px;width:10px}::-webkit-scrollbar-thumb{background:#b6a27c;border-radius:999px}::-webkit-scrollbar-track{background:rgba(255,255,255,.28)}@media (max-width: 480px){.compare-panel{padding:10px 10px 12px!important;border-radius:16px!important;top:6px!important}.compare-scroll{gap:8px!important;padding-top:10px!important}.compare-card{flex-basis:200px!important;min-width:200px!important;padding:10px 10px 12px!important}.compare-description{-webkit-line-clamp:3!important}}`}</style>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=EB+Garamond:ital@0;1&display=swap');@keyframes fadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}*{box-sizing:border-box}input:focus,select:focus,button:focus{outline:2px solid #b8a070;outline-offset:2px}button{font-family:inherit}::-webkit-scrollbar{height:10px;width:10px}::-webkit-scrollbar-thumb{background:#b6a27c;border-radius:999px}::-webkit-scrollbar-track{background:rgba(255,255,255,.28)}@media (max-width: 480px){.compare-panel{padding:8px 8px 10px!important;border-radius:14px!important;top:4px!important}.compare-scroll{gap:8px!important;padding-top:8px!important}.compare-card{flex-basis:192px!important;min-width:192px!important;padding:9px 9px 10px!important}.compare-description{-webkit-line-clamp:2!important}}`}</style>
       <div style={{ maxWidth: 1180, margin: "0 auto", padding: "0 12px 40px 12px" }}>
         <div style={{ textAlign: "center", padding: "28px 0 16px 0" }}>
           <div style={{ fontSize: 11, letterSpacing: 4, color: "#8a7a5a", textTransform: "uppercase", fontWeight: 600 }}>
