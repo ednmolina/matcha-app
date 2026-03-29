@@ -211,6 +211,10 @@ function normalizeText(value = "") {
     .replace(/[\u0300-\u036f]/g, "");
 }
 
+function prefersCompactCompare() {
+  return typeof window !== "undefined" && window.matchMedia("(max-width: 480px)").matches;
+}
+
 function Stars({ r }) {
   const rounded = Math.round(r);
   const empty = 5 - rounded;
@@ -259,6 +263,7 @@ function extractPriceValue(price) {
 }
 
 function ComparePanel({ teas, onRemove, onClear }) {
+  const [collapsed, setCollapsed] = useState(prefersCompactCompare);
   const topRatedId = teas.reduce(
     (best, tea) => (!best || tea.rating > best.rating ? tea : best),
     null
@@ -313,148 +318,170 @@ function ComparePanel({ teas, onRemove, onClear }) {
             {teas.length} tea{teas.length > 1 ? "s" : ""} selected
           </div>
         </div>
-        <button
-          type="button"
-          onClick={onClear}
-          style={{
-            border: "1px solid rgba(245,238,216,.4)",
-            background: "rgba(245,238,216,.08)",
-            color: "#f5eed8",
-            borderRadius: 999,
-            padding: "7px 12px",
-            fontSize: 10,
-            fontWeight: 700,
-            letterSpacing: 1,
-            textTransform: "uppercase",
-            cursor: "pointer",
-          }}
-        >
-          Clear Compare
-        </button>
-      </div>
-
-      <div className="compare-scroll" style={{ display: "flex", gap: 10, overflowX: "auto", paddingTop: 12, paddingBottom: 2 }}>
-        {teas.map((tea) => (
-          <article
-            key={tea.id}
-            className="compare-card"
+        <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap", marginLeft: "auto" }}>
+          <button
+            type="button"
+            onClick={() => setCollapsed((value) => !value)}
             style={{
-              flex: "0 0 228px",
-              minWidth: 228,
-              borderRadius: 16,
-              background: "#f8f1e1",
-              color: "#3f301f",
-              padding: "12px 12px 14px",
-              border: "1px solid #d7c7a7",
-              boxShadow: "0 6px 18px rgba(31,22,12,.12)",
+              border: "1px solid rgba(245,238,216,.4)",
+              background: "rgba(245,238,216,.08)",
+              color: "#f5eed8",
+              borderRadius: 999,
+              padding: "7px 12px",
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: 1,
+              textTransform: "uppercase",
+              cursor: "pointer",
             }}
           >
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "flex-start" }}>
-              <div>
-                <h3 style={{ margin: 0, fontSize: 18, lineHeight: 1.05, fontWeight: 700, color: "#2e2012" }}>{tea.name}</h3>
-                <div style={{ marginTop: 3, fontSize: 12, color: "#7e6d4d" }}>{tea.kanji}</div>
-              </div>
-              <button
-                type="button"
-                onClick={() => onRemove(tea.id)}
-                aria-label={`Remove ${tea.name} from compare`}
-                style={{
-                  border: "none",
-                  background: "#eadcc1",
-                  color: "#684d29",
-                  borderRadius: 999,
-                  width: 24,
-                  height: 24,
-                  fontSize: 14,
-                  cursor: "pointer",
-                  lineHeight: 1,
-                }}
-              >
-                ×
-              </button>
-            </div>
+            {collapsed ? "Show" : "Hide"}
+          </button>
+          <button
+            type="button"
+            onClick={onClear}
+            style={{
+              border: "1px solid rgba(245,238,216,.4)",
+              background: "rgba(245,238,216,.08)",
+              color: "#f5eed8",
+              borderRadius: 999,
+              padding: "7px 12px",
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: 1,
+              textTransform: "uppercase",
+              cursor: "pointer",
+            }}
+          >
+            Clear
+          </button>
+        </div>
+      </div>
 
-            <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
-              <span
-                style={{
-                  fontSize: 10,
-                  padding: "2px 8px",
-                  borderRadius: 999,
-                  background: tea.producer === "Yamamasa Koyamaen" ? "#2d4a2d" : "#4a2d2d",
-                  color: "#f5eed8",
-                  fontWeight: 600,
-                }}
-              >
-                {tea.producer === "Yamamasa Koyamaen" ? "山政" : "丸久"}
-              </span>
-              <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 999, background: "#e7d8bc", color: "#5a4529" }}>
-                {tea.sub}
-              </span>
-              {tea.id === topRatedId && (
-                <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 999, background: "#d9c36f", color: "#4d3b10", fontWeight: 700 }}>
-                  Top Rated
-                </span>
-              )}
-            </div>
-
-            <div style={{ marginTop: 10, display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center" }}>
-              <div>
-                <Stars r={tea.rating} />
-                {tea.price && <div style={{ marginTop: 3, fontSize: 10, color: "#6d5c40", fontWeight: 600 }}>{tea.price}</div>}
-              </div>
-              {extractPriceValue(tea.price) !== null && (
-                <div style={{ textAlign: "right", fontSize: 10, color: "#7d6b51", fontWeight: 600 }}>
-                  ${extractPriceValue(tea.price).toFixed(0)}
-                </div>
-              )}
-            </div>
-
-            <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid #dfcfb1" }}>
-              <div style={{ fontSize: 10, color: "#8a7a5a", marginBottom: 6, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>
-                Taste Profile
-              </div>
-              {PROFILE_ROWS.map(([label, key, color]) => (
-                <Bar key={key} label={label} value={tea.notes[key]} color={color} />
-              ))}
-            </div>
-
-            <div style={{ marginTop: 10, display: "flex", flexWrap: "wrap", gap: 5 }}>
-              {tea.tags.slice(0, 3).map((tag) => (
-                <span
-                  key={`${tea.id}-${tag}`}
-                  style={{
-                    fontSize: 10,
-                    padding: "3px 8px",
-                    borderRadius: 999,
-                    background: "#efe6d5",
-                    color: "#5c4930",
-                    border: "1px solid #dbcab0",
-                  }}
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-
-            <p
-              className="compare-description"
+      {!collapsed && (
+        <div className="compare-scroll" style={{ display: "flex", gap: 10, overflowX: "auto", paddingTop: 12, paddingBottom: 2 }}>
+          {teas.map((tea) => (
+            <article
+              key={tea.id}
+              className="compare-card"
               style={{
-                margin: "10px 0 0",
-                fontSize: 11,
-                lineHeight: 1.45,
-                color: "#4a3a28",
-                fontFamily: "'EB Garamond','Cormorant Garamond',serif",
-                display: "-webkit-box",
-                WebkitLineClamp: 3,
-                WebkitBoxOrient: "vertical",
-                overflow: "hidden",
+                flex: "0 0 228px",
+                minWidth: 228,
+                borderRadius: 16,
+                background: "#f8f1e1",
+                color: "#3f301f",
+                padding: "12px 12px 14px",
+                border: "1px solid #d7c7a7",
+                boxShadow: "0 6px 18px rgba(31,22,12,.12)",
               }}
             >
-              {tea.desc}
-            </p>
-          </article>
-        ))}
-      </div>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "flex-start" }}>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: 18, lineHeight: 1.05, fontWeight: 700, color: "#2e2012" }}>{tea.name}</h3>
+                  <div style={{ marginTop: 3, fontSize: 12, color: "#7e6d4d" }}>{tea.kanji}</div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => onRemove(tea.id)}
+                  aria-label={`Remove ${tea.name} from compare`}
+                  style={{
+                    border: "none",
+                    background: "#eadcc1",
+                    color: "#684d29",
+                    borderRadius: 999,
+                    width: 24,
+                    height: 24,
+                    fontSize: 14,
+                    cursor: "pointer",
+                    lineHeight: 1,
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+
+              <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
+                <span
+                  style={{
+                    fontSize: 10,
+                    padding: "2px 8px",
+                    borderRadius: 999,
+                    background: tea.producer === "Yamamasa Koyamaen" ? "#2d4a2d" : "#4a2d2d",
+                    color: "#f5eed8",
+                    fontWeight: 600,
+                  }}
+                >
+                  {tea.producer === "Yamamasa Koyamaen" ? "山政" : "丸久"}
+                </span>
+                <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 999, background: "#e7d8bc", color: "#5a4529" }}>
+                  {tea.sub}
+                </span>
+                {tea.id === topRatedId && (
+                  <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 999, background: "#d9c36f", color: "#4d3b10", fontWeight: 700 }}>
+                    Top Rated
+                  </span>
+                )}
+              </div>
+
+              <div style={{ marginTop: 10, display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center" }}>
+                <div>
+                  <Stars r={tea.rating} />
+                  {tea.price && <div style={{ marginTop: 3, fontSize: 10, color: "#6d5c40", fontWeight: 600 }}>{tea.price}</div>}
+                </div>
+                {extractPriceValue(tea.price) !== null && (
+                  <div style={{ textAlign: "right", fontSize: 10, color: "#7d6b51", fontWeight: 600 }}>
+                    ${extractPriceValue(tea.price).toFixed(0)}
+                  </div>
+                )}
+              </div>
+
+              <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid #dfcfb1" }}>
+                <div style={{ fontSize: 10, color: "#8a7a5a", marginBottom: 6, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>
+                  Taste Profile
+                </div>
+                {PROFILE_ROWS.map(([label, key, color]) => (
+                  <Bar key={key} label={label} value={tea.notes[key]} color={color} />
+                ))}
+              </div>
+
+              <div style={{ marginTop: 10, display: "flex", flexWrap: "wrap", gap: 5 }}>
+                {tea.tags.slice(0, 3).map((tag) => (
+                  <span
+                    key={`${tea.id}-${tag}`}
+                    style={{
+                      fontSize: 10,
+                      padding: "3px 8px",
+                      borderRadius: 999,
+                      background: "#efe6d5",
+                      color: "#5c4930",
+                      border: "1px solid #dbcab0",
+                    }}
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+
+              <p
+                className="compare-description"
+                style={{
+                  margin: "10px 0 0",
+                  fontSize: 11,
+                  lineHeight: 1.45,
+                  color: "#4a3a28",
+                  fontFamily: "'EB Garamond','Cormorant Garamond',serif",
+                  display: "-webkit-box",
+                  WebkitLineClamp: 3,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
+                }}
+              >
+                {tea.desc}
+              </p>
+            </article>
+          ))}
+        </div>
+      )}
     </section>
   );
 }
@@ -653,6 +680,7 @@ function Card({ tea, expanded, onToggle, compared, onCompareToggle }) {
 }
 
 function CultivarComparePanel({ cultivars, onRemove, onClear }) {
+  const [collapsed, setCollapsed] = useState(prefersCompactCompare);
   if (!cultivars.length) {
     return (
       <section
@@ -702,126 +730,148 @@ function CultivarComparePanel({ cultivars, onRemove, onClear }) {
             {cultivars.length} cultivar{cultivars.length > 1 ? "s" : ""} selected
           </div>
         </div>
-        <button
-          type="button"
-          onClick={onClear}
-          style={{
-            border: "1px solid rgba(238,243,231,.35)",
-            background: "rgba(238,243,231,.08)",
-            color: "#eef3e7",
-            borderRadius: 999,
-            padding: "7px 12px",
-            fontSize: 10,
-            fontWeight: 700,
-            letterSpacing: 1,
-            textTransform: "uppercase",
-            cursor: "pointer",
-          }}
-        >
-          Clear Compare
-        </button>
-      </div>
-
-      <div className="compare-scroll" style={{ display: "flex", gap: 10, overflowX: "auto", paddingTop: 12, paddingBottom: 2 }}>
-        {cultivars.map((cultivar) => (
-          <article
-            key={cultivar.id}
-            className="compare-card"
+        <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap", marginLeft: "auto" }}>
+          <button
+            type="button"
+            onClick={() => setCollapsed((value) => !value)}
             style={{
-              flex: "0 0 232px",
-              minWidth: 232,
-              borderRadius: 16,
-              background: "#f0f5e8",
-              color: "#2d321f",
-              padding: "12px 12px 14px",
-              border: "1px solid #c9d8b7",
-              boxShadow: "0 6px 18px rgba(31,22,12,.12)",
+              border: "1px solid rgba(238,243,231,.35)",
+              background: "rgba(238,243,231,.08)",
+              color: "#eef3e7",
+              borderRadius: 999,
+              padding: "7px 12px",
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: 1,
+              textTransform: "uppercase",
+              cursor: "pointer",
             }}
           >
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "flex-start" }}>
-              <div>
-                <h3 style={{ margin: 0, fontSize: 18, lineHeight: 1.05, fontWeight: 700, color: "#29301d" }}>{cultivar.name}</h3>
-                <div style={{ marginTop: 3, fontSize: 12, color: "#6b7854" }}>{cultivar.kanji}</div>
-              </div>
-              <button
-                type="button"
-                onClick={() => onRemove(cultivar.id)}
-                aria-label={`Remove ${cultivar.name} from compare`}
-                style={{
-                  border: "none",
-                  background: "#d9e5c8",
-                  color: "#4a5b31",
-                  borderRadius: 999,
-                  width: 24,
-                  height: 24,
-                  fontSize: 14,
-                  cursor: "pointer",
-                  lineHeight: 1,
-                }}
-              >
-                ×
-              </button>
-            </div>
+            {collapsed ? "Show" : "Hide"}
+          </button>
+          <button
+            type="button"
+            onClick={onClear}
+            style={{
+              border: "1px solid rgba(238,243,231,.35)",
+              background: "rgba(238,243,231,.08)",
+              color: "#eef3e7",
+              borderRadius: 999,
+              padding: "7px 12px",
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: 1,
+              textTransform: "uppercase",
+              cursor: "pointer",
+            }}
+          >
+            Clear
+          </button>
+        </div>
+      </div>
 
-            <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
-              <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 999, background: "#406237", color: "#eef3e7", fontWeight: 600 }}>
-                {cultivar.origin}
-              </span>
-              <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 999, background: "#dee8cf", color: "#4b5837" }}>
-                {cultivar.style}
-              </span>
-            </div>
-
-            <div style={{ marginTop: 10, fontSize: 11, color: "#52623d", lineHeight: 1.45 }}>
-              <strong>Best For:</strong> {cultivar.bestFor}
-            </div>
-
-            <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid #d7e1c8" }}>
-              <div style={{ fontSize: 10, color: "#768461", marginBottom: 6, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>
-                Cultivar Profile
-              </div>
-              {CULTIVAR_PROFILE_ROWS.map(([label, key, color]) => (
-                <Bar key={key} label={label} value={cultivar.notes[key]} color={color} />
-              ))}
-            </div>
-
-            <div style={{ marginTop: 10, display: "flex", flexWrap: "wrap", gap: 5 }}>
-              {cultivar.tags.slice(0, 3).map((tag) => (
-                <span
-                  key={`${cultivar.id}-${tag}`}
-                  style={{
-                    fontSize: 10,
-                    padding: "3px 8px",
-                    borderRadius: 999,
-                    background: "#e6eed9",
-                    color: "#4a5934",
-                    border: "1px solid #cedabf",
-                  }}
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-
-            <p
-              className="compare-description"
+      {!collapsed && (
+        <div className="compare-scroll" style={{ display: "flex", gap: 10, overflowX: "auto", paddingTop: 12, paddingBottom: 2 }}>
+          {cultivars.map((cultivar) => (
+            <article
+              key={cultivar.id}
+              className="compare-card"
               style={{
-                margin: "10px 0 0",
-                fontSize: 11,
-                lineHeight: 1.45,
-                color: "#3d472d",
-                fontFamily: "'EB Garamond','Cormorant Garamond',serif",
-                display: "-webkit-box",
-                WebkitLineClamp: 3,
-                WebkitBoxOrient: "vertical",
-                overflow: "hidden",
+                flex: "0 0 232px",
+                minWidth: 232,
+                borderRadius: 16,
+                background: "#f0f5e8",
+                color: "#2d321f",
+                padding: "12px 12px 14px",
+                border: "1px solid #c9d8b7",
+                boxShadow: "0 6px 18px rgba(31,22,12,.12)",
               }}
             >
-              {cultivar.desc}
-            </p>
-          </article>
-        ))}
-      </div>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "flex-start" }}>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: 18, lineHeight: 1.05, fontWeight: 700, color: "#29301d" }}>{cultivar.name}</h3>
+                  <div style={{ marginTop: 3, fontSize: 12, color: "#6b7854" }}>{cultivar.kanji}</div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => onRemove(cultivar.id)}
+                  aria-label={`Remove ${cultivar.name} from compare`}
+                  style={{
+                    border: "none",
+                    background: "#d9e5c8",
+                    color: "#4a5b31",
+                    borderRadius: 999,
+                    width: 24,
+                    height: 24,
+                    fontSize: 14,
+                    cursor: "pointer",
+                    lineHeight: 1,
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+
+              <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 999, background: "#406237", color: "#eef3e7", fontWeight: 600 }}>
+                  {cultivar.origin}
+                </span>
+                <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 999, background: "#dee8cf", color: "#4b5837" }}>
+                  {cultivar.style}
+                </span>
+              </div>
+
+              <div style={{ marginTop: 10, fontSize: 11, color: "#52623d", lineHeight: 1.45 }}>
+                <strong>Best For:</strong> {cultivar.bestFor}
+              </div>
+
+              <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid #d7e1c8" }}>
+                <div style={{ fontSize: 10, color: "#768461", marginBottom: 6, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>
+                  Cultivar Profile
+                </div>
+                {CULTIVAR_PROFILE_ROWS.map(([label, key, color]) => (
+                  <Bar key={key} label={label} value={cultivar.notes[key]} color={color} />
+                ))}
+              </div>
+
+              <div style={{ marginTop: 10, display: "flex", flexWrap: "wrap", gap: 5 }}>
+                {cultivar.tags.slice(0, 3).map((tag) => (
+                  <span
+                    key={`${cultivar.id}-${tag}`}
+                    style={{
+                      fontSize: 10,
+                      padding: "3px 8px",
+                      borderRadius: 999,
+                      background: "#e6eed9",
+                      color: "#4a5934",
+                      border: "1px solid #cedabf",
+                    }}
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+
+              <p
+                className="compare-description"
+                style={{
+                  margin: "10px 0 0",
+                  fontSize: 11,
+                  lineHeight: 1.45,
+                  color: "#3d472d",
+                  fontFamily: "'EB Garamond','Cormorant Garamond',serif",
+                  display: "-webkit-box",
+                  WebkitLineClamp: 3,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
+                }}
+              >
+                {cultivar.desc}
+              </p>
+            </article>
+          ))}
+        </div>
+      )}
     </section>
   );
 }
