@@ -1945,12 +1945,6 @@ export default function App() {
               onClear={() => setRegionCompareIds([])}
             />
 
-            <JapanRegionMap
-              regions={MATCHA_REGIONS}
-              selectedIds={regionCompareIds}
-              onSelect={(id) => setRegionOpen(id)}
-            />
-
             <div
               style={{
                 marginBottom: 16,
@@ -2027,6 +2021,12 @@ export default function App() {
                 No regions match your search.
               </div>
             )}
+
+            <JapanRegionMap
+              regions={MATCHA_REGIONS}
+              selectedIds={regionCompareIds}
+              onSelect={(id) => setRegionOpen(id)}
+            />
           </>
         )}
 
