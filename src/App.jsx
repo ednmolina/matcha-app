@@ -556,6 +556,7 @@ export default function App() {
     items.sort((a, b) => {
       if (a.status === "active" && b.status === "limited") return -1;
       if (a.status === "limited" && b.status === "active") return 1;
+      if (sort === "alpha") return a.name.localeCompare(b.name);
       if (sort === "rating") return b.rating - a.rating;
       if (sort === "umami") return b.notes.umami - a.notes.umami;
       return 0;
@@ -704,6 +705,7 @@ export default function App() {
                 cursor: "pointer",
               }}
             >
+              <option value="alpha">A-Z</option>
               <option value="grade">Active first</option>
               <option value="rating">Highest Rating</option>
               <option value="umami">Most Umami</option>
