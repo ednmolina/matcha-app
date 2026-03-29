@@ -264,6 +264,7 @@ function extractPriceValue(price) {
 
 function ComparePanel({ teas, onRemove, onClear }) {
   const [collapsed, setCollapsed] = useState(prefersCompactCompare);
+  const [expandedDescriptions, setExpandedDescriptions] = useState({});
   const topRatedId = teas.reduce(
     (best, tea) => (!best || tea.rating > best.rating ? tea : best),
     null
@@ -470,14 +471,37 @@ function ComparePanel({ teas, onRemove, onClear }) {
                   lineHeight: 1.45,
                   color: "#4a3a28",
                   fontFamily: "'EB Garamond','Cormorant Garamond',serif",
-                  display: "-webkit-box",
-                  WebkitLineClamp: 3,
-                  WebkitBoxOrient: "vertical",
-                  overflow: "hidden",
+                  display: expandedDescriptions[tea.id] ? "block" : "-webkit-box",
+                  WebkitLineClamp: expandedDescriptions[tea.id] ? "unset" : 3,
+                  WebkitBoxOrient: expandedDescriptions[tea.id] ? "initial" : "vertical",
+                  overflow: expandedDescriptions[tea.id] ? "visible" : "hidden",
                 }}
               >
                 {tea.desc}
               </p>
+              <button
+                type="button"
+                onClick={() =>
+                  setExpandedDescriptions((current) => ({
+                    ...current,
+                    [tea.id]: !current[tea.id],
+                  }))
+                }
+                style={{
+                  marginTop: 6,
+                  border: "none",
+                  background: "transparent",
+                  color: "#7c5c23",
+                  padding: 0,
+                  fontSize: 10,
+                  fontWeight: 700,
+                  letterSpacing: 0.6,
+                  textTransform: "uppercase",
+                  cursor: "pointer",
+                }}
+              >
+                {expandedDescriptions[tea.id] ? "Show Less" : "Show More"}
+              </button>
             </article>
           ))}
         </div>
@@ -1006,7 +1030,7 @@ export default function App() {
   const [prod, setProd] = useState("All");
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(null);
-  const [sort, setSort] = useState("grade");
+  const [sort, setSort] = useState("rating");
   const [compareIds, setCompareIds] = useState([]);
   const [cultivarQ, setCultivarQ] = useState("");
   const [cultivarSort, setCultivarSort] = useState("alpha");
@@ -1035,8 +1059,10 @@ export default function App() {
     });
 
     items.sort((a, b) => {
-      if (a.status === "active" && b.status === "limited") return -1;
-      if (a.status === "limited" && b.status === "active") return 1;
+      if (sort === "grade") {
+        if (a.status === "active" && b.status === "limited") return -1;
+        if (a.status === "limited" && b.status === "active") return 1;
+      }
       if (sort === "alpha") return a.name.localeCompare(b.name);
       if (sort === "rating") return b.rating - a.rating;
       if (sort === "umami") return b.notes.umami - a.notes.umami;
