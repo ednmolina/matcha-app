@@ -277,30 +277,31 @@ function ComparePanel({ teas, onRemove, onClear }) {
   }
 
   return (
-    <section
-      style={{
-        position: "sticky",
-        top: 10,
-        zIndex: 5,
-        marginBottom: 18,
-        padding: "14px 14px 16px",
-        borderRadius: 20,
-        background: "linear-gradient(140deg,rgba(74,57,33,.96),rgba(50,39,25,.96))",
-        color: "#f5eed8",
-        boxShadow: "0 14px 36px rgba(48,34,18,.2)",
+      <section
+        className="compare-panel"
+        style={{
+          position: "sticky",
+          top: 8,
+          zIndex: 5,
+          marginBottom: 18,
+          padding: "12px 12px 14px",
+          borderRadius: 18,
+          background: "linear-gradient(140deg,rgba(74,57,33,.96),rgba(50,39,25,.96))",
+          color: "#f5eed8",
+          boxShadow: "0 14px 36px rgba(48,34,18,.2)",
         border: "1px solid rgba(212,196,165,.35)",
         backdropFilter: "blur(10px)",
       }}
     >
       <div style={{ display: "flex", gap: 12, alignItems: "center", justifyContent: "space-between", flexWrap: "wrap" }}>
-        <div>
-          <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", fontWeight: 700, color: "#cdbb98" }}>
-            Compare Tray
-          </div>
-          <div style={{ marginTop: 4, fontSize: 16, fontWeight: 700 }}>
+          <div>
+            <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", fontWeight: 700, color: "#cdbb98" }}>
+              Compare Tray
+            </div>
+          <div style={{ marginTop: 4, fontSize: 15, fontWeight: 700 }}>
             {teas.length} tea{teas.length > 1 ? "s" : ""} selected
           </div>
-          <div style={{ marginTop: 3, fontSize: 12, color: "#e2d5bc" }}>
+          <div style={{ marginTop: 3, fontSize: 11, color: "#e2d5bc" }}>
             Swipe sideways on mobile to compare flavor profile, price, and rating.
           </div>
         </div>
@@ -312,8 +313,8 @@ function ComparePanel({ teas, onRemove, onClear }) {
             background: "rgba(245,238,216,.08)",
             color: "#f5eed8",
             borderRadius: 999,
-            padding: "8px 14px",
-            fontSize: 11,
+            padding: "7px 12px",
+            fontSize: 10,
             fontWeight: 700,
             letterSpacing: 1,
             textTransform: "uppercase",
@@ -324,25 +325,26 @@ function ComparePanel({ teas, onRemove, onClear }) {
         </button>
       </div>
 
-      <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingTop: 14, paddingBottom: 2 }}>
+      <div className="compare-scroll" style={{ display: "flex", gap: 10, overflowX: "auto", paddingTop: 12, paddingBottom: 2 }}>
         {teas.map((tea) => (
           <article
             key={tea.id}
+            className="compare-card"
             style={{
-              flex: "0 0 255px",
-              minWidth: 255,
-              borderRadius: 18,
+              flex: "0 0 228px",
+              minWidth: 228,
+              borderRadius: 16,
               background: "#f8f1e1",
               color: "#3f301f",
-              padding: "14px 14px 16px",
+              padding: "12px 12px 14px",
               border: "1px solid #d7c7a7",
               boxShadow: "0 6px 18px rgba(31,22,12,.12)",
             }}
           >
             <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "flex-start" }}>
               <div>
-                <h3 style={{ margin: 0, fontSize: 20, lineHeight: 1.05, fontWeight: 700, color: "#2e2012" }}>{tea.name}</h3>
-                <div style={{ marginTop: 3, fontSize: 13, color: "#7e6d4d" }}>{tea.kanji}</div>
+                <h3 style={{ margin: 0, fontSize: 18, lineHeight: 1.05, fontWeight: 700, color: "#2e2012" }}>{tea.name}</h3>
+                <div style={{ marginTop: 3, fontSize: 12, color: "#7e6d4d" }}>{tea.kanji}</div>
               </div>
               <button
                 type="button"
@@ -353,9 +355,9 @@ function ComparePanel({ teas, onRemove, onClear }) {
                   background: "#eadcc1",
                   color: "#684d29",
                   borderRadius: 999,
-                  width: 28,
-                  height: 28,
-                  fontSize: 16,
+                  width: 24,
+                  height: 24,
+                  fontSize: 14,
                   cursor: "pointer",
                   lineHeight: 1,
                 }}
@@ -385,7 +387,7 @@ function ComparePanel({ teas, onRemove, onClear }) {
               </span>
             </div>
 
-            <div style={{ marginTop: 10, display: "flex", justifyContent: "space-between", gap: 12, alignItems: "flex-start" }}>
+            <div style={{ marginTop: 10, display: "flex", justifyContent: "space-between", gap: 10, alignItems: "flex-start" }}>
               <div>
                 <Stars r={tea.rating} />
                 <div style={{ marginTop: 4, fontSize: 11, color: "#6d5c40", fontWeight: 600 }}>{tea.price}</div>
@@ -429,12 +431,17 @@ function ComparePanel({ teas, onRemove, onClear }) {
             </div>
 
             <p
+              className="compare-description"
               style={{
                 margin: "12px 0 0",
-                fontSize: 12,
-                lineHeight: 1.55,
+                fontSize: 11,
+                lineHeight: 1.45,
                 color: "#4a3a28",
                 fontFamily: "'EB Garamond','Cormorant Garamond',serif",
+                display: "-webkit-box",
+                WebkitLineClamp: 4,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
               }}
             >
               {tea.desc}
@@ -664,30 +671,31 @@ function CultivarComparePanel({ cultivars, onRemove, onClear }) {
   }
 
   return (
-    <section
-      style={{
-        position: "sticky",
-        top: 10,
-        zIndex: 5,
-        marginBottom: 18,
-        padding: "14px 14px 16px",
-        borderRadius: 20,
-        background: "linear-gradient(140deg,rgba(52,70,43,.96),rgba(37,53,31,.96))",
-        color: "#eef3e7",
-        boxShadow: "0 14px 36px rgba(30,45,22,.2)",
+      <section
+        className="compare-panel"
+        style={{
+          position: "sticky",
+          top: 8,
+          zIndex: 5,
+          marginBottom: 18,
+          padding: "12px 12px 14px",
+          borderRadius: 18,
+          background: "linear-gradient(140deg,rgba(52,70,43,.96),rgba(37,53,31,.96))",
+          color: "#eef3e7",
+          boxShadow: "0 14px 36px rgba(30,45,22,.2)",
         border: "1px solid rgba(210,226,190,.28)",
         backdropFilter: "blur(10px)",
       }}
     >
       <div style={{ display: "flex", gap: 12, alignItems: "center", justifyContent: "space-between", flexWrap: "wrap" }}>
-        <div>
-          <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", fontWeight: 700, color: "#c9dab9" }}>
-            Cultivar Compare
-          </div>
-          <div style={{ marginTop: 4, fontSize: 16, fontWeight: 700 }}>
+          <div>
+            <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", fontWeight: 700, color: "#c9dab9" }}>
+              Cultivar Compare
+            </div>
+          <div style={{ marginTop: 4, fontSize: 15, fontWeight: 700 }}>
             {cultivars.length} cultivar{cultivars.length > 1 ? "s" : ""} selected
           </div>
-          <div style={{ marginTop: 3, fontSize: 12, color: "#dfead4" }}>
+          <div style={{ marginTop: 3, fontSize: 11, color: "#dfead4" }}>
             Swipe sideways on mobile to compare flavor traits and best-use differences.
           </div>
         </div>
@@ -699,8 +707,8 @@ function CultivarComparePanel({ cultivars, onRemove, onClear }) {
             background: "rgba(238,243,231,.08)",
             color: "#eef3e7",
             borderRadius: 999,
-            padding: "8px 14px",
-            fontSize: 11,
+            padding: "7px 12px",
+            fontSize: 10,
             fontWeight: 700,
             letterSpacing: 1,
             textTransform: "uppercase",
@@ -711,25 +719,26 @@ function CultivarComparePanel({ cultivars, onRemove, onClear }) {
         </button>
       </div>
 
-      <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingTop: 14, paddingBottom: 2 }}>
+      <div className="compare-scroll" style={{ display: "flex", gap: 10, overflowX: "auto", paddingTop: 12, paddingBottom: 2 }}>
         {cultivars.map((cultivar) => (
           <article
             key={cultivar.id}
+            className="compare-card"
             style={{
-              flex: "0 0 265px",
-              minWidth: 265,
-              borderRadius: 18,
+              flex: "0 0 232px",
+              minWidth: 232,
+              borderRadius: 16,
               background: "#f0f5e8",
               color: "#2d321f",
-              padding: "14px 14px 16px",
+              padding: "12px 12px 14px",
               border: "1px solid #c9d8b7",
               boxShadow: "0 6px 18px rgba(31,22,12,.12)",
             }}
           >
             <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "flex-start" }}>
               <div>
-                <h3 style={{ margin: 0, fontSize: 20, lineHeight: 1.05, fontWeight: 700, color: "#29301d" }}>{cultivar.name}</h3>
-                <div style={{ marginTop: 3, fontSize: 13, color: "#6b7854" }}>{cultivar.kanji}</div>
+                <h3 style={{ margin: 0, fontSize: 18, lineHeight: 1.05, fontWeight: 700, color: "#29301d" }}>{cultivar.name}</h3>
+                <div style={{ marginTop: 3, fontSize: 12, color: "#6b7854" }}>{cultivar.kanji}</div>
               </div>
               <button
                 type="button"
@@ -740,9 +749,9 @@ function CultivarComparePanel({ cultivars, onRemove, onClear }) {
                   background: "#d9e5c8",
                   color: "#4a5b31",
                   borderRadius: 999,
-                  width: 28,
-                  height: 28,
-                  fontSize: 16,
+                  width: 24,
+                  height: 24,
+                  fontSize: 14,
                   cursor: "pointer",
                   lineHeight: 1,
                 }}
@@ -797,12 +806,17 @@ function CultivarComparePanel({ cultivars, onRemove, onClear }) {
             </div>
 
             <p
+              className="compare-description"
               style={{
                 margin: "12px 0 0",
-                fontSize: 12,
-                lineHeight: 1.55,
+                fontSize: 11,
+                lineHeight: 1.45,
                 color: "#3d472d",
                 fontFamily: "'EB Garamond','Cormorant Garamond',serif",
+                display: "-webkit-box",
+                WebkitLineClamp: 4,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
               }}
             >
               {cultivar.desc}
@@ -1050,7 +1064,7 @@ export default function App() {
         fontFamily: "'Cormorant Garamond',Georgia,serif",
       }}
     >
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=EB+Garamond:ital@0;1&display=swap');@keyframes fadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}*{box-sizing:border-box}input:focus,select:focus,button:focus{outline:2px solid #b8a070;outline-offset:2px}button{font-family:inherit}::-webkit-scrollbar{height:10px;width:10px}::-webkit-scrollbar-thumb{background:#b6a27c;border-radius:999px}::-webkit-scrollbar-track{background:rgba(255,255,255,.28)}`}</style>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=EB+Garamond:ital@0;1&display=swap');@keyframes fadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}*{box-sizing:border-box}input:focus,select:focus,button:focus{outline:2px solid #b8a070;outline-offset:2px}button{font-family:inherit}::-webkit-scrollbar{height:10px;width:10px}::-webkit-scrollbar-thumb{background:#b6a27c;border-radius:999px}::-webkit-scrollbar-track{background:rgba(255,255,255,.28)}@media (max-width: 480px){.compare-panel{padding:10px 10px 12px!important;border-radius:16px!important;top:6px!important}.compare-scroll{gap:8px!important;padding-top:10px!important}.compare-card{flex-basis:200px!important;min-width:200px!important;padding:10px 10px 12px!important}.compare-description{-webkit-line-clamp:3!important}}`}</style>
       <div style={{ maxWidth: 1180, margin: "0 auto", padding: "0 12px 40px 12px" }}>
         <div style={{ textAlign: "center", padding: "28px 0 16px 0" }}>
           <div style={{ fontSize: 11, letterSpacing: 4, color: "#8a7a5a", textTransform: "uppercase", fontWeight: 600 }}>
