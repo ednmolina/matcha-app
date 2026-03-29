@@ -1243,6 +1243,9 @@ function RegionComparePanel({ regions, onRemove, onClear }) {
     <section
       className="compare-panel"
       style={{
+        position: "sticky",
+        top: 0,
+        zIndex: 10,
         marginBottom: 18,
         padding: "12px 12px 14px",
         borderRadius: 18,
