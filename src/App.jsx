@@ -1,4 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { MapContainer, TileLayer, CircleMarker, Tooltip } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
 
 const TEAS = [
   // ===== YAMAMASA KOYAMAEN — CEREMONIAL =====
@@ -211,21 +213,21 @@ const CULTIVARS = [
   },
 ];
 const MATCHA_REGIONS = [
-  { id: "rg01", name: "Kyoto", subregion: "Uji Area", kanji: "京都・宇治", production: 1068, style: "Historic ceremonial benchmark", notes: { umami: 5, sweet: 5, bitter: 1, aroma: 5, body: 4 }, tags: ["deep umami", "ooika", "ceremonial", "stone-milled"], desc: "Japan's benchmark matcha region. Uji-area matcha is prized for rich umami, elegant sweetness, and the classic shaded aroma tied to tea ceremony culture.", source: "MAFF Uji Tea; Zennoh R6 tencha table", mapX: 101, mapY: 187 },
-  { id: "rg02", name: "Aichi", subregion: "Nishio / Nishi-Mikawa", kanji: "愛知・西尾", production: 428, style: "Mellow large-scale matcha center", notes: { umami: 4, sweet: 4, bitter: 1, aroma: 4, body: 4 }, tags: ["vivid green", "mellow", "long umami", "GI"], desc: "Nishio matcha is officially recognized for vivid blue-green color, delicate mellow taste, and strong umami that lingers without harshness.", source: "MAFF GI Nishio Matcha; Zennoh R6 tencha table", mapX: 120, mapY: 212 },
-  { id: "rg03", name: "Fukuoka", subregion: "Yame / Hoshino", kanji: "福岡・八女", production: 192, style: "Fragrant rich Kyushu premium", notes: { umami: 4, sweet: 4, bitter: 1, aroma: 5, body: 4 }, tags: ["deep fragrance", "mellow", "rich", "gyokuro-adjacent"], desc: "Yame is best known for deeply fragrant, mellow tea. Its matcha tends to read rich, aromatic, and smooth, with a more rounded sweetness than harder-edged daily matcha.", source: "Kyushu MAFF Yame Tea; Zennoh R6 tencha table", mapX: 44, mapY: 300 },
-  { id: "rg04", name: "Shizuoka", subregion: "Fuji / Makinohara / Kakegawa", kanji: "静岡", production: 611, style: "Clean balanced everyday powerhouse", notes: { umami: 3, sweet: 3, bitter: 2, aroma: 4, body: 3 }, tags: ["fresh", "balanced", "clean", "approachable"], desc: "Shizuoka's matcha profile is usually cleaner and more straightforward than Kyoto's, with balanced flavor, fresher aroma, and broad appeal for daily drinking and blends.", source: "JETRO matcha overview; Zennoh R6 tencha table", mapX: 132, mapY: 173 },
-  { id: "rg05", name: "Kagoshima", subregion: "Prefecture-wide", kanji: "鹿児島", production: 2150, style: "Japan's biggest tencha engine", notes: { umami: 4, sweet: 3, bitter: 2, aroma: 4, body: 4 }, tags: ["warm climate", "vivid", "high volume", "blend-friendly"], desc: "Kagoshima is now Japan's largest tencha producer. Warm-climate matcha from here often shows vivid color, early-harvest sweetness, and enough structure to work beautifully in blends and lattes.", source: "MAFF Kagoshima Tea; Zennoh R6 tencha table", mapX: 28, mapY: 377 },
-  { id: "rg06", name: "Mie", subregion: "Ise Tea", kanji: "三重・伊勢", production: 332, style: "Covered-tea richness from Ise", notes: { umami: 4, sweet: 3, bitter: 2, aroma: 4, body: 3 }, tags: ["mellow", "covered tea", "green", "savory"], desc: "Mie's tea culture is strongly shaped by shaded teas such as kabusecha, and its tencha/matcha tends to feel mellow, green, and savory rather than aggressively bitter.", source: "MAFF Ise Tea; Zennoh R6 tencha table", mapX: 111, mapY: 229 },
-  { id: "rg07", name: "Nara", subregion: "Yamato Tea", kanji: "奈良", production: 220, style: "Quiet Uji-adjacent traditional region", notes: { umami: 4, sweet: 3, bitter: 2, aroma: 3, body: 3 }, tags: ["balanced", "historic", "subtle", "traditional"], desc: "Nara is historically tied to the broader Uji tea world. Its small-but-real tencha output suggests matcha that is balanced and traditional in profile, without the scale of Kyoto or Nishio.", source: "MAFF Uji Tea definition; Zennoh R6 tencha table", mapX: 103, mapY: 215 },
-  { id: "rg08", name: "Shiga", subregion: "Omi Tea", kanji: "滋賀", production: 97, style: "Cool-climate Uji supply region", notes: { umami: 3, sweet: 3, bitter: 2, aroma: 3, body: 3 }, tags: ["clean", "adjacent to Uji", "gentle", "supporting region"], desc: "Part of the legally recognized Uji tea supply area. Shiga's matcha contribution is smaller and generally read as clean, elegant, and less heavy than the most famous Kyoto bowls.", source: "MAFF Uji Tea definition; Zennoh R6 tencha table", mapX: 96, mapY: 204 },
-  { id: "rg09", name: "Miyazaki", subregion: "Southern Kyushu", kanji: "宮崎", production: 182, style: "Warm-climate southern upstart", notes: { umami: 3, sweet: 3, bitter: 2, aroma: 4, body: 4 }, tags: ["sunny", "fuller body", "lively", "southern"], desc: "Miyazaki's tencha output is still modest, but its warm climate points toward aromatic, fuller-bodied matcha with more energy and color than austere old-school northern profiles.", source: "Zennoh R6 tencha table; southern tea region comparisons", mapX: 50, mapY: 343 },
-  { id: "rg10", name: "Nagasaki", subregion: "Western Kyushu", kanji: "長崎", production: 34, style: "Small coastal producer", notes: { umami: 3, sweet: 3, bitter: 2, aroma: 3, body: 3 }, tags: ["small volume", "coastal", "soft", "emerging"], desc: "A small-volume tencha region. Expect softer, less standardized matcha styles here, often with a gentler profile shaped by coastal humidity and small-batch production.", source: "Zennoh R6 tencha table", mapX: 14, mapY: 309 },
-  { id: "rg11", name: "Oita", subregion: "Northeastern Kyushu", kanji: "大分", production: 7, style: "Tiny experimental producer", notes: { umami: 3, sweet: 2, bitter: 2, aroma: 3, body: 3 }, tags: ["tiny volume", "regional", "mild", "small-batch"], desc: "Oita's tencha output is tiny. Regionally this is better understood as a niche or experimental matcha source than as a major standardized matcha identity.", source: "Zennoh R6 tencha table", mapX: 60, mapY: 318 },
-  { id: "rg12", name: "Shimane", subregion: "San'in coast", kanji: "島根", production: 6, style: "Micro-scale western Honshu producer", notes: { umami: 3, sweet: 2, bitter: 2, aroma: 3, body: 2 }, tags: ["micro-scale", "rustic", "cooler climate", "rare"], desc: "Shimane appears in the national tencha table at very small scale. Matcha from here is best treated as rare, local, and stylistically less fixed than the major producing prefectures.", source: "Zennoh R6 tencha table", mapX: 49, mapY: 216 },
-  { id: "rg13", name: "Tottori", subregion: "San'in coast", kanji: "鳥取", production: 1, style: "Very small current producer", notes: { umami: 2, sweet: 2, bitter: 2, aroma: 2, body: 2 }, tags: ["very small", "niche", "rare", "local"], desc: "Tottori currently records only trace tencha production. It belongs in the exhaustive list, but not in the same flavor-confidence tier as Kyoto, Aichi, or Fukuoka.", source: "Zennoh R6 tencha table", mapX: 65, mapY: 212 },
-  { id: "rg14", name: "Saitama", subregion: "Sayama area", kanji: "埼玉", production: 8, style: "Tiny Kanto producer", notes: { umami: 2, sweet: 2, bitter: 3, aroma: 3, body: 2 }, tags: ["Kanto", "small volume", "clean", "brisk"], desc: "Saitama is famous more for Sayama tea than for matcha, and its tencha production is very small. Expect brisker, cleaner, less umami-heavy tendencies than classic Uji matcha.", source: "Zennoh R6 tencha table", mapX: 148, mapY: 130 },
-  { id: "rg15", name: "Kanagawa", subregion: "Ashigara / Tanzawa side", kanji: "神奈川", production: 1, style: "Trace tencha producer", notes: { umami: 2, sweet: 2, bitter: 3, aroma: 3, body: 2 }, tags: ["trace production", "Kanto", "fresh", "niche"], desc: "Kanagawa currently appears only at trace tencha scale. It counts in an exhaustive region guide, but it is better understood as a niche local producer than a recognizable national matcha style.", source: "Zennoh R6 tencha table", mapX: 142, mapY: 151 },
+  { id: "rg01", name: "Kyoto", subregion: "Uji Area", kanji: "京都・宇治", production: 1068, style: "Historic ceremonial benchmark", notes: { umami: 5, sweet: 5, bitter: 1, aroma: 5, body: 4 }, tags: ["deep umami", "ooika", "ceremonial", "stone-milled"], desc: "Japan's benchmark matcha region. Uji-area matcha is prized for rich umami, elegant sweetness, and the classic shaded aroma tied to tea ceremony culture.", source: "MAFF Uji Tea; Zennoh R6 tencha table", mapX: 101, mapY: 187, lat: 34.884, lng: 135.800 },
+  { id: "rg02", name: "Aichi", subregion: "Nishio / Nishi-Mikawa", kanji: "愛知・西尾", production: 428, style: "Mellow large-scale matcha center", notes: { umami: 4, sweet: 4, bitter: 1, aroma: 4, body: 4 }, tags: ["vivid green", "mellow", "long umami", "GI"], desc: "Nishio matcha is officially recognized for vivid blue-green color, delicate mellow taste, and strong umami that lingers without harshness.", source: "MAFF GI Nishio Matcha; Zennoh R6 tencha table", mapX: 120, mapY: 212, lat: 34.858, lng: 137.051 },
+  { id: "rg03", name: "Fukuoka", subregion: "Yame / Hoshino", kanji: "福岡・八女", production: 192, style: "Fragrant rich Kyushu premium", notes: { umami: 4, sweet: 4, bitter: 1, aroma: 5, body: 4 }, tags: ["deep fragrance", "mellow", "rich", "gyokuro-adjacent"], desc: "Yame is best known for deeply fragrant, mellow tea. Its matcha tends to read rich, aromatic, and smooth, with a more rounded sweetness than harder-edged daily matcha.", source: "Kyushu MAFF Yame Tea; Zennoh R6 tencha table", mapX: 44, mapY: 300, lat: 33.212, lng: 130.610 },
+  { id: "rg04", name: "Shizuoka", subregion: "Fuji / Makinohara / Kakegawa", kanji: "静岡", production: 611, style: "Clean balanced everyday powerhouse", notes: { umami: 3, sweet: 3, bitter: 2, aroma: 4, body: 3 }, tags: ["fresh", "balanced", "clean", "approachable"], desc: "Shizuoka's matcha profile is usually cleaner and more straightforward than Kyoto's, with balanced flavor, fresher aroma, and broad appeal for daily drinking and blends.", source: "JETRO matcha overview; Zennoh R6 tencha table", mapX: 132, mapY: 173, lat: 34.977, lng: 138.383 },
+  { id: "rg05", name: "Kagoshima", subregion: "Prefecture-wide", kanji: "鹿児島", production: 2150, style: "Japan's biggest tencha engine", notes: { umami: 4, sweet: 3, bitter: 2, aroma: 4, body: 4 }, tags: ["warm climate", "vivid", "high volume", "blend-friendly"], desc: "Kagoshima is now Japan's largest tencha producer. Warm-climate matcha from here often shows vivid color, early-harvest sweetness, and enough structure to work beautifully in blends and lattes.", source: "MAFF Kagoshima Tea; Zennoh R6 tencha table", mapX: 28, mapY: 377, lat: 31.596, lng: 130.558 },
+  { id: "rg06", name: "Mie", subregion: "Ise Tea", kanji: "三重・伊勢", production: 332, style: "Covered-tea richness from Ise", notes: { umami: 4, sweet: 3, bitter: 2, aroma: 4, body: 3 }, tags: ["mellow", "covered tea", "green", "savory"], desc: "Mie's tea culture is strongly shaped by shaded teas such as kabusecha, and its tencha/matcha tends to feel mellow, green, and savory rather than aggressively bitter.", source: "MAFF Ise Tea; Zennoh R6 tencha table", mapX: 111, mapY: 229, lat: 34.730, lng: 136.509 },
+  { id: "rg07", name: "Nara", subregion: "Yamato Tea", kanji: "奈良", production: 220, style: "Quiet Uji-adjacent traditional region", notes: { umami: 4, sweet: 3, bitter: 2, aroma: 3, body: 3 }, tags: ["balanced", "historic", "subtle", "traditional"], desc: "Nara is historically tied to the broader Uji tea world. Its small-but-real tencha output suggests matcha that is balanced and traditional in profile, without the scale of Kyoto or Nishio.", source: "MAFF Uji Tea definition; Zennoh R6 tencha table", mapX: 103, mapY: 215, lat: 34.685, lng: 135.833 },
+  { id: "rg08", name: "Shiga", subregion: "Omi Tea", kanji: "滋賀", production: 97, style: "Cool-climate Uji supply region", notes: { umami: 3, sweet: 3, bitter: 2, aroma: 3, body: 3 }, tags: ["clean", "adjacent to Uji", "gentle", "supporting region"], desc: "Part of the legally recognized Uji tea supply area. Shiga's matcha contribution is smaller and generally read as clean, elegant, and less heavy than the most famous Kyoto bowls.", source: "MAFF Uji Tea definition; Zennoh R6 tencha table", mapX: 96, mapY: 204, lat: 35.004, lng: 135.869 },
+  { id: "rg09", name: "Miyazaki", subregion: "Southern Kyushu", kanji: "宮崎", production: 182, style: "Warm-climate southern upstart", notes: { umami: 3, sweet: 3, bitter: 2, aroma: 4, body: 4 }, tags: ["sunny", "fuller body", "lively", "southern"], desc: "Miyazaki's tencha output is still modest, but its warm climate points toward aromatic, fuller-bodied matcha with more energy and color than austere old-school northern profiles.", source: "Zennoh R6 tencha table; southern tea region comparisons", mapX: 50, mapY: 343, lat: 31.911, lng: 131.424 },
+  { id: "rg10", name: "Nagasaki", subregion: "Western Kyushu", kanji: "長崎", production: 34, style: "Small coastal producer", notes: { umami: 3, sweet: 3, bitter: 2, aroma: 3, body: 3 }, tags: ["small volume", "coastal", "soft", "emerging"], desc: "A small-volume tencha region. Expect softer, less standardized matcha styles here, often with a gentler profile shaped by coastal humidity and small-batch production.", source: "Zennoh R6 tencha table", mapX: 14, mapY: 309, lat: 32.750, lng: 129.877 },
+  { id: "rg11", name: "Oita", subregion: "Northeastern Kyushu", kanji: "大分", production: 7, style: "Tiny experimental producer", notes: { umami: 3, sweet: 2, bitter: 2, aroma: 3, body: 3 }, tags: ["tiny volume", "regional", "mild", "small-batch"], desc: "Oita's tencha output is tiny. Regionally this is better understood as a niche or experimental matcha source than as a major standardized matcha identity.", source: "Zennoh R6 tencha table", mapX: 60, mapY: 318, lat: 33.238, lng: 131.613 },
+  { id: "rg12", name: "Shimane", subregion: "San'in coast", kanji: "島根", production: 6, style: "Micro-scale western Honshu producer", notes: { umami: 3, sweet: 2, bitter: 2, aroma: 3, body: 2 }, tags: ["micro-scale", "rustic", "cooler climate", "rare"], desc: "Shimane appears in the national tencha table at very small scale. Matcha from here is best treated as rare, local, and stylistically less fixed than the major producing prefectures.", source: "Zennoh R6 tencha table", mapX: 49, mapY: 216, lat: 35.472, lng: 133.051 },
+  { id: "rg13", name: "Tottori", subregion: "San'in coast", kanji: "鳥取", production: 1, style: "Very small current producer", notes: { umami: 2, sweet: 2, bitter: 2, aroma: 2, body: 2 }, tags: ["very small", "niche", "rare", "local"], desc: "Tottori currently records only trace tencha production. It belongs in the exhaustive list, but not in the same flavor-confidence tier as Kyoto, Aichi, or Fukuoka.", source: "Zennoh R6 tencha table", mapX: 65, mapY: 212, lat: 35.501, lng: 134.238 },
+  { id: "rg14", name: "Saitama", subregion: "Sayama area", kanji: "埼玉", production: 8, style: "Tiny Kanto producer", notes: { umami: 2, sweet: 2, bitter: 3, aroma: 3, body: 2 }, tags: ["Kanto", "small volume", "clean", "brisk"], desc: "Saitama is famous more for Sayama tea than for matcha, and its tencha production is very small. Expect brisker, cleaner, less umami-heavy tendencies than classic Uji matcha.", source: "Zennoh R6 tencha table", mapX: 148, mapY: 130, lat: 35.857, lng: 139.413 },
+  { id: "rg15", name: "Kanagawa", subregion: "Ashigara / Tanzawa side", kanji: "神奈川", production: 1, style: "Trace tencha producer", notes: { umami: 2, sweet: 2, bitter: 3, aroma: 3, body: 2 }, tags: ["trace production", "Kanto", "fresh", "niche"], desc: "Kanagawa currently appears only at trace tencha scale. It counts in an exhaustive region guide, but it is better understood as a niche local producer than a recognizable national matcha style.", source: "Zennoh R6 tencha table", mapX: 142, mapY: 151, lat: 35.328, lng: 139.140 },
 ];
 const REGIONS = [
   {
@@ -1160,97 +1162,49 @@ function JapanRegionMap({ regions, selectedIds, onSelect }) {
         Tencha-producing prefectures — tap a marker to explore that region.
       </div>
 
-      <div style={{ marginTop: 12, borderRadius: 14, overflow: "hidden", boxShadow: "inset 0 1px 4px rgba(0,0,0,.12), 0 2px 10px rgba(30,60,30,.10)" }}>
-        <svg viewBox="0 0 210 430" style={{ width: "100%", height: "auto", display: "block" }} aria-label="Japan matcha production map">
-          <defs>
-            <linearGradient id="oceanGrad" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#1e3a4a" />
-              <stop offset="100%" stopColor="#2a4f5e" />
-            </linearGradient>
-            <linearGradient id="landGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#c8d9b0" />
-              <stop offset="100%" stopColor="#b8ca9c" />
-            </linearGradient>
-            <filter id="markerGlow" x="-80%" y="-80%" width="260%" height="260%">
-              <feGaussianBlur stdDeviation="3" result="blur" />
-              <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-            </filter>
-            <filter id="markerGlowSelected" x="-80%" y="-80%" width="260%" height="260%">
-              <feGaussianBlur stdDeviation="4" result="blur" />
-              <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-            </filter>
-          </defs>
-
-          {/* Ocean background */}
-          <rect x="0" y="0" width="210" height="430" fill="url(#oceanGrad)" />
-
-          {/* Subtle wave texture lines */}
-          {[60,110,160,210,260,310,360,410].map(y => (
-            <line key={y} x1="0" y1={y} x2="210" y2={y} stroke="rgba(255,255,255,.03)" strokeWidth="1" />
-          ))}
-
-          {/* Japan landmasses */}
-          <path d="M156 42C165 32 177 27 188 31C179 42 174 53 176 65C165 63 157 55 156 42Z"
-            fill="url(#landGrad)" stroke="#8faa70" strokeWidth="1" />
-          <path d="M143 88C154 84 163 89 165 98C167 107 161 117 151 122C142 126 135 136 133 147C131 161 121 173 107 185C95 195 91 210 88 226C84 244 69 255 57 259C44 264 38 274 39 286C40 300 52 307 58 321C63 332 61 345 55 359C50 371 44 379 38 387C47 389 57 385 66 377C77 367 85 353 89 339C93 323 101 312 111 301C120 291 125 278 128 262C131 244 142 232 151 225C163 215 169 205 169 193C169 179 159 167 159 154C159 142 168 132 171 119C174 105 171 95 163 89C156 84 149 84 143 88Z"
-            fill="url(#landGrad)" stroke="#8faa70" strokeWidth="1" />
-          <path d="M96 242C103 241 109 245 111 251C112 258 108 264 101 266C95 268 89 266 86 260C84 254 88 245 96 242Z"
-            fill="url(#landGrad)" stroke="#8faa70" strokeWidth="1" />
-          <path d="M33 289C43 285 55 288 60 297C64 305 62 316 53 323C44 329 31 329 23 322C16 316 16 303 23 295C26 291 29 290 33 289Z"
-            fill="url(#landGrad)" stroke="#8faa70" strokeWidth="1" />
-
-          {/* Region markers */}
+      <div style={{ marginTop: 12, borderRadius: 14, overflow: "hidden", height: 340, boxShadow: "0 2px 12px rgba(30,60,30,.15)" }}>
+        <MapContainer
+          center={[35.5, 136.5]}
+          zoom={5}
+          style={{ width: "100%", height: "100%" }}
+          zoomControl={false}
+          attributionControl={false}
+          scrollWheelZoom={false}
+        >
+          <TileLayer
+            url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>'
+          />
           {regions.map((region) => {
             const selected = selectedIds.includes(region.id);
+            const radius = Math.max(7, Math.min(18, 7 + Math.log10(region.production + 1) * 4));
             return (
-              <g key={region.id} style={{ cursor: "pointer" }} onClick={() => onSelect(region.id)}>
-                {/* Connector line */}
-                <line
-                  x1={region.mapX} y1={region.mapY}
-                  x2={region.mapX + 12} y2={region.mapY - 11}
-                  stroke={selected ? "rgba(200,240,160,.8)" : "rgba(180,220,140,.4)"}
-                  strokeWidth={selected ? 1.2 : 0.8}
-                />
-                {/* Outer glow ring for selected */}
-                {selected && (
-                  <circle
-                    cx={region.mapX} cy={region.mapY}
-                    r={11}
-                    fill="rgba(160,220,100,.18)"
-                    stroke="rgba(160,220,100,.35)"
-                    strokeWidth="1"
-                  />
-                )}
-                {/* Main dot */}
-                <circle
-                  cx={region.mapX} cy={region.mapY}
-                  r={selected ? 5.5 : 4}
-                  fill={selected ? "#b8e870" : "#7ab85a"}
-                  stroke={selected ? "rgba(255,255,255,.9)" : "rgba(255,255,255,.6)"}
-                  strokeWidth={selected ? 1.8 : 1.2}
-                  filter={selected ? "url(#markerGlowSelected)" : "url(#markerGlow)"}
-                />
-                {/* Inner highlight */}
-                <circle
-                  cx={region.mapX - 1} cy={region.mapY - 1}
-                  r={selected ? 1.5 : 1}
-                  fill="rgba(255,255,255,.55)"
-                  style={{ pointerEvents: "none" }}
-                />
-                {/* Label */}
-                <text
-                  x={region.mapX + 15} y={region.mapY - 9}
-                  fontSize="8.5"
-                  fontWeight={selected ? "700" : "500"}
-                  fill={selected ? "rgba(220,255,180,.95)" : "rgba(200,230,170,.75)"}
-                  style={{ pointerEvents: "none", fontFamily: "system-ui, sans-serif" }}
+              <CircleMarker
+                key={region.id}
+                center={[region.lat, region.lng]}
+                radius={selected ? radius + 3 : radius}
+                pathOptions={{
+                  fillColor: selected ? "#5a9e3a" : "#7ab85a",
+                  fillOpacity: selected ? 0.95 : 0.75,
+                  color: selected ? "#2e6b1a" : "#4a8a30",
+                  weight: selected ? 2.5 : 1.5,
+                }}
+                eventHandlers={{ click: () => onSelect(region.id) }}
+              >
+                <Tooltip
+                  direction="top"
+                  offset={[0, -radius - 4]}
+                  opacity={1}
+                  permanent={false}
                 >
-                  {region.name}
-                </text>
-              </g>
+                  <span style={{ fontSize: 12, fontWeight: 600 }}>{region.name}</span>
+                  <br />
+                  <span style={{ fontSize: 11, color: "#666" }}>{region.subregion}</span>
+                </Tooltip>
+              </CircleMarker>
             );
           })}
-        </svg>
+        </MapContainer>
       </div>
     </section>
   );
