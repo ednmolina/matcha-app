@@ -1520,7 +1520,10 @@ function FlavorNetwork() {
               <div style={{ fontFamily: "'Cormorant Garamond',serif", fontWeight: 700, fontSize: 16, color: "#3a2e1e", lineHeight: 1.1, marginBottom: 2 }}>
                 {selected.name}
               </div>
-              <div style={{ fontSize: 13, color: "#8a7a5a", marginBottom: 3 }}>{selected.kanji}</div>
+              <div style={{ fontSize: 13, color: "#8a7a5a", marginBottom: 2 }}>{selected.kanji}</div>
+              <div style={{ fontSize: 11, color: "#6a5a3a", fontWeight: 600, marginBottom: 8 }}>
+                {selected.producer === "Yamamasa Koyamaen" ? "山政 Yamamasa Koyamaen" : "丸久 Marukyu Koyamaen"}
+              </div>
               <div style={{ display: "flex", gap: 5, marginBottom: 10, flexWrap: "wrap" }}>
                 <span
                   style={{
