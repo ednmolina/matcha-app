@@ -1147,12 +1147,13 @@ function ComparePanel({ teas, onRemove, onClear }) {
   );
 }
 
-function SimilarTeaList({ tea, compact = false }) {
+function SimilarTeaList({ tea, compact = false, onTeaSelect }) {
   const similar = getSimilarTeas(tea, TEAS, 5);
   return (
     <div>
       {similar.map(({ tea: t, dist }) => {
         const pct = Math.max(0, Math.round((1 - dist / MAX_TEA_DIST) * 100));
+        const isInteractive = typeof onTeaSelect === "function";
         return (
           <div
             key={t.id}
@@ -1164,14 +1165,40 @@ function SimilarTeaList({ tea, compact = false }) {
               borderBottom: "1px solid #ece4d4",
             }}
           >
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: compact ? 10 : 11, color: "#3a2e1e", fontWeight: 600, lineHeight: 1.2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                {t.name}
+            {isInteractive ? (
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onTeaSelect(t.id);
+                }}
+                style={{
+                  flex: 1,
+                  minWidth: 0,
+                  border: "none",
+                  background: "transparent",
+                  padding: 0,
+                  textAlign: "left",
+                  cursor: "pointer",
+                }}
+              >
+                <div style={{ fontSize: compact ? 10 : 11, color: "#3a2e1e", fontWeight: 600, lineHeight: 1.2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  {t.name}
+                </div>
+                <div style={{ fontSize: 9, color: "#8a7a5a", marginTop: 1 }}>
+                  {t.sub} · {t.producer === "Yamamasa Koyamaen" ? "Yamamasa" : "Marukyu"}
+                </div>
+              </button>
+            ) : (
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: compact ? 10 : 11, color: "#3a2e1e", fontWeight: 600, lineHeight: 1.2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  {t.name}
+                </div>
+                <div style={{ fontSize: 9, color: "#8a7a5a", marginTop: 1 }}>
+                  {t.sub} · {t.producer === "Yamamasa Koyamaen" ? "Yamamasa" : "Marukyu"}
+                </div>
               </div>
-              <div style={{ fontSize: 9, color: "#8a7a5a", marginTop: 1 }}>
-                {t.sub} · {t.producer === "Yamamasa Koyamaen" ? "Yamamasa" : "Marukyu"}
-              </div>
-            </div>
+            )}
             <div style={{ textAlign: "right", flexShrink: 0, marginLeft: 8 }}>
               <div style={{ fontSize: compact ? 11 : 12, color: "#5a8a3a", fontWeight: 700 }}>{pct}%</div>
               <div style={{ fontSize: 8, color: "#9a8a6a" }}>match</div>
@@ -1183,7 +1210,7 @@ function SimilarTeaList({ tea, compact = false }) {
   );
 }
 
-function FlavorNetwork() {
+function FlavorNetwork({ onTeaSelect }) {
   const canvasRef = useRef(null);
   const simRef = useRef(null);
   const rafRef = useRef(null);
@@ -1552,7 +1579,7 @@ function FlavorNetwork() {
               <div style={{ fontSize: 10, color: "#8a7a5a", fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", marginTop: 12, marginBottom: 5 }}>
                 Most Similar
               </div>
-              <SimilarTeaList tea={selected} compact />
+              <SimilarTeaList tea={selected} compact onTeaSelect={onTeaSelect} />
             </>
           ) : (
             <div style={{ color: "#9a8a6a", fontSize: 12, fontStyle: "italic", textAlign: "center", marginTop: 40 }}>
@@ -1570,6 +1597,7 @@ function Card({ tea, expanded, onToggle, compared, onCompareToggle }) {
 
   return (
     <div
+      id={`tea-card-${tea.id}`}
       onClick={onToggle}
       style={{
         background: lim ? "linear-gradient(135deg,#faf6ee,#f0e8d8)" : compared ? "#f6efde" : "#fdfbf7",
@@ -2492,6 +2520,7 @@ export default function App() {
   const [schoolFilter, setSchoolFilter] = useState("All");
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(null);
+  const [pendingTeaFocusId, setPendingTeaFocusId] = useState(null);
   const [sort, setSort] = useState("rating");
   const [compareIds, setCompareIds] = useState([]);
   const [cultivarQ, setCultivarQ] = useState("");
@@ -2651,6 +2680,21 @@ export default function App() {
     [regionCompareIds]
   );
 
+  useEffect(() => {
+    if (view !== "teas" || !pendingTeaFocusId) return;
+    if (!filtered.some((tea) => tea.id === pendingTeaFocusId)) return;
+
+    const frame = requestAnimationFrame(() => {
+      document.getElementById(`tea-card-${pendingTeaFocusId}`)?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+      setPendingTeaFocusId(null);
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [filtered, pendingTeaFocusId, view]);
+
   function toggleCompare(id) {
     setCompareIds((current) =>
       current.includes(id) ? current.filter((item) => item !== id) : [...current, id]
@@ -2665,6 +2709,15 @@ export default function App() {
     setRegionCompareIds((current) =>
       current.includes(id) ? current.filter((item) => item !== id) : [...current, id]
     );
+  }
+  function focusTeaInCatalog(teaId) {
+    setView("teas");
+    setCat("All");
+    setProd("All");
+    setSchoolFilter("All");
+    setQ("");
+    setOpen(teaId);
+    setPendingTeaFocusId(teaId);
   }
 
   return (
@@ -2895,7 +2948,7 @@ export default function App() {
               boxShadow: "0 10px 30px rgba(60,40,80,.07)",
             }}
           >
-            <FlavorNetwork />
+            <FlavorNetwork onTeaSelect={focusTeaInCatalog} />
           </div>
         ) : view === "cultivars" ? (
           <>
