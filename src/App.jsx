@@ -1106,25 +1106,43 @@ function ComparePanel({ teas, onRemove, onClear }) {
               >
                 {expandedDescriptions[tea.id] ? "Show Less" : "Show More"}
               </button>
-              {infoTeaId === tea.id && (
-                <div
-                  style={{
-                    marginTop: 10,
-                    paddingTop: 10,
-                    borderTop: "1px solid #d7c7a7",
-                    animation: "fadeIn .2s ease",
-                  }}
-                >
-                  <div style={{ fontSize: 9, color: "#8a7a5a", fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", marginBottom: 6 }}>
-                    Most Similar Teas
-                  </div>
-                  <SimilarTeaList tea={tea} compact />
-                </div>
-              )}
             </article>
           ))}
         </div>
       )}
+
+      {infoTeaId && (() => {
+        const infoTea = teas.find((t) => t.id === infoTeaId);
+        if (!infoTea) return null;
+        return (
+          <div
+            style={{ position: "fixed", inset: 0, background: "rgba(30,20,10,.45)", zIndex: 1200, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}
+            onClick={() => setInfoTeaId(null)}
+          >
+            <div
+              style={{ background: "#fdf8f0", borderRadius: 18, padding: "20px 18px 22px", maxWidth: 360, width: "100%", boxShadow: "0 24px 64px rgba(0,0,0,.35)", animation: "fadeIn .2s ease" }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
+                <div>
+                  <div style={{ fontFamily: "'Cormorant Garamond',serif", fontWeight: 700, fontSize: 18, color: "#3a2e1e", lineHeight: 1.1 }}>{infoTea.name}</div>
+                  <div style={{ fontSize: 13, color: "#8a7a5a", marginTop: 2 }}>{infoTea.kanji}</div>
+                </div>
+                <button
+                  onClick={() => setInfoTeaId(null)}
+                  style={{ border: "none", background: "#ede4d0", color: "#5a4a30", borderRadius: 999, width: 30, height: 30, cursor: "pointer", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
+                >
+                  ✕
+                </button>
+              </div>
+              <div style={{ fontSize: 10, color: "#8a7a5a", fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", marginBottom: 8 }}>
+                Most Similar Teas
+              </div>
+              <SimilarTeaList tea={infoTea} />
+            </div>
+          </div>
+        );
+      })()}
     </section>
   );
 }
@@ -1169,7 +1187,10 @@ function FlavorNetwork() {
   const canvasRef = useRef(null);
   const simRef = useRef(null);
   const rafRef = useRef(null);
+  const transformRef = useRef({ scale: 1, tx: 0, ty: 0 });
+  const dragRef = useRef(null);
   const [selected, setSelected] = useState(null);
+  const [zoom, setZoom] = useState(1);
   const W = 820, H = 560;
   const EDGE_THRESH = 2.5;
 
@@ -1193,14 +1214,15 @@ function FlavorNetwork() {
       }
     }
 
-    simRef.current = { nodes, edges, alpha: 1.0, hovId: null, selId: null };
-
     function draw(hovId, selId) {
       const canvas = canvasRef.current;
-      if (!canvas || !simRef.current) return;
+      if (!canvas) return;
       const ctx = canvas.getContext("2d");
-      const { nodes, edges } = simRef.current;
+      const { scale, tx, ty } = transformRef.current;
       ctx.clearRect(0, 0, W, H);
+      ctx.save();
+      ctx.setTransform(scale, 0, 0, scale, tx, ty);
+      const lw = 1 / scale;
 
       for (const e of edges) {
         const ni = nodes[e.i], nj = nodes[e.j];
@@ -1209,34 +1231,36 @@ function FlavorNetwork() {
         ctx.moveTo(ni.x, ni.y);
         ctx.lineTo(nj.x, nj.y);
         ctx.strokeStyle = hi
-          ? `rgba(160,110,30,${e.strength * 0.85})`
-          : `rgba(160,140,100,${e.strength * 0.22})`;
-        ctx.lineWidth = hi ? 1.5 : 0.7;
+          ? `rgba(160,110,30,${e.strength * 0.9})`
+          : `rgba(140,120,80,${e.strength * 0.28})`;
+        ctx.lineWidth = hi ? 2 * lw : 0.8 * lw;
         ctx.stroke();
       }
 
       for (const n of nodes) {
         const isSel = n.id === selId, isHov = n.id === hovId;
-        const r = isSel ? 9 : isHov ? 8 : 5.5;
-        if (isSel) { ctx.shadowColor = "rgba(160,110,30,.6)"; ctx.shadowBlur = 14; }
+        const r = (isSel ? 9 : isHov ? 8 : 6) * lw;
+        if (isSel) { ctx.shadowColor = "rgba(160,110,30,.7)"; ctx.shadowBlur = 14 * lw; }
         ctx.beginPath();
         ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
-        ctx.fillStyle = CAT_COLORS_GRAPH[n.tea.category] || "#888";
+        ctx.fillStyle = isSel ? "#c47820" : isHov ? "#4a7030" : "#7a9a5a";
         ctx.fill();
-        ctx.strokeStyle = isSel ? "#b87028" : isHov ? "#8a6830" : "rgba(255,255,255,.55)";
-        ctx.lineWidth = isSel ? 2 : 1;
+        ctx.strokeStyle = isSel ? "#8a5010" : isHov ? "#2a5010" : "rgba(255,255,255,.7)";
+        ctx.lineWidth = (isSel ? 2 : 1) * lw;
         ctx.stroke();
         ctx.shadowBlur = 0;
 
         if (isSel || isHov) {
-          ctx.font = `${isSel ? "700" : "400"} 10px Georgia,serif`;
-          ctx.fillStyle = "#3a2e1e";
-          ctx.fillText(n.tea.name, n.x + 10, n.y + 4);
+          const fs = 11 * lw;
+          ctx.font = `${isSel ? 700 : 500} ${fs}px Georgia,serif`;
+          ctx.fillStyle = "#2a1e0e";
+          ctx.fillText(n.tea.name, n.x + 10 * lw, n.y + 4 * lw);
         }
       }
+      ctx.restore();
     }
 
-    simRef.current.draw = draw;
+    simRef.current = { nodes, edges, alpha: 1.0, hovId: null, selId: null, draw };
 
     function tick() {
       const sim = simRef.current;
@@ -1268,7 +1292,7 @@ function FlavorNetwork() {
         const dx = nj.x - ni.x, dy = nj.y - ni.y;
         const d = Math.sqrt(dx * dx + dy * dy) || 0.01;
         const target = 20 + e.d * 45;
-        const f = ((d - target) * 0.045 * a * e.strength);
+        const f = (d - target) * 0.045 * a * e.strength;
         const fx = (f * dx) / d, fy = (f * dy) / d;
         ni.vx += fx; ni.vy += fy;
         nj.vx -= fx; nj.vy -= fy;
@@ -1288,68 +1312,174 @@ function FlavorNetwork() {
     return () => cancelAnimationFrame(rafRef.current);
   }, []);
 
+  // non-passive wheel listener so preventDefault works
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const onWheel = (e) => {
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const cx = (e.clientX - rect.left) * (W / rect.width);
+      const cy = (e.clientY - rect.top) * (H / rect.height);
+      const { scale, tx, ty } = transformRef.current;
+      const newScale = Math.max(0.4, Math.min(6, scale * (e.deltaY < 0 ? 1.12 : 0.89)));
+      transformRef.current = {
+        scale: newScale,
+        tx: cx - (cx - tx) * (newScale / scale),
+        ty: cy - (cy - ty) * (newScale / scale),
+      };
+      setZoom(newScale);
+      simRef.current?.draw(simRef.current.hovId, simRef.current.selId);
+    };
+    canvas.addEventListener("wheel", onWheel, { passive: false });
+    return () => canvas.removeEventListener("wheel", onWheel);
+  }, []);
+
   function getNodeAt(x, y) {
     if (!simRef.current) return null;
+    const hitR = 12 / transformRef.current.scale;
     for (const n of simRef.current.nodes) {
       const dx = n.x - x, dy = n.y - y;
-      if (Math.sqrt(dx * dx + dy * dy) <= 12) return n;
+      if (Math.sqrt(dx * dx + dy * dy) <= hitR) return n;
     }
     return null;
   }
 
-  function toCanvas(e) {
+  function toData(clientX, clientY) {
     const rect = canvasRef.current.getBoundingClientRect();
-    return {
-      x: (e.clientX - rect.left) * (W / rect.width),
-      y: (e.clientY - rect.top) * (H / rect.height),
+    const { scale, tx, ty } = transformRef.current;
+    const domX = (clientX - rect.left) * (W / rect.width);
+    const domY = (clientY - rect.top) * (H / rect.height);
+    return { x: (domX - tx) / scale, y: (domY - ty) / scale };
+  }
+
+  function handleMouseDown(e) {
+    dragRef.current = {
+      startX: e.clientX, startY: e.clientY,
+      startTx: transformRef.current.tx, startTy: transformRef.current.ty,
+      moved: false,
     };
   }
 
   function handleMouseMove(e) {
     if (!simRef.current) return;
-    const { x, y } = toCanvas(e);
+    if (dragRef.current) {
+      const dx = e.clientX - dragRef.current.startX;
+      const dy = e.clientY - dragRef.current.startY;
+      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) dragRef.current.moved = true;
+      if (dragRef.current.moved) {
+        const rect = canvasRef.current.getBoundingClientRect();
+        transformRef.current = {
+          ...transformRef.current,
+          tx: dragRef.current.startTx + dx * (W / rect.width),
+          ty: dragRef.current.startTy + dy * (H / rect.height),
+        };
+        simRef.current.draw(simRef.current.hovId, simRef.current.selId);
+        canvasRef.current.style.cursor = "grabbing";
+        return;
+      }
+    }
+    const { x, y } = toData(e.clientX, e.clientY);
     const node = getNodeAt(x, y);
     const newId = node?.id || null;
     if (newId !== simRef.current.hovId) {
       simRef.current.hovId = newId;
-      simRef.current.draw?.(simRef.current.hovId, simRef.current.selId);
+      simRef.current.draw(simRef.current.hovId, simRef.current.selId);
     }
-    canvasRef.current.style.cursor = node ? "pointer" : "default";
+    canvasRef.current.style.cursor = node ? "pointer" : "grab";
   }
 
-  function handleClick(e) {
-    if (!simRef.current) return;
-    const { x, y } = toCanvas(e);
-    const node = getNodeAt(x, y);
-    simRef.current.selId = node?.id || null;
-    simRef.current.draw?.(simRef.current.hovId, simRef.current.selId);
-    setSelected(node?.tea || null);
+  function handleMouseUp(e) {
+    const wasDrag = dragRef.current?.moved;
+    dragRef.current = null;
+    if (!wasDrag) {
+      const { x, y } = toData(e.clientX, e.clientY);
+      const node = getNodeAt(x, y);
+      if (simRef.current) {
+        simRef.current.selId = node?.id || null;
+        simRef.current.draw(simRef.current.hovId, simRef.current.selId);
+      }
+      setSelected(node?.tea || null);
+    }
+    if (canvasRef.current) canvasRef.current.style.cursor = "grab";
   }
+
+  function handleTouchStart(e) {
+    if (e.touches.length === 1) {
+      dragRef.current = {
+        startX: e.touches[0].clientX, startY: e.touches[0].clientY,
+        startTx: transformRef.current.tx, startTy: transformRef.current.ty,
+        moved: false,
+      };
+    }
+  }
+
+  function handleTouchMove(e) {
+    if (e.touches.length === 1 && dragRef.current) {
+      e.preventDefault();
+      const dx = e.touches[0].clientX - dragRef.current.startX;
+      const dy = e.touches[0].clientY - dragRef.current.startY;
+      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) dragRef.current.moved = true;
+      const rect = canvasRef.current.getBoundingClientRect();
+      transformRef.current = {
+        ...transformRef.current,
+        tx: dragRef.current.startTx + dx * (W / rect.width),
+        ty: dragRef.current.startTy + dy * (H / rect.height),
+      };
+      simRef.current?.draw(simRef.current.hovId, simRef.current.selId);
+    }
+  }
+
+  function handleTouchEnd(e) {
+    if (!dragRef.current?.moved && e.changedTouches.length === 1) {
+      const t = e.changedTouches[0];
+      const { x, y } = toData(t.clientX, t.clientY);
+      const node = getNodeAt(x, y);
+      if (simRef.current) {
+        simRef.current.selId = node?.id || null;
+        simRef.current.draw(simRef.current.hovId, simRef.current.selId);
+      }
+      setSelected(node?.tea || null);
+    }
+    dragRef.current = null;
+  }
+
+  function adjustZoom(factor) {
+    const { scale, tx, ty } = transformRef.current;
+    const newScale = Math.max(0.4, Math.min(6, scale * factor));
+    const cx = W / 2, cy = H / 2;
+    transformRef.current = {
+      scale: newScale,
+      tx: cx - (cx - tx) * (newScale / scale),
+      ty: cy - (cy - ty) * (newScale / scale),
+    };
+    setZoom(newScale);
+    simRef.current?.draw(simRef.current.hovId, simRef.current.selId);
+  }
+
+  function resetView() {
+    transformRef.current = { scale: 1, tx: 0, ty: 0 };
+    setZoom(1);
+    simRef.current?.draw(simRef.current.hovId, simRef.current.selId);
+  }
+
+  const btnStyle = {
+    border: "1px solid #c8bca4", background: "rgba(253,251,247,.9)", color: "#5a4a30",
+    borderRadius: 8, padding: "4px 10px", cursor: "pointer", fontSize: 13, fontWeight: 700,
+    lineHeight: 1,
+  };
 
   return (
     <div style={{ marginTop: 8 }}>
-      <div
-        style={{
-          padding: "10px 14px",
-          marginBottom: 12,
-          borderRadius: 10,
-          background: "rgba(253,251,247,.84)",
-          border: "1px solid #d8cdb8",
-          fontSize: 11,
-          color: "#5a4a30",
-          lineHeight: 1.5,
-        }}
-      >
-        Each node is a tea. Edges connect teas with similar flavor profiles — the closer and more connected, the more similar. Click any node to explore.
+      <div style={{ padding: "10px 14px", marginBottom: 12, borderRadius: 10, background: "rgba(253,251,247,.84)", border: "1px solid #d8cdb8", fontSize: 11, color: "#5a4a30", lineHeight: 1.5 }}>
+        Each node is a tea — positioned by flavor similarity. Edges connect closely similar teas. <strong>Scroll or pinch to zoom · drag to pan · click a node to explore.</strong>
       </div>
 
-      <div style={{ display: "flex", gap: 10, marginBottom: 12, flexWrap: "wrap", alignItems: "center" }}>
-        {Object.entries(CAT_COLORS_GRAPH).map(([cat, color]) => (
-          <div key={cat} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-            <div style={{ width: 9, height: 9, borderRadius: "50%", background: color, border: "1px solid rgba(0,0,0,.15)" }} />
-            <span style={{ fontSize: 11, color: "#5a4a30" }}>{cat}</span>
-          </div>
-        ))}
+      <div style={{ display: "flex", gap: 6, marginBottom: 10, alignItems: "center", flexWrap: "wrap" }}>
+        <button style={btnStyle} onClick={() => adjustZoom(1.25)}>＋</button>
+        <button style={btnStyle} onClick={() => adjustZoom(0.8)}>－</button>
+        <button style={btnStyle} onClick={resetView}>Reset</button>
+        <span style={{ fontSize: 11, color: "#8a7a5a", marginLeft: 4 }}>{zoom.toFixed(1)}×</span>
       </div>
 
       <div style={{ display: "flex", gap: 12, alignItems: "flex-start", flexWrap: "wrap" }}>
@@ -1358,20 +1488,19 @@ function FlavorNetwork() {
             ref={canvasRef}
             width={W}
             height={H}
-            style={{
-              width: "100%",
-              borderRadius: 14,
-              border: "1px solid #d8cdb8",
-              background: "linear-gradient(135deg,#fdfbf7,#f5eed8)",
-              display: "block",
-            }}
+            style={{ width: "100%", borderRadius: 14, border: "1px solid #d8cdb8", background: "linear-gradient(135deg,#fdfbf7,#f5eed8)", display: "block", cursor: "grab", touchAction: "none" }}
+            onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
-            onClick={handleClick}
+            onMouseUp={handleMouseUp}
             onMouseLeave={() => {
+              dragRef.current = null;
               if (!simRef.current) return;
               simRef.current.hovId = null;
-              simRef.current.draw?.(null, simRef.current.selId);
+              simRef.current.draw(null, simRef.current.selId);
             }}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
           />
         </div>
 
