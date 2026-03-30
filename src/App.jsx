@@ -1252,6 +1252,14 @@ function FlavorNetwork({ onTeaSelect }) {
   const EDGE_THRESH = 2.5;
   const SIMILAR_HIGHLIGHT_COUNT = 5;
 
+  function getSimilarIdSet(teaId) {
+    const sourceTea = TEAS.find((tea) => tea.id === teaId);
+    if (!sourceTea) return new Set();
+    return new Set(
+      getSimilarTeas(sourceTea, TEAS, SIMILAR_HIGHLIGHT_COUNT).map(({ tea }) => tea.id)
+    );
+  }
+
   useEffect(() => {
     const nodes = TEAS.map((tea, i) => ({
       id: tea.id,
@@ -1270,14 +1278,6 @@ function FlavorNetwork({ onTeaSelect }) {
           edges.push({ i, j, d, strength: 1 - d / (EDGE_THRESH + 0.1) });
         }
       }
-    }
-
-    function getSimilarIdSet(teaId) {
-      const sourceNode = nodes.find((node) => node.id === teaId);
-      if (!sourceNode) return new Set();
-      return new Set(
-        getSimilarTeas(sourceNode.tea, TEAS, SIMILAR_HIGHLIGHT_COUNT).map(({ tea }) => tea.id)
-      );
     }
 
     function draw(hovId, selId) {
