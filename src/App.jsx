@@ -827,7 +827,7 @@ function extractPriceValue(price) {
   return match ? Number(match[1]) : null;
 }
 
-function ComparePanel({ teas, onRemove, onClear }) {
+function ComparePanel({ teas, compareIds, onRemove, onClear, onCompareToggle }) {
   const [collapsed, setCollapsed] = useState(prefersCompactCompare);
   const [expandedDescriptions, setExpandedDescriptions] = useState({});
   const [infoTeaId, setInfoTeaId] = useState(null);
@@ -1138,7 +1138,7 @@ function ComparePanel({ teas, onRemove, onClear }) {
               <div style={{ fontSize: 10, color: "#8a7a5a", fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", marginBottom: 8 }}>
                 Most Similar Teas
               </div>
-              <SimilarTeaList tea={infoTea} />
+              <SimilarTeaList tea={infoTea} comparedTeaIds={compareIds} onCompareToggle={onCompareToggle} />
             </div>
           </div>
         );
@@ -1147,13 +1147,15 @@ function ComparePanel({ teas, onRemove, onClear }) {
   );
 }
 
-function SimilarTeaList({ tea, compact = false, onTeaSelect }) {
+function SimilarTeaList({ tea, compact = false, onTeaSelect, comparedTeaIds = [], onCompareToggle }) {
   const similar = getSimilarTeas(tea, TEAS, 5);
   return (
     <div>
       {similar.map(({ tea: t, dist }) => {
         const pct = Math.max(0, Math.round((1 - dist / MAX_TEA_DIST) * 100));
         const isInteractive = typeof onTeaSelect === "function";
+        const canCompare = typeof onCompareToggle === "function";
+        const isCompared = comparedTeaIds.includes(t.id);
         return (
           <div
             key={t.id}
@@ -1202,6 +1204,30 @@ function SimilarTeaList({ tea, compact = false, onTeaSelect }) {
             <div style={{ textAlign: "right", flexShrink: 0, marginLeft: 8 }}>
               <div style={{ fontSize: compact ? 11 : 12, color: "#5a8a3a", fontWeight: 700 }}>{pct}%</div>
               <div style={{ fontSize: 8, color: "#9a8a6a" }}>match</div>
+              {canCompare && (
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onCompareToggle(t.id);
+                  }}
+                  style={{
+                    marginTop: 5,
+                    borderRadius: 999,
+                    border: isCompared ? "1px solid #6a5530" : "1px solid #cdbd9d",
+                    background: isCompared ? "#4d3922" : "#f7f0e2",
+                    color: isCompared ? "#f5eed8" : "#5d4a31",
+                    padding: compact ? "4px 7px" : "4px 8px",
+                    fontSize: 8,
+                    fontWeight: 700,
+                    letterSpacing: 0.8,
+                    textTransform: "uppercase",
+                    cursor: "pointer",
+                  }}
+                >
+                  {isCompared ? "Added" : "Compare"}
+                </button>
+              )}
             </div>
           </div>
         );
@@ -1592,7 +1618,7 @@ function FlavorNetwork({ onTeaSelect }) {
   );
 }
 
-function Card({ tea, expanded, onToggle, compared, onCompareToggle }) {
+function Card({ tea, expanded, compared, compareIds, onToggle, onCompareToggle }) {
   const lim = tea.status === "limited";
 
   return (
@@ -1812,7 +1838,7 @@ function Card({ tea, expanded, onToggle, compared, onCompareToggle }) {
             <div style={{ fontSize: 10, color: "#8a7a5a", fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", marginBottom: 6 }}>
               Most Similar Teas
             </div>
-            <SimilarTeaList tea={tea} />
+            <SimilarTeaList tea={tea} comparedTeaIds={compareIds} onCompareToggle={onCompareToggle} />
           </div>
         </div>
       )}
@@ -2786,8 +2812,10 @@ export default function App() {
           <>
             <ComparePanel
               teas={comparedTeas}
+              compareIds={compareIds}
               onRemove={(id) => setCompareIds((current) => current.filter((item) => item !== id))}
               onClear={() => setCompareIds([])}
+              onCompareToggle={toggleCompare}
             />
 
             <div
@@ -2927,6 +2955,7 @@ export default function App() {
                 tea={tea}
                 expanded={open === tea.id}
                 compared={compareIds.includes(tea.id)}
+                compareIds={compareIds}
                 onToggle={() => setOpen(open === tea.id ? null : tea.id)}
                 onCompareToggle={toggleCompare}
               />
