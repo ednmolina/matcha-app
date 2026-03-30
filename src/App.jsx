@@ -934,6 +934,8 @@ function ComparePanel({ teas, compareIds, onRemove, onClear, onCompareToggle }) 
               style={{
                 flex: "0 0 228px",
                 minWidth: 228,
+                display: "flex",
+                flexDirection: "column",
                 borderRadius: 16,
                 background: "#f8f1e1",
                 color: "#3f301f",
@@ -942,8 +944,8 @@ function ComparePanel({ teas, compareIds, onRemove, onClear, onCompareToggle }) 
                 boxShadow: "0 6px 18px rgba(31,22,12,.12)",
               }}
             >
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "flex-start" }}>
-                <div>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "flex-start", minHeight: 52 }}>
+                <div style={{ minWidth: 0 }}>
                   <h3 style={{ margin: 0, fontSize: 18, lineHeight: 1.05, fontWeight: 700, color: "#2e2012" }}>{tea.name}</h3>
                   <div style={{ marginTop: 3, fontSize: 12, color: "#7e6d4d" }}>{tea.kanji}</div>
                 </div>
@@ -992,7 +994,7 @@ function ComparePanel({ teas, compareIds, onRemove, onClear, onCompareToggle }) 
                 </div>
               </div>
 
-              <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
+              <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap", alignContent: "flex-start", minHeight: 52 }}>
                 <span
                   style={{
                     fontSize: 10,
@@ -1028,7 +1030,7 @@ function ComparePanel({ teas, compareIds, onRemove, onClear, onCompareToggle }) 
                 )}
               </div>
 
-              <div style={{ marginTop: 10, display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center" }}>
+              <div style={{ marginTop: 10, display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center", minHeight: 36 }}>
                 <div>
                   <Stars r={tea.rating} />
                   {tea.price && <div style={{ marginTop: 3, fontSize: 10, color: "#6d5c40", fontWeight: 600 }}>{tea.price}</div>}
@@ -1049,7 +1051,7 @@ function ComparePanel({ teas, compareIds, onRemove, onClear, onCompareToggle }) 
                 ))}
               </div>
 
-              <div style={{ marginTop: 10, display: "flex", flexWrap: "wrap", gap: 5 }}>
+              <div style={{ marginTop: 10, display: "flex", flexWrap: "wrap", gap: 5, alignContent: "flex-start", minHeight: 62 }}>
                 {tea.tags.slice(0, 3).map((tag) => (
                   <span
                     key={`${tea.id}-${tag}`}
