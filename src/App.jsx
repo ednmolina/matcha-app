@@ -944,10 +944,10 @@ function ComparePanel({ teas, compareIds, onRemove, onClear, onCompareToggle }) 
                 boxShadow: "0 6px 18px rgba(31,22,12,.12)",
               }}
             >
-              <div style={{ display: "grid", gridTemplateRows: "52px 60px 46px", rowGap: 10 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "flex-start", minHeight: 52 }}>
-                  <div style={{ minWidth: 0 }}>
-                    <h3 style={{ margin: 0, fontSize: 18, lineHeight: 1.05, fontWeight: 700, color: "#2e2012" }}>{tea.name}</h3>
+              <div style={{ height: 186, display: "grid", gridTemplateRows: "52px 56px 42px", rowGap: 10, overflow: "hidden" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "flex-start", overflow: "hidden" }}>
+                  <div style={{ minWidth: 0, overflow: "hidden" }}>
+                    <h3 style={{ margin: 0, fontSize: 18, lineHeight: 1.05, fontWeight: 700, color: "#2e2012", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{tea.name}</h3>
                     <div style={{ marginTop: 3, fontSize: 12, color: "#7e6d4d" }}>{tea.kanji}</div>
                   </div>
                   <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
@@ -995,7 +995,7 @@ function ComparePanel({ teas, compareIds, onRemove, onClear, onCompareToggle }) 
                   </div>
                 </div>
 
-                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignContent: "flex-start", minHeight: 60 }}>
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignContent: "flex-start", overflow: "hidden" }}>
                   <span
                     style={{
                       fontSize: 10,
@@ -1031,13 +1031,13 @@ function ComparePanel({ teas, compareIds, onRemove, onClear, onCompareToggle }) 
                   )}
                 </div>
 
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center", minHeight: 46 }}>
-                  <div>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center", overflow: "hidden" }}>
+                  <div style={{ minWidth: 0 }}>
                     <Stars r={tea.rating} />
                     {tea.price && <div style={{ marginTop: 3, fontSize: 10, color: "#6d5c40", fontWeight: 600 }}>{tea.price}</div>}
                   </div>
                   {extractPriceValue(tea.price) !== null && (
-                    <div style={{ textAlign: "right", fontSize: 10, color: "#7d6b51", fontWeight: 600 }}>
+                    <div style={{ textAlign: "right", fontSize: 10, color: "#7d6b51", fontWeight: 600, flexShrink: 0 }}>
                       ${extractPriceValue(tea.price).toFixed(0)}
                     </div>
                   )}
