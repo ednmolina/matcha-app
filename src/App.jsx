@@ -944,102 +944,104 @@ function ComparePanel({ teas, compareIds, onRemove, onClear, onCompareToggle }) 
                 boxShadow: "0 6px 18px rgba(31,22,12,.12)",
               }}
             >
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "flex-start", minHeight: 52 }}>
-                <div style={{ minWidth: 0 }}>
-                  <h3 style={{ margin: 0, fontSize: 18, lineHeight: 1.05, fontWeight: 700, color: "#2e2012" }}>{tea.name}</h3>
-                  <div style={{ marginTop: 3, fontSize: 12, color: "#7e6d4d" }}>{tea.kanji}</div>
+              <div style={{ display: "grid", gridTemplateRows: "52px 60px 46px", rowGap: 10 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "flex-start", minHeight: 52 }}>
+                  <div style={{ minWidth: 0 }}>
+                    <h3 style={{ margin: 0, fontSize: 18, lineHeight: 1.05, fontWeight: 700, color: "#2e2012" }}>{tea.name}</h3>
+                    <div style={{ marginTop: 3, fontSize: 12, color: "#7e6d4d" }}>{tea.kanji}</div>
+                  </div>
+                  <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); setInfoTeaId(infoTeaId === tea.id ? null : tea.id); }}
+                      aria-label={`Show teas similar to ${tea.name}`}
+                      title="Show similar teas"
+                      style={{
+                        border: "1px solid #c8b898",
+                        background: infoTeaId === tea.id ? "#8a7050" : "#f0e4cc",
+                        color: infoTeaId === tea.id ? "#fff" : "#684d29",
+                        borderRadius: 999,
+                        width: 24,
+                        height: 24,
+                        cursor: "pointer",
+                        fontSize: 12,
+                        fontWeight: 700,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        lineHeight: 1,
+                      }}
+                    >
+                      ℹ
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onRemove(tea.id)}
+                      aria-label={`Remove ${tea.name} from compare`}
+                      style={{
+                        border: "none",
+                        background: "#eadcc1",
+                        color: "#684d29",
+                        borderRadius: 999,
+                        width: 24,
+                        height: 24,
+                        fontSize: 14,
+                        cursor: "pointer",
+                        lineHeight: 1,
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
                 </div>
-                <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
-                  <button
-                    type="button"
-                    onClick={(e) => { e.stopPropagation(); setInfoTeaId(infoTeaId === tea.id ? null : tea.id); }}
-                    aria-label={`Show teas similar to ${tea.name}`}
-                    title="Show similar teas"
-                    style={{
-                      border: "1px solid #c8b898",
-                      background: infoTeaId === tea.id ? "#8a7050" : "#f0e4cc",
-                      color: infoTeaId === tea.id ? "#fff" : "#684d29",
-                      borderRadius: 999,
-                      width: 24,
-                      height: 24,
-                      cursor: "pointer",
-                      fontSize: 12,
-                      fontWeight: 700,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      lineHeight: 1,
-                    }}
-                  >
-                    ℹ
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => onRemove(tea.id)}
-                    aria-label={`Remove ${tea.name} from compare`}
-                    style={{
-                      border: "none",
-                      background: "#eadcc1",
-                      color: "#684d29",
-                      borderRadius: 999,
-                      width: 24,
-                      height: 24,
-                      fontSize: 14,
-                      cursor: "pointer",
-                      lineHeight: 1,
-                    }}
-                  >
-                    ×
-                  </button>
-                </div>
-              </div>
 
-              <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap", alignContent: "flex-start", minHeight: 52 }}>
-                <span
-                  style={{
-                    fontSize: 10,
-                    padding: "2px 8px",
-                    borderRadius: 999,
-                    background: tea.producer === "Yamamasa Koyamaen" ? "#2d4a2d" : "#4a2d2d",
-                    color: "#f5eed8",
-                    fontWeight: 600,
-                  }}
-                >
-                  {producerLabel(tea.producer)}
-                </span>
-                <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 999, background: "#e7d8bc", color: "#5a4529" }}>
-                  {tea.sub}
-                </span>
-                {tea.favoredSchool && (
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignContent: "flex-start", minHeight: 60 }}>
                   <span
                     style={{
                       fontSize: 10,
                       padding: "2px 8px",
                       borderRadius: 999,
-                      fontWeight: 700,
-                      ...SCHOOL_CHIP_STYLES[tea.favoredSchool],
+                      background: tea.producer === "Yamamasa Koyamaen" ? "#2d4a2d" : "#4a2d2d",
+                      color: "#f5eed8",
+                      fontWeight: 600,
                     }}
                   >
-                    {tea.favoredSchool} favored
+                    {producerLabel(tea.producer)}
                   </span>
-                )}
-                {tea.id === topRatedId && (
-                  <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 999, background: "#d9c36f", color: "#4d3b10", fontWeight: 700 }}>
-                    Top Rated
+                  <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 999, background: "#e7d8bc", color: "#5a4529" }}>
+                    {tea.sub}
                   </span>
-                )}
-              </div>
-
-              <div style={{ marginTop: 10, display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center", minHeight: 36 }}>
-                <div>
-                  <Stars r={tea.rating} />
-                  {tea.price && <div style={{ marginTop: 3, fontSize: 10, color: "#6d5c40", fontWeight: 600 }}>{tea.price}</div>}
+                  {tea.favoredSchool && (
+                    <span
+                      style={{
+                        fontSize: 10,
+                        padding: "2px 8px",
+                        borderRadius: 999,
+                        fontWeight: 700,
+                        ...SCHOOL_CHIP_STYLES[tea.favoredSchool],
+                      }}
+                    >
+                      {tea.favoredSchool} favored
+                    </span>
+                  )}
+                  {tea.id === topRatedId && (
+                    <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 999, background: "#d9c36f", color: "#4d3b10", fontWeight: 700 }}>
+                      Top Rated
+                    </span>
+                  )}
                 </div>
-                {extractPriceValue(tea.price) !== null && (
-                  <div style={{ textAlign: "right", fontSize: 10, color: "#7d6b51", fontWeight: 600 }}>
-                    ${extractPriceValue(tea.price).toFixed(0)}
+
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center", minHeight: 46 }}>
+                  <div>
+                    <Stars r={tea.rating} />
+                    {tea.price && <div style={{ marginTop: 3, fontSize: 10, color: "#6d5c40", fontWeight: 600 }}>{tea.price}</div>}
                   </div>
-                )}
+                  {extractPriceValue(tea.price) !== null && (
+                    <div style={{ textAlign: "right", fontSize: 10, color: "#7d6b51", fontWeight: 600 }}>
+                      ${extractPriceValue(tea.price).toFixed(0)}
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid #dfcfb1" }}>
