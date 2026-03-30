@@ -2,7 +2,416 @@ import { useState, useMemo, useEffect } from "react";
 import { MapContainer, TileLayer, CircleMarker, Tooltip } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
-const TEAS = [
+const SAN_SENKE_SCHOOLS = ["Omotesenke", "Urasenke", "Mushakojisenke"];
+const SCHOOL_FILTERS = ["All", "San-Senke Favored", ...SAN_SENKE_SCHOOLS];
+const SCHOOL_CHIP_STYLES = {
+  Omotesenke: { background: "#d8cab0", color: "#49381e" },
+  Urasenke: { background: "#c7d8c1", color: "#24402a" },
+  Mushakojisenke: { background: "#ced4e8", color: "#273552" },
+};
+const SCHOOL_FAVORITES = {
+  "Shoka no Mukashi": { favoredSchool: "Urasenke", favoredBy: "Zabosai iemoto", favoredBranch: "Konnichian" },
+  "Keichi no Mukashi": { favoredSchool: "Urasenke", favoredBy: "Hounsai sosho", favoredBranch: "Konnichian" },
+  Kiun: { favoredSchool: "Urasenke", favoredBy: "Hounsai sosho", favoredBranch: "Konnichian" },
+  "Shoun no Mukashi": { favoredSchool: "Urasenke", favoredBy: "Hounsai sosho", favoredBranch: "Konnichian" },
+  "Tama no Shiro": { favoredSchool: "Urasenke", favoredBy: "Hounsai sosho", favoredBranch: "Konnichian" },
+  Shohaku: { favoredSchool: "Urasenke", favoredBy: "Hounsai sosho", favoredBranch: "Konnichian" },
+  "Myofu no Mukashi": { favoredSchool: "Omotesenke", favoredBy: "Jimyosai sosho", favoredBranch: "Fushin'an" },
+  "Sanyu no Shiro": { favoredSchool: "Omotesenke", favoredBy: "Jimyosai sosho", favoredBranch: "Fushin'an" },
+  "Suisho no Mukashi": { favoredSchool: "Mushakojisenke", favoredBy: "Futetsusai iemoto", favoredBranch: "Kankyuan" },
+};
+
+function hyphenateTeaName(name = "") {
+  return name.replace(/\s+/g, "-");
+}
+
+function inferSchoolSub(name = "") {
+  if (name.includes("no Mukashi")) return "Koicha";
+  if (name.includes("no Shiro")) return "Usucha";
+  return "Matcha";
+}
+
+function buildSchoolLabel({ favoredSchool, favoredBy, favoredBranch }) {
+  return [favoredSchool, favoredBy, favoredBranch].filter(Boolean).join(" · ");
+}
+
+function createSchoolFavoredTea({
+  id,
+  name,
+  kanji,
+  producer,
+  favoredSchool,
+  favoredBy,
+  favoredBranch,
+  sub,
+  grade,
+  price,
+  sizes,
+  status = "limited",
+  rating,
+  notes,
+  tags,
+  desc,
+  src,
+  aliases = [],
+}) {
+  return {
+    id,
+    name,
+    kanji,
+    aliases: [...new Set([hyphenateTeaName(name), ...aliases])],
+    producer,
+    category: "Tea School",
+    sub: sub ?? inferSchoolSub(name),
+    school: buildSchoolLabel({ favoredSchool, favoredBy, favoredBranch }),
+    favoredSchool,
+    favoredBy,
+    favoredBranch,
+    sanSenkeFavored: SAN_SENKE_SCHOOLS.includes(favoredSchool),
+    grade: grade ?? inferSchoolSub(name),
+    price,
+    sizes,
+    status,
+    rating,
+    notes,
+    tags,
+    desc,
+    src,
+  };
+}
+
+function enrichTea(tea) {
+  const favorite = tea.favoredSchool ? tea : SCHOOL_FAVORITES[tea.name];
+  if (!favorite) return tea;
+
+  const nextSchool = tea.school ?? buildSchoolLabel(favorite);
+  return {
+    ...tea,
+    school: nextSchool,
+    favoredSchool: favorite.favoredSchool,
+    favoredBy: favorite.favoredBy,
+    favoredBranch: favorite.favoredBranch,
+    sanSenkeFavored: SAN_SENKE_SCHOOLS.includes(favorite.favoredSchool),
+  };
+}
+
+const EXTRA_SCHOOL_FAVORED_TEAS = [
+  createSchoolFavoredTea({
+    id: "yk20",
+    name: "Suimei no Mukashi",
+    kanji: "翠明の昔",
+    producer: "Yamamasa Koyamaen",
+    favoredSchool: "Omotesenke",
+    favoredBy: "Yuyusai iemoto",
+    favoredBranch: "Fushinan",
+    price: "~$42/30g",
+    sizes: ["30g", "100g"],
+    rating: 4.5,
+    notes: { umami: 4, sweet: 4, bitter: 1, astringent: 0, body: 4 },
+    tags: ["refined", "calm sweetness", "koicha", "school favored"],
+    desc: "Omotesenke-favored Yamamasa koicha with a polished, composed profile and steady sweetness.",
+    src: "User-provided Yamamasa favored tea list",
+  }),
+  createSchoolFavoredTea({
+    id: "yk21",
+    name: "Otowa no Shiro",
+    kanji: "音羽の白",
+    producer: "Yamamasa Koyamaen",
+    favoredSchool: "Omotesenke",
+    favoredBy: "Yuyusai iemoto",
+    favoredBranch: "Fushinan",
+    price: "~$25/30g",
+    sizes: ["30g", "100g"],
+    rating: 4.2,
+    notes: { umami: 3, sweet: 3, bitter: 1, astringent: 1, body: 3 },
+    tags: ["soft", "bright", "usucha", "school favored"],
+    desc: "A lighter Omotesenke usucha counterpart with soft sweetness and a clean, lifted finish.",
+    src: "User-provided Yamamasa favored tea list",
+  }),
+  createSchoolFavoredTea({
+    id: "yk22",
+    name: "Hagami no Mukashi",
+    kanji: "葉上の昔",
+    producer: "Yamamasa Koyamaen",
+    favoredSchool: "Omotesenke",
+    favoredBy: "Jimyosai iemoto",
+    favoredBranch: "Fushinan",
+    price: "~$40/30g",
+    sizes: ["30g", "100g"],
+    rating: 4.4,
+    notes: { umami: 4, sweet: 4, bitter: 1, astringent: 0, body: 4 },
+    tags: ["smooth", "deep green", "koicha", "school favored"],
+    desc: "Favored by Jimyosai, this Yamamasa koicha leans smooth, dense, and classically formal.",
+    src: "User-provided Yamamasa favored tea list",
+  }),
+  createSchoolFavoredTea({
+    id: "yk23",
+    name: "Toga no Shiro",
+    kanji: "栂の白",
+    producer: "Yamamasa Koyamaen",
+    favoredSchool: "Omotesenke",
+    favoredBy: "Jimyosai iemoto",
+    favoredBranch: "Fushinan",
+    price: "~$24/30g",
+    sizes: ["30g", "100g"],
+    rating: 4.1,
+    notes: { umami: 3, sweet: 3, bitter: 1, astringent: 1, body: 3 },
+    tags: ["balanced", "gentle", "usucha", "school favored"],
+    desc: "Balanced and approachable Omotesenke usucha with a gentle, polished body.",
+    src: "User-provided Yamamasa favored tea list",
+  }),
+  createSchoolFavoredTea({
+    id: "yk24",
+    name: "Fukase no Mukashi",
+    kanji: "深瀬の昔",
+    producer: "Yamamasa Koyamaen",
+    favoredSchool: "Omotesenke",
+    favoredBy: "Sokuchusai sosho",
+    favoredBranch: "Fushinan",
+    price: "~$38/30g",
+    sizes: ["30g", "100g"],
+    rating: 4.3,
+    notes: { umami: 4, sweet: 3, bitter: 1, astringent: 1, body: 4 },
+    tags: ["rich", "layered", "koicha", "school favored"],
+    desc: "A deeper, more structured Omotesenke koicha with layered umami and a grounded finish.",
+    src: "User-provided Yamamasa favored tea list",
+  }),
+  createSchoolFavoredTea({
+    id: "yk25",
+    name: "Toganoo",
+    kanji: "栂尾",
+    producer: "Yamamasa Koyamaen",
+    favoredSchool: "Omotesenke",
+    favoredBy: "Sokuchusai sosho",
+    favoredBranch: "Fushinan",
+    sub: "Usucha",
+    grade: "Usucha",
+    price: "~$22/30g",
+    sizes: ["30g", "100g"],
+    rating: 4.1,
+    notes: { umami: 3, sweet: 3, bitter: 2, astringent: 1, body: 3 },
+    tags: ["toasty", "dry finish", "usucha", "school favored"],
+    desc: "A more brisk Omotesenke usucha with a dry, traditional finish suited to practice bowls.",
+    src: "User-provided Yamamasa favored tea list",
+  }),
+  createSchoolFavoredTea({
+    id: "yk26",
+    name: "Senri no Mukashi",
+    kanji: "千里の昔",
+    producer: "Yamamasa Koyamaen",
+    favoredSchool: "Urasenke",
+    favoredBy: "Zabosai iemoto",
+    favoredBranch: "Konnichian",
+    price: "~$42/30g",
+    sizes: ["30g", "100g"],
+    rating: 4.5,
+    notes: { umami: 4, sweet: 4, bitter: 1, astringent: 0, body: 4 },
+    tags: ["silky", "long finish", "koicha", "school favored"],
+    desc: "Zabosai-favored Yamamasa koicha with a silky body and restrained, long-echoing sweetness.",
+    src: "User-provided Yamamasa favored tea list",
+  }),
+  createSchoolFavoredTea({
+    id: "yk27",
+    name: "Yuuwa no Shiro",
+    kanji: "幽和の白",
+    aliases: ["Yuwa no Shiro"],
+    producer: "Yamamasa Koyamaen",
+    favoredSchool: "Urasenke",
+    favoredBy: "Zabosai iemoto",
+    favoredBranch: "Konnichian",
+    price: "~$24/30g",
+    sizes: ["30g", "100g"],
+    rating: 4.2,
+    notes: { umami: 3, sweet: 3, bitter: 1, astringent: 1, body: 3 },
+    tags: ["clean", "springy", "usucha", "school favored"],
+    desc: "A neat, balanced Urasenke usucha with clean sweetness and a composed finish.",
+    src: "User-provided Yamamasa favored tea list",
+  }),
+  createSchoolFavoredTea({
+    id: "yk28",
+    name: "Hamuro no Mukashi",
+    kanji: "葉室の昔",
+    producer: "Yamamasa Koyamaen",
+    favoredSchool: "Urasenke",
+    favoredBy: "Hounsai daisosho",
+    favoredBranch: "Konnichian",
+    price: "~$38/30g",
+    sizes: ["30g", "100g"],
+    rating: 4.4,
+    notes: { umami: 4, sweet: 4, bitter: 1, astringent: 0, body: 4 },
+    tags: ["creamy", "elegant", "koicha", "school favored"],
+    desc: "A creamy, elegant Urasenke koicha with soft power and a very composed structure.",
+    src: "User-provided Yamamasa favored tea list",
+  }),
+  createSchoolFavoredTea({
+    id: "yk29",
+    name: "Kamio no Shiro",
+    kanji: "上尾の白",
+    producer: "Yamamasa Koyamaen",
+    favoredSchool: "Urasenke",
+    favoredBy: "Hounsai daisosho",
+    favoredBranch: "Konnichian",
+    price: "~$25/30g",
+    sizes: ["30g", "100g"],
+    rating: 4.1,
+    notes: { umami: 3, sweet: 3, bitter: 1, astringent: 1, body: 3 },
+    tags: ["mellow", "refined", "usucha", "school favored"],
+    desc: "Hounsai-favored usucha with a mellow middle and restrained bitterness.",
+    src: "User-provided Yamamasa favored tea list",
+  }),
+  createSchoolFavoredTea({
+    id: "yk30",
+    name: "Koke no Shiro",
+    kanji: "苔の白",
+    producer: "Yamamasa Koyamaen",
+    favoredSchool: "Urasenke",
+    favoredBy: "Hounsai daisosho",
+    favoredBranch: "Konnichian",
+    price: "~$23/30g",
+    sizes: ["30g", "100g"],
+    rating: 4.0,
+    notes: { umami: 3, sweet: 2, bitter: 1, astringent: 1, body: 2 },
+    tags: ["quiet", "dry", "usucha", "school favored"],
+    desc: "A quieter Urasenke-style usucha with a drier finish and restrained sweetness.",
+    src: "User-provided Yamamasa favored tea list",
+  }),
+  createSchoolFavoredTea({
+    id: "yk31",
+    name: "Ujikami no Mukashi",
+    kanji: "宇治上の昔",
+    producer: "Yamamasa Koyamaen",
+    favoredSchool: "Mushakojisenke",
+    favoredBy: "Futetsusai iemoto",
+    favoredBranch: "Kankyuan",
+    price: "~$36/30g",
+    sizes: ["30g", "100g"],
+    rating: 4.4,
+    notes: { umami: 4, sweet: 3, bitter: 1, astringent: 0, body: 4 },
+    tags: ["direct", "pure", "koicha", "school favored"],
+    desc: "Austere and pure in profile, this Mushakojisenke-favored koicha emphasizes clarity over opulence.",
+    src: "User-provided Yamamasa favored tea list",
+  }),
+  createSchoolFavoredTea({
+    id: "yk32",
+    name: "Kanade no Shiro",
+    kanji: "奏の白",
+    producer: "Yamamasa Koyamaen",
+    favoredSchool: "Mushakojisenke",
+    favoredBy: "Futetsusai iemoto",
+    favoredBranch: "Kankyuan",
+    price: "~$22/30g",
+    sizes: ["30g", "100g"],
+    rating: 4.1,
+    notes: { umami: 3, sweet: 2, bitter: 1, astringent: 1, body: 3 },
+    tags: ["clean", "austere", "usucha", "school favored"],
+    desc: "A cleaner, more austere Mushakojisenke usucha with a focused traditional feel.",
+    src: "User-provided Yamamasa favored tea list",
+  }),
+  createSchoolFavoredTea({
+    id: "mk47",
+    name: "Seijo no Shiro",
+    kanji: "清浄の白",
+    producer: "Marukyu Koyamaen",
+    favoredSchool: "Urasenke",
+    favoredBy: "Zabosai iemoto",
+    favoredBranch: "Konnichian",
+    price: "~$24/20g",
+    sizes: ["20g", "40g"],
+    rating: 4.2,
+    notes: { umami: 3, sweet: 3, bitter: 1, astringent: 1, body: 3 },
+    tags: ["clear", "bright", "usucha", "school favored"],
+    desc: "A clear, bright Urasenke usucha favored by Zabosai with an easy ceremonial balance.",
+    src: "User-provided Marukyu favored tea list",
+  }),
+  createSchoolFavoredTea({
+    id: "mk48",
+    name: "Saiho no Mukashi",
+    kanji: "彩鳳の昔",
+    producer: "Marukyu Koyamaen",
+    favoredSchool: "Omotesenke",
+    favoredBy: "Yuyusai iemoto",
+    favoredBranch: "Fushin'an",
+    price: "~$42/20g",
+    sizes: ["20g", "40g"],
+    rating: 4.5,
+    notes: { umami: 4, sweet: 4, bitter: 1, astringent: 0, body: 4 },
+    tags: ["refined", "soft richness", "koicha", "school favored"],
+    desc: "A refined Omotesenke koicha favored by Yuyusai with soft richness and a poised finish.",
+    src: "User-provided Marukyu favored tea list",
+  }),
+  createSchoolFavoredTea({
+    id: "mk49",
+    name: "Yukyu no Shiro",
+    kanji: "幽久の白",
+    producer: "Marukyu Koyamaen",
+    favoredSchool: "Omotesenke",
+    favoredBy: "Yuyusai iemoto",
+    favoredBranch: "Fushin'an",
+    price: "~$24/20g",
+    sizes: ["20g", "40g"],
+    rating: 4.2,
+    notes: { umami: 3, sweet: 3, bitter: 1, astringent: 1, body: 3 },
+    tags: ["gentle", "light sweetness", "usucha", "school favored"],
+    desc: "A gentle Omotesenke usucha with light sweetness and a clean ceremonial profile.",
+    src: "User-provided Marukyu favored tea list",
+  }),
+  createSchoolFavoredTea({
+    id: "mk50",
+    name: "Saiun",
+    kanji: "彩雲",
+    producer: "Marukyu Koyamaen",
+    favoredSchool: "Omotesenke",
+    favoredBy: "Jimyosai sosho",
+    favoredBranch: "Fushin'an",
+    sub: "Usucha",
+    grade: "Usucha",
+    price: "~$37/20g",
+    sizes: ["20g", "40g"],
+    rating: 4.3,
+    notes: { umami: 3, sweet: 3, bitter: 1, astringent: 1, body: 3 },
+    tags: ["rounded", "balanced", "usucha", "school favored"],
+    desc: "A rounded Omotesenke usucha favored by Jimyosai, built around balance rather than force.",
+    src: "User-provided Marukyu favored tea list",
+  }),
+  createSchoolFavoredTea({
+    id: "mk51",
+    name: "Kissho",
+    kanji: "吉祥",
+    producer: "Marukyu Koyamaen",
+    favoredSchool: "Omotesenke",
+    favoredBy: "Jimyosai sosho",
+    favoredBranch: "Fushin'an",
+    sub: "Usucha",
+    grade: "Usucha (Entry)",
+    price: "~$20/20g",
+    sizes: ["20g", "40g"],
+    rating: 4.0,
+    notes: { umami: 2, sweet: 2, bitter: 1, astringent: 1, body: 2 },
+    tags: ["entry", "clean", "usucha", "school favored"],
+    desc: "An approachable Omotesenke-favored usucha that stays clean and easy to prepare.",
+    src: "User-provided Marukyu favored tea list",
+  }),
+  createSchoolFavoredTea({
+    id: "mk52",
+    name: "Shofu",
+    kanji: "松風",
+    producer: "Marukyu Koyamaen",
+    favoredSchool: "Mushakojisenke",
+    favoredBy: "Futetsusai iemoto",
+    favoredBranch: "Kankyuan",
+    sub: "Usucha",
+    grade: "Usucha",
+    price: "~$24/20g",
+    sizes: ["20g", "40g"],
+    rating: 4.1,
+    notes: { umami: 3, sweet: 2, bitter: 1, astringent: 1, body: 3 },
+    tags: ["clean", "piney", "usucha", "school favored"],
+    desc: "A Mushakojisenke-favored usucha with a clean, quietly piney profile and moderate body.",
+    src: "User-provided Marukyu favored tea list",
+  }),
+];
+
+const BASE_TEAS = [
   // ===== YAMAMASA KOYAMAEN — CEREMONIAL =====
   { id:"yk01", name:"Chajyu no Mukashi", kanji:"茶寿の昔", producer:"Yamamasa Koyamaen", category:"Ceremonial", sub:"Koicha", school:null, grade:"Top Grade", price:"$162/30g", sizes:["30g","100g","150g"], status:"active", rating:4.3, notes:{umami:5,sweet:5,bitter:1,astringent:1,body:5}, tags:["toasted seeds","roasted coffee","cocoa","pumpkin seed"], desc:"The pinnacle. Intensely mild yet powerful with a magically light body. Fresh tender green flavors with aromas of toasted seeds and roasted coffee beans. Creamy, full-bodied aftertaste lingers exceptionally long. As koicha, an explosive experience.", src:"Sazen Tea; Ujicha Matcha" },
   { id:"yk02", name:"Kasuga no Mukashi", kanji:"香寿賀の昔", producer:"Yamamasa Koyamaen", category:"Ceremonial", sub:"Koicha", school:null, grade:"High Grade", price:"$108/30g", sizes:["30g","100g","150g"], status:"active", rating:4.5, notes:{umami:5,sweet:4,bitter:1,astringent:1,body:5}, tags:["cream","explosive fullness","mild sweetness"], desc:"Intense creaminess and uniquely delicious mildness transform into an explosive, majestic full-bodied sensation that lingers on the palate. Less sweet than Chajyu, yet far more so than Kaguraden.", src:"Misora UK; Sazen Tea" },
@@ -78,6 +487,8 @@ const TEAS = [
   { id:"mk45", name:"Sweetened (Excellent)", kanji:"特撰グリーンティー", producer:"Marukyu Koyamaen", category:"Culinary", sub:"Sweetened", school:null, grade:"Sweetened Blend", price:"~$12/100g", sizes:["100g","500g"], status:"active", rating:3.5, notes:{umami:1,sweet:4,bitter:1,astringent:0,body:2}, tags:["pre-sweetened","instant","convenient"], desc:"Premium sweetened matcha blend. Just add hot or cold water for instant preparation. Convenient for casual entertaining.", src:"MK Catalog" },
   { id:"mk46", name:"Sweetened (Milk Design)", kanji:"ミルク専用", producer:"Marukyu Koyamaen", category:"Culinary", sub:"Sweetened", school:null, grade:"Milk-Optimized", price:"~$12/100g", sizes:["100g","500g"], status:"active", rating:3.4, notes:{umami:1,sweet:4,bitter:1,astringent:0,body:2}, tags:["milk-designed","sweet","instant latte"], desc:"Sweetened matcha specifically for milk-based drinks. Dissolves smoothly in cold or hot milk for instant matcha lattes.", src:"MK Catalog" },
 ];
+
+const TEAS = [...BASE_TEAS, ...EXTRA_SCHOOL_FAVORED_TEAS].map(enrichTea);
 
 const CATS = ["All", "Ceremonial", "Tea School", "Culinary", "Speciality"];
 const PRODS = ["All", "Yamamasa Koyamaen", "Marukyu Koyamaen"];
@@ -327,11 +738,18 @@ function normalizeText(value = "") {
   return value
     .toLowerCase()
     .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "");
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/['’]/g, "")
+    .replace(/[^a-z0-9\u3040-\u30ff\u3400-\u9fff]+/g, " ")
+    .trim();
 }
 
 function prefersCompactCompare() {
   return typeof window !== "undefined" && window.matchMedia("(max-width: 480px)").matches;
+}
+
+function schoolFilterLabel(value) {
+  return value === "San-Senke Favored" ? "San-Senke favored" : value;
 }
 
 function Stars({ r }) {
@@ -536,6 +954,19 @@ function ComparePanel({ teas, onRemove, onClear }) {
                 <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 999, background: "#e7d8bc", color: "#5a4529" }}>
                   {tea.sub}
                 </span>
+                {tea.favoredSchool && (
+                  <span
+                    style={{
+                      fontSize: 10,
+                      padding: "2px 8px",
+                      borderRadius: 999,
+                      fontWeight: 700,
+                      ...SCHOOL_CHIP_STYLES[tea.favoredSchool],
+                    }}
+                  >
+                    {tea.favoredSchool} favored
+                  </span>
+                )}
                 {tea.id === topRatedId && (
                   <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 999, background: "#d9c36f", color: "#4d3b10", fontWeight: 700 }}>
                     Top Rated
@@ -693,6 +1124,19 @@ function Card({ tea, expanded, onToggle, compared, onCompareToggle }) {
             <span style={{ fontSize: 10, padding: "1px 7px", borderRadius: 10, background: "#e8dcc8", color: "#5a4a30" }}>
               {tea.sub}
             </span>
+            {tea.favoredSchool && (
+              <span
+                style={{
+                  fontSize: 10,
+                  padding: "1px 7px",
+                  borderRadius: 10,
+                  fontWeight: 700,
+                  ...SCHOOL_CHIP_STYLES[tea.favoredSchool],
+                }}
+              >
+                {tea.favoredSchool} favored
+              </span>
+            )}
             {tea.school && (
               <span
                 style={{
@@ -818,6 +1262,16 @@ function Card({ tea, expanded, onToggle, compared, onCompareToggle }) {
                 </div>
                 <div style={{ fontSize: 11, color: "#5a4a30", marginTop: 2 }}>{tea.grade}</div>
               </div>
+              {(tea.favoredBy || tea.favoredBranch) && (
+                <div style={{ marginTop: 6 }}>
+                  <div style={{ fontSize: 10, color: "#8a7a5a", fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>
+                    Favored By
+                  </div>
+                  <div style={{ fontSize: 11, color: "#5a4a30", marginTop: 2 }}>
+                    {[tea.favoredBy, tea.favoredBranch].filter(Boolean).join(" · ")}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
           <div style={{ fontSize: 9, color: "#a09080", marginTop: 8, fontStyle: "italic" }}>Sources: {tea.src}</div>
@@ -1524,6 +1978,7 @@ export default function App() {
   const [view, setView] = useState("teas");
   const [cat, setCat] = useState("All");
   const [prod, setProd] = useState("All");
+  const [schoolFilter, setSchoolFilter] = useState("All");
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(null);
   const [sort, setSort] = useState("rating");
@@ -1541,6 +1996,8 @@ export default function App() {
     const items = TEAS.filter((tea) => {
       if (cat !== "All" && tea.category !== cat) return false;
       if (prod !== "All" && tea.producer !== prod) return false;
+      if (schoolFilter === "San-Senke Favored" && !tea.sanSenkeFavored) return false;
+      if (SAN_SENKE_SCHOOLS.includes(schoolFilter) && tea.favoredSchool !== schoolFilter) return false;
       if (!q) return true;
 
       const search = normalizeText(q);
@@ -1549,6 +2006,11 @@ export default function App() {
         tea.kanji,
         tea.desc,
         tea.school ?? "",
+        tea.favoredSchool ?? "",
+        tea.favoredBy ?? "",
+        tea.favoredBranch ?? "",
+        tea.sanSenkeFavored ? "san senke favored" : "",
+        tea.sanSenkeFavored ? "sanseke favored" : "",
         tea.sub,
         tea.producer,
         ...(tea.tags ?? []),
@@ -1570,12 +2032,27 @@ export default function App() {
     });
 
     return items;
-  }, [cat, prod, q, sort]);
+  }, [cat, prod, schoolFilter, q, sort]);
 
   const counts = useMemo(() => {
     const c = {};
     CATS.forEach((value) => {
       c[value] = value === "All" ? TEAS.length : TEAS.filter((tea) => tea.category === value).length;
+    });
+    return c;
+  }, []);
+  const schoolCounts = useMemo(() => {
+    const c = {};
+    SCHOOL_FILTERS.forEach((value) => {
+      if (value === "All") {
+        c[value] = TEAS.length;
+        return;
+      }
+      if (value === "San-Senke Favored") {
+        c[value] = TEAS.filter((tea) => tea.sanSenkeFavored).length;
+        return;
+      }
+      c[value] = TEAS.filter((tea) => tea.favoredSchool === value).length;
     });
     return c;
   }, []);
@@ -1804,6 +2281,30 @@ export default function App() {
                     }}
                   >
                     {value} <span style={{ fontSize: 9, opacity: 0.7 }}>({counts[value]})</span>
+                  </button>
+                ))}
+              </div>
+
+              <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 10, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 10, color: "#73825e", fontWeight: 700, letterSpacing: 1 }}>FAVORED</span>
+                {SCHOOL_FILTERS.map((value) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setSchoolFilter(value)}
+                    style={{
+                      padding: "5px 12px",
+                      border: schoolFilter === value ? "2px solid #6f7f47" : "1px solid #c8bca4",
+                      borderRadius: 20,
+                      background: schoolFilter === value ? "#46592d" : "transparent",
+                      color: schoolFilter === value ? "#f5eed8" : "#5d6b3f",
+                      fontSize: 11,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      transition: "all .2s",
+                    }}
+                  >
+                    {schoolFilterLabel(value)} <span style={{ fontSize: 9, opacity: 0.7 }}>({schoolCounts[value]})</span>
                   </button>
                 ))}
               </div>
