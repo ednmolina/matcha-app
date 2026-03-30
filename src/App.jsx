@@ -1250,6 +1250,7 @@ function FlavorNetwork({ onTeaSelect }) {
   const [zoom, setZoom] = useState(1);
   const W = 820, H = 560;
   const EDGE_THRESH = 2.5;
+  const SIMILAR_HIGHLIGHT_COUNT = 5;
 
   useEffect(() => {
     const nodes = TEAS.map((tea, i) => ({
@@ -1271,11 +1272,20 @@ function FlavorNetwork({ onTeaSelect }) {
       }
     }
 
+    function getSimilarIdSet(teaId) {
+      const sourceNode = nodes.find((node) => node.id === teaId);
+      if (!sourceNode) return new Set();
+      return new Set(
+        getSimilarTeas(sourceNode.tea, TEAS, SIMILAR_HIGHLIGHT_COUNT).map(({ tea }) => tea.id)
+      );
+    }
+
     function draw(hovId, selId) {
       const canvas = canvasRef.current;
       if (!canvas) return;
       const ctx = canvas.getContext("2d");
       const { scale, tx, ty } = transformRef.current;
+      const similarIds = simRef.current?.similarIds ?? new Set();
       ctx.clearRect(0, 0, W, H);
       ctx.save();
       ctx.setTransform(scale, 0, 0, scale, tx, ty);
@@ -1283,27 +1293,34 @@ function FlavorNetwork({ onTeaSelect }) {
 
       for (const e of edges) {
         const ni = nodes[e.i], nj = nodes[e.j];
+        const isSelectedSimilarEdge = selId && (
+          (ni.id === selId && similarIds.has(nj.id)) ||
+          (nj.id === selId && similarIds.has(ni.id))
+        );
         const hi = ni.id === selId || nj.id === selId || ni.id === hovId || nj.id === hovId;
         ctx.beginPath();
         ctx.moveTo(ni.x, ni.y);
         ctx.lineTo(nj.x, nj.y);
-        ctx.strokeStyle = hi
-          ? `rgba(160,110,30,${e.strength * 0.9})`
-          : `rgba(140,120,80,${e.strength * 0.28})`;
-        ctx.lineWidth = hi ? 2 * lw : 0.8 * lw;
+        ctx.strokeStyle = isSelectedSimilarEdge
+          ? `rgba(45,132,141,${e.strength * 0.92})`
+          : hi
+            ? `rgba(160,110,30,${e.strength * 0.9})`
+            : `rgba(140,120,80,${e.strength * 0.28})`;
+        ctx.lineWidth = isSelectedSimilarEdge ? 2.4 * lw : hi ? 2 * lw : 0.8 * lw;
         ctx.stroke();
       }
 
       for (const n of nodes) {
         const isSel = n.id === selId, isHov = n.id === hovId;
-        const r = (isSel ? 9 : isHov ? 8 : 6) * lw;
+        const isSimilar = !isSel && similarIds.has(n.id);
+        const r = (isSel ? 9 : isHov ? 8 : isSimilar ? 7.2 : 6) * lw;
         if (isSel) { ctx.shadowColor = "rgba(160,110,30,.7)"; ctx.shadowBlur = 14 * lw; }
         ctx.beginPath();
         ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
-        ctx.fillStyle = isSel ? "#c47820" : isHov ? "#4a7030" : "#7a9a5a";
+        ctx.fillStyle = isSel ? "#c47820" : isHov ? "#4a7030" : isSimilar ? "#2d848d" : "#7a9a5a";
         ctx.fill();
-        ctx.strokeStyle = isSel ? "#8a5010" : isHov ? "#2a5010" : "rgba(255,255,255,.7)";
-        ctx.lineWidth = (isSel ? 2 : 1) * lw;
+        ctx.strokeStyle = isSel ? "#8a5010" : isHov ? "#2a5010" : isSimilar ? "#1b5f65" : "rgba(255,255,255,.7)";
+        ctx.lineWidth = (isSel ? 2 : isSimilar ? 1.6 : 1) * lw;
         ctx.stroke();
         ctx.shadowBlur = 0;
 
@@ -1317,7 +1334,7 @@ function FlavorNetwork({ onTeaSelect }) {
       ctx.restore();
     }
 
-    simRef.current = { nodes, edges, alpha: 1.0, hovId: null, selId: null, draw };
+    simRef.current = { nodes, edges, alpha: 1.0, hovId: null, selId: null, similarIds: new Set(), draw };
 
     function tick() {
       const sim = simRef.current;
@@ -1454,6 +1471,7 @@ function FlavorNetwork({ onTeaSelect }) {
       const node = getNodeAt(x, y);
       if (simRef.current) {
         simRef.current.selId = node?.id || null;
+        simRef.current.similarIds = node ? getSimilarIdSet(node.id) : new Set();
         simRef.current.draw(simRef.current.hovId, simRef.current.selId);
       }
       setSelected(node?.tea || null);
@@ -1494,6 +1512,7 @@ function FlavorNetwork({ onTeaSelect }) {
       const node = getNodeAt(x, y);
       if (simRef.current) {
         simRef.current.selId = node?.id || null;
+        simRef.current.similarIds = node ? getSimilarIdSet(node.id) : new Set();
         simRef.current.draw(simRef.current.hovId, simRef.current.selId);
       }
       setSelected(node?.tea || null);
