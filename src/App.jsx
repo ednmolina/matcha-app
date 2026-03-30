@@ -752,6 +752,10 @@ function schoolFilterLabel(value) {
   return value === "San-Senke Favored" ? "San-Senke favored" : value;
 }
 
+function producerLabel(producer) {
+  return producer === "Yamamasa Koyamaen" ? "山政 Yamamasa" : "丸久 Marukyu";
+}
+
 function Stars({ r }) {
   const rounded = Math.round(r);
   const empty = 5 - rounded;
@@ -949,7 +953,7 @@ function ComparePanel({ teas, onRemove, onClear }) {
                     fontWeight: 600,
                   }}
                 >
-                  {tea.producer === "Yamamasa Koyamaen" ? "山政" : "丸久"}
+                  {producerLabel(tea.producer)}
                 </span>
                 <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 999, background: "#e7d8bc", color: "#5a4529" }}>
                   {tea.sub}
@@ -1118,8 +1122,8 @@ function Card({ tea, expanded, onToggle, compared, onCompareToggle }) {
                 color: "#f5eed8",
                 fontWeight: 600,
               }}
-            >
-              {tea.producer === "Yamamasa Koyamaen" ? "山政" : "丸久"}
+              >
+              {producerLabel(tea.producer)}
             </span>
             <span style={{ fontSize: 10, padding: "1px 7px", borderRadius: 10, background: "#e8dcc8", color: "#5a4a30" }}>
               {tea.sub}
@@ -2056,6 +2060,19 @@ export default function App() {
     });
     return c;
   }, []);
+  const favoredProducerCounts = useMemo(
+    () =>
+      filtered.reduce(
+        (acc, tea) => {
+          if (!tea.sanSenkeFavored) return acc;
+          if (tea.producer === "Yamamasa Koyamaen") acc.yamamasa += 1;
+          if (tea.producer === "Marukyu Koyamaen") acc.marukyu += 1;
+          return acc;
+        },
+        { yamamasa: 0, marukyu: 0 }
+      ),
+    [filtered]
+  );
 
   const comparedTeas = useMemo(
     () => compareIds.map((id) => TEAS.find((tea) => tea.id === id)).filter(Boolean),
@@ -2308,6 +2325,11 @@ export default function App() {
                   </button>
                 ))}
               </div>
+              {schoolFilter !== "All" && (
+                <div style={{ marginTop: -2, marginBottom: 10, fontSize: 11, color: "#667349", lineHeight: 1.45 }}>
+                  Current favored results: {favoredProducerCounts.yamamasa} Yamamasa · {favoredProducerCounts.marukyu} Marukyu
+                </div>
+              )}
 
               <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                 <span style={{ fontSize: 10, color: "#8a7a5a", fontWeight: 700, letterSpacing: 1 }}>SORT</span>
