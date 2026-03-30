@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { MapContainer, TileLayer, CircleMarker, Tooltip } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -513,6 +513,30 @@ const REGION_PROFILE_ROWS = [
   ["Aroma", "aroma", "#7a6a8a"],
   ["Body", "body", "#4a6a6a"],
 ];
+
+const NOTES_FIELDS = ["umami", "sweet", "bitter", "astringent", "body"];
+const MAX_TEA_DIST = 9;
+const CAT_COLORS_GRAPH = {
+  Ceremonial: "#5a8a3a",
+  "Tea School": "#7a6a8a",
+  Culinary: "#8a5a3a",
+  Speciality: "#4a7a8a",
+};
+
+function teaDist(a, b) {
+  return Math.sqrt(
+    NOTES_FIELDS.reduce((s, f) => s + Math.pow((a.notes?.[f] ?? 0) - (b.notes?.[f] ?? 0), 2), 0)
+  );
+}
+
+function getSimilarTeas(tea, allTeas, n = 5) {
+  return allTeas
+    .filter((t) => t.id !== tea.id)
+    .map((t) => ({ tea: t, dist: teaDist(tea, t) }))
+    .sort((a, b) => a.dist - b.dist)
+    .slice(0, n);
+}
+
 const CULTIVARS = [
   {
     id: "cv01",
@@ -806,6 +830,7 @@ function extractPriceValue(price) {
 function ComparePanel({ teas, onRemove, onClear }) {
   const [collapsed, setCollapsed] = useState(prefersCompactCompare);
   const [expandedDescriptions, setExpandedDescriptions] = useState({});
+  const [infoTeaId, setInfoTeaId] = useState(null);
   const topRatedId = teas.reduce(
     (best, tea) => (!best || tea.rating > best.rating ? tea : best),
     null
@@ -922,24 +947,49 @@ function ComparePanel({ teas, onRemove, onClear }) {
                   <h3 style={{ margin: 0, fontSize: 18, lineHeight: 1.05, fontWeight: 700, color: "#2e2012" }}>{tea.name}</h3>
                   <div style={{ marginTop: 3, fontSize: 12, color: "#7e6d4d" }}>{tea.kanji}</div>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => onRemove(tea.id)}
-                  aria-label={`Remove ${tea.name} from compare`}
-                  style={{
-                    border: "none",
-                    background: "#eadcc1",
-                    color: "#684d29",
-                    borderRadius: 999,
-                    width: 24,
-                    height: 24,
-                    fontSize: 14,
-                    cursor: "pointer",
-                    lineHeight: 1,
-                  }}
-                >
-                  ×
-                </button>
+                <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); setInfoTeaId(infoTeaId === tea.id ? null : tea.id); }}
+                    aria-label={`Show teas similar to ${tea.name}`}
+                    title="Show similar teas"
+                    style={{
+                      border: "1px solid #c8b898",
+                      background: infoTeaId === tea.id ? "#8a7050" : "#f0e4cc",
+                      color: infoTeaId === tea.id ? "#fff" : "#684d29",
+                      borderRadius: 999,
+                      width: 24,
+                      height: 24,
+                      cursor: "pointer",
+                      fontSize: 12,
+                      fontWeight: 700,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      lineHeight: 1,
+                    }}
+                  >
+                    ℹ
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onRemove(tea.id)}
+                    aria-label={`Remove ${tea.name} from compare`}
+                    style={{
+                      border: "none",
+                      background: "#eadcc1",
+                      color: "#684d29",
+                      borderRadius: 999,
+                      width: 24,
+                      height: 24,
+                      fontSize: 14,
+                      cursor: "pointer",
+                      lineHeight: 1,
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
               </div>
 
               <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
@@ -1056,11 +1106,330 @@ function ComparePanel({ teas, onRemove, onClear }) {
               >
                 {expandedDescriptions[tea.id] ? "Show Less" : "Show More"}
               </button>
+              {infoTeaId === tea.id && (
+                <div
+                  style={{
+                    marginTop: 10,
+                    paddingTop: 10,
+                    borderTop: "1px solid #d7c7a7",
+                    animation: "fadeIn .2s ease",
+                  }}
+                >
+                  <div style={{ fontSize: 9, color: "#8a7a5a", fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", marginBottom: 6 }}>
+                    Most Similar Teas
+                  </div>
+                  <SimilarTeaList tea={tea} compact />
+                </div>
+              )}
             </article>
           ))}
         </div>
       )}
     </section>
+  );
+}
+
+function SimilarTeaList({ tea, compact = false }) {
+  const similar = getSimilarTeas(tea, TEAS, 5);
+  return (
+    <div>
+      {similar.map(({ tea: t, dist }) => {
+        const pct = Math.max(0, Math.round((1 - dist / MAX_TEA_DIST) * 100));
+        return (
+          <div
+            key={t.id}
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              padding: compact ? "3px 0" : "5px 0",
+              borderBottom: "1px solid #ece4d4",
+            }}
+          >
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: compact ? 10 : 11, color: "#3a2e1e", fontWeight: 600, lineHeight: 1.2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                {t.name}
+              </div>
+              <div style={{ fontSize: 9, color: "#8a7a5a", marginTop: 1 }}>
+                {t.sub} · {t.producer === "Yamamasa Koyamaen" ? "Yamamasa" : "Marukyu"}
+              </div>
+            </div>
+            <div style={{ textAlign: "right", flexShrink: 0, marginLeft: 8 }}>
+              <div style={{ fontSize: compact ? 11 : 12, color: "#5a8a3a", fontWeight: 700 }}>{pct}%</div>
+              <div style={{ fontSize: 8, color: "#9a8a6a" }}>match</div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function FlavorNetwork() {
+  const canvasRef = useRef(null);
+  const simRef = useRef(null);
+  const rafRef = useRef(null);
+  const [selected, setSelected] = useState(null);
+  const W = 820, H = 560;
+  const EDGE_THRESH = 2.5;
+
+  useEffect(() => {
+    const nodes = TEAS.map((tea, i) => ({
+      id: tea.id,
+      tea,
+      x: W / 2 + Math.cos((2 * Math.PI * i) / TEAS.length) * 240,
+      y: H / 2 + Math.sin((2 * Math.PI * i) / TEAS.length) * 200,
+      vx: 0,
+      vy: 0,
+    }));
+
+    const edges = [];
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const d = teaDist(nodes[i].tea, nodes[j].tea);
+        if (d <= EDGE_THRESH) {
+          edges.push({ i, j, d, strength: 1 - d / (EDGE_THRESH + 0.1) });
+        }
+      }
+    }
+
+    simRef.current = { nodes, edges, alpha: 1.0, hovId: null, selId: null };
+
+    function draw(hovId, selId) {
+      const canvas = canvasRef.current;
+      if (!canvas || !simRef.current) return;
+      const ctx = canvas.getContext("2d");
+      const { nodes, edges } = simRef.current;
+      ctx.clearRect(0, 0, W, H);
+
+      for (const e of edges) {
+        const ni = nodes[e.i], nj = nodes[e.j];
+        const hi = ni.id === selId || nj.id === selId || ni.id === hovId || nj.id === hovId;
+        ctx.beginPath();
+        ctx.moveTo(ni.x, ni.y);
+        ctx.lineTo(nj.x, nj.y);
+        ctx.strokeStyle = hi
+          ? `rgba(160,110,30,${e.strength * 0.85})`
+          : `rgba(160,140,100,${e.strength * 0.22})`;
+        ctx.lineWidth = hi ? 1.5 : 0.7;
+        ctx.stroke();
+      }
+
+      for (const n of nodes) {
+        const isSel = n.id === selId, isHov = n.id === hovId;
+        const r = isSel ? 9 : isHov ? 8 : 5.5;
+        if (isSel) { ctx.shadowColor = "rgba(160,110,30,.6)"; ctx.shadowBlur = 14; }
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
+        ctx.fillStyle = CAT_COLORS_GRAPH[n.tea.category] || "#888";
+        ctx.fill();
+        ctx.strokeStyle = isSel ? "#b87028" : isHov ? "#8a6830" : "rgba(255,255,255,.55)";
+        ctx.lineWidth = isSel ? 2 : 1;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        if (isSel || isHov) {
+          ctx.font = `${isSel ? "700" : "400"} 10px Georgia,serif`;
+          ctx.fillStyle = "#3a2e1e";
+          ctx.fillText(n.tea.name, n.x + 10, n.y + 4);
+        }
+      }
+    }
+
+    simRef.current.draw = draw;
+
+    function tick() {
+      const sim = simRef.current;
+      if (!sim) return;
+      const { nodes, edges } = sim;
+      sim.alpha *= 0.98;
+      const a = sim.alpha;
+
+      for (const n of nodes) {
+        n.vx += (W / 2 - n.x) * 0.0018;
+        n.vy += (H / 2 - n.y) * 0.0018;
+      }
+
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const dx = nodes[j].x - nodes[i].x || 0.01;
+          const dy = nodes[j].y - nodes[i].y || 0.01;
+          const d2 = dx * dx + dy * dy;
+          const d = Math.sqrt(d2) || 0.01;
+          const f = Math.min(700, 700 / d2) * a;
+          const fx = (f * dx) / d, fy = (f * dy) / d;
+          nodes[i].vx -= fx; nodes[i].vy -= fy;
+          nodes[j].vx += fx; nodes[j].vy += fy;
+        }
+      }
+
+      for (const e of edges) {
+        const ni = nodes[e.i], nj = nodes[e.j];
+        const dx = nj.x - ni.x, dy = nj.y - ni.y;
+        const d = Math.sqrt(dx * dx + dy * dy) || 0.01;
+        const target = 20 + e.d * 45;
+        const f = ((d - target) * 0.045 * a * e.strength);
+        const fx = (f * dx) / d, fy = (f * dy) / d;
+        ni.vx += fx; ni.vy += fy;
+        nj.vx -= fx; nj.vy -= fy;
+      }
+
+      for (const n of nodes) {
+        n.vx *= 0.82; n.vy *= 0.82;
+        n.x = Math.max(16, Math.min(W - 16, n.x + n.vx));
+        n.y = Math.max(16, Math.min(H - 16, n.y + n.vy));
+      }
+
+      draw(sim.hovId, sim.selId);
+      if (sim.alpha > 0.004) rafRef.current = requestAnimationFrame(tick);
+    }
+
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, []);
+
+  function getNodeAt(x, y) {
+    if (!simRef.current) return null;
+    for (const n of simRef.current.nodes) {
+      const dx = n.x - x, dy = n.y - y;
+      if (Math.sqrt(dx * dx + dy * dy) <= 12) return n;
+    }
+    return null;
+  }
+
+  function toCanvas(e) {
+    const rect = canvasRef.current.getBoundingClientRect();
+    return {
+      x: (e.clientX - rect.left) * (W / rect.width),
+      y: (e.clientY - rect.top) * (H / rect.height),
+    };
+  }
+
+  function handleMouseMove(e) {
+    if (!simRef.current) return;
+    const { x, y } = toCanvas(e);
+    const node = getNodeAt(x, y);
+    const newId = node?.id || null;
+    if (newId !== simRef.current.hovId) {
+      simRef.current.hovId = newId;
+      simRef.current.draw?.(simRef.current.hovId, simRef.current.selId);
+    }
+    canvasRef.current.style.cursor = node ? "pointer" : "default";
+  }
+
+  function handleClick(e) {
+    if (!simRef.current) return;
+    const { x, y } = toCanvas(e);
+    const node = getNodeAt(x, y);
+    simRef.current.selId = node?.id || null;
+    simRef.current.draw?.(simRef.current.hovId, simRef.current.selId);
+    setSelected(node?.tea || null);
+  }
+
+  return (
+    <div style={{ marginTop: 8 }}>
+      <div
+        style={{
+          padding: "10px 14px",
+          marginBottom: 12,
+          borderRadius: 10,
+          background: "rgba(253,251,247,.84)",
+          border: "1px solid #d8cdb8",
+          fontSize: 11,
+          color: "#5a4a30",
+          lineHeight: 1.5,
+        }}
+      >
+        Each node is a tea. Edges connect teas with similar flavor profiles — the closer and more connected, the more similar. Click any node to explore.
+      </div>
+
+      <div style={{ display: "flex", gap: 10, marginBottom: 12, flexWrap: "wrap", alignItems: "center" }}>
+        {Object.entries(CAT_COLORS_GRAPH).map(([cat, color]) => (
+          <div key={cat} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+            <div style={{ width: 9, height: 9, borderRadius: "50%", background: color, border: "1px solid rgba(0,0,0,.15)" }} />
+            <span style={{ fontSize: 11, color: "#5a4a30" }}>{cat}</span>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display: "flex", gap: 12, alignItems: "flex-start", flexWrap: "wrap" }}>
+        <div style={{ flex: "1 1 500px", minWidth: 0 }}>
+          <canvas
+            ref={canvasRef}
+            width={W}
+            height={H}
+            style={{
+              width: "100%",
+              borderRadius: 14,
+              border: "1px solid #d8cdb8",
+              background: "linear-gradient(135deg,#fdfbf7,#f5eed8)",
+              display: "block",
+            }}
+            onMouseMove={handleMouseMove}
+            onClick={handleClick}
+            onMouseLeave={() => {
+              if (!simRef.current) return;
+              simRef.current.hovId = null;
+              simRef.current.draw?.(null, simRef.current.selId);
+            }}
+          />
+        </div>
+
+        <div
+          style={{
+            flex: "0 0 220px",
+            minWidth: 200,
+            background: selected ? "#fdf8f0" : "rgba(253,251,247,.6)",
+            border: "1px solid #d8cdb8",
+            borderRadius: 14,
+            padding: "16px 14px",
+            minHeight: 200,
+          }}
+        >
+          {selected ? (
+            <>
+              <div style={{ fontFamily: "'Cormorant Garamond',serif", fontWeight: 700, fontSize: 16, color: "#3a2e1e", lineHeight: 1.1, marginBottom: 2 }}>
+                {selected.name}
+              </div>
+              <div style={{ fontSize: 13, color: "#8a7a5a", marginBottom: 3 }}>{selected.kanji}</div>
+              <div style={{ display: "flex", gap: 5, marginBottom: 10, flexWrap: "wrap" }}>
+                <span
+                  style={{
+                    fontSize: 9,
+                    padding: "2px 7px",
+                    borderRadius: 999,
+                    background: CAT_COLORS_GRAPH[selected.category] + "22",
+                    color: CAT_COLORS_GRAPH[selected.category],
+                    border: `1px solid ${CAT_COLORS_GRAPH[selected.category]}55`,
+                    fontWeight: 700,
+                    letterSpacing: 0.5,
+                  }}
+                >
+                  {selected.category}
+                </span>
+                <span style={{ fontSize: 9, padding: "2px 7px", borderRadius: 999, background: "#ece4d4", color: "#5a4a30", border: "1px solid #d8ccb4" }}>
+                  {selected.sub}
+                </span>
+              </div>
+              <div style={{ fontSize: 10, color: "#8a7a5a", fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", marginBottom: 5 }}>
+                Taste Profile
+              </div>
+              {PROFILE_ROWS.map(([label, key, color]) => (
+                <Bar key={key} label={label} value={selected.notes[key]} color={color} />
+              ))}
+              <div style={{ fontSize: 10, color: "#8a7a5a", fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", marginTop: 12, marginBottom: 5 }}>
+                Most Similar
+              </div>
+              <SimilarTeaList tea={selected} compact />
+            </>
+          ) : (
+            <div style={{ color: "#9a8a6a", fontSize: 12, fontStyle: "italic", textAlign: "center", marginTop: 40 }}>
+              Click a node to see details & similar teas
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -1279,6 +1648,12 @@ function Card({ tea, expanded, onToggle, compared, onCompareToggle }) {
             </div>
           </div>
           <div style={{ fontSize: 9, color: "#a09080", marginTop: 8, fontStyle: "italic" }}>Sources: {tea.src}</div>
+          <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid #e8e0d0" }}>
+            <div style={{ fontSize: 10, color: "#8a7a5a", fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", marginBottom: 6 }}>
+              Most Similar Teas
+            </div>
+            <SimilarTeaList tea={tea} />
+          </div>
         </div>
       )}
     </div>
@@ -2186,7 +2561,9 @@ export default function App() {
               ? `${TEAS.length} teas catalogued · Uji, Kyoto`
               : view === "cultivars"
                 ? `${CULTIVARS.length} major matcha cultivars compared · guide mode`
-                : `${MATCHA_REGIONS.length} current tencha-producing prefectures mapped`}
+                : view === "network"
+                  ? `${TEAS.length} teas mapped by flavor similarity`
+                  : `${MATCHA_REGIONS.length} current tencha-producing prefectures mapped`}
           </div>
         </div>
 
@@ -2195,6 +2572,7 @@ export default function App() {
             { id: "teas", label: "Tea Catalog", count: TEAS.length },
             { id: "cultivars", label: "Cultivar Guide", count: CULTIVARS.length },
             { id: "regions", label: "Region Guide", count: MATCHA_REGIONS.length },
+            { id: "network", label: "Flavor Network", count: null },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -2205,7 +2583,7 @@ export default function App() {
                 padding: "11px 14px",
                 borderRadius: 14,
                 border: view === tab.id ? "2px solid #6f7f47" : "1px solid #c8bca4",
-                background: view === tab.id ? (tab.id === "cultivars" ? "#445b30" : tab.id === "regions" ? "#35566f" : "#3a2e1e") : "rgba(253,251,247,.84)",
+                background: view === tab.id ? (tab.id === "cultivars" ? "#445b30" : tab.id === "regions" ? "#35566f" : tab.id === "network" ? "#4a3a6a" : "#3a2e1e") : "rgba(253,251,247,.84)",
                 color: view === tab.id ? "#f5eed8" : "#5a4a30",
                 fontSize: 13,
                 fontWeight: 700,
@@ -2214,7 +2592,7 @@ export default function App() {
               }}
             >
               {tab.label}
-              <span style={{ marginLeft: 8, opacity: 0.7, fontSize: 11 }}>{tab.count}</span>
+              {tab.count != null && <span style={{ marginLeft: 8, opacity: 0.7, fontSize: 11 }}>{tab.count}</span>}
             </button>
           ))}
         </div>
@@ -2375,6 +2753,18 @@ export default function App() {
               </div>
             )}
           </>
+        ) : view === "network" ? (
+          <div
+            style={{
+              padding: "16px 16px 20px",
+              borderRadius: 18,
+              border: "1px solid rgba(140,120,180,.3)",
+              background: "rgba(253,251,247,.9)",
+              boxShadow: "0 10px 30px rgba(60,40,80,.07)",
+            }}
+          >
+            <FlavorNetwork />
+          </div>
         ) : view === "cultivars" ? (
           <>
             <CultivarComparePanel
