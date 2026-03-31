@@ -9,6 +9,29 @@ const SCHOOL_CHIP_STYLES = {
   Urasenke: { background: "#c7d8c1", color: "#24402a" },
   Mushakojisenke: { background: "#ced4e8", color: "#273552" },
 };
+const PRODUCER_META = {
+  "Yamamasa Koyamaen": {
+    short: "山政 Yamamasa",
+    compact: "Yamamasa",
+    full: "山政 Yamamasa Koyamaen",
+    chipBg: "#2d4a2d",
+    chipColor: "#f5eed8",
+  },
+  "Marukyu Koyamaen": {
+    short: "丸久 Marukyu",
+    compact: "Marukyu",
+    full: "丸久 Marukyu Koyamaen",
+    chipBg: "#4a2d2d",
+    chipColor: "#f5eed8",
+  },
+  "Ippodo Tea": {
+    short: "一保堂 Ippodo",
+    compact: "Ippodo",
+    full: "一保堂 Ippodo Tea",
+    chipBg: "#2f4058",
+    chipColor: "#f5eed8",
+  },
+};
 const SCHOOL_FAVORITES = {
   "Shoka no Mukashi": { favoredSchool: "Urasenke", favoredBy: "Zabosai iemoto", favoredBranch: "Konnichian" },
   "Keichi no Mukashi": { favoredSchool: "Urasenke", favoredBy: "Hounsai sosho", favoredBranch: "Konnichian" },
@@ -488,10 +511,23 @@ const BASE_TEAS = [
   { id:"mk46", name:"Sweetened (Milk Design)", kanji:"ミルク専用", producer:"Marukyu Koyamaen", category:"Culinary", sub:"Sweetened", school:null, grade:"Milk-Optimized", price:"~$12/100g", sizes:["100g","500g"], status:"active", rating:3.4, notes:{umami:1,sweet:4,bitter:1,astringent:0,body:2}, tags:["milk-designed","sweet","instant latte"], desc:"Sweetened matcha specifically for milk-based drinks. Dissolves smoothly in cold or hot milk for instant matcha lattes.", src:"MK Catalog" },
 ];
 
-const TEAS = [...BASE_TEAS, ...EXTRA_SCHOOL_FAVORED_TEAS].map(enrichTea);
+const IPPODO_TEAS = [
+  { id:"ip01", name:"Kuon", kanji:"久遠", aliases:["Kuon Matcha"], producer:"Ippodo Tea", category:"Ceremonial", sub:"Koicha/Usucha", school:null, grade:"Special Class", price:"¥6480/20g", sizes:["20g"], status:"active", rating:4.9, notes:{umami:5,sweet:5,bitter:0,astringent:0,body:5}, tags:["special class","silky","refined sweetness","luxury"], desc:"One of Ippodo's rarest special-class matcha. Built around a smooth mouthfeel, polished sweetness, and a composed finish that reads truly ceremonial rather than showy.", src:"Ippodo Tea Japan Kuon page" },
+  { id:"ip02", name:"Kanza", kanji:"閑坐", aliases:["Kanza Matcha"], producer:"Ippodo Tea", category:"Ceremonial", sub:"Koicha/Usucha", school:null, grade:"Special Class", price:"¥10800/20g", sizes:["20g"], status:"active", rating:4.9, notes:{umami:5,sweet:5,bitter:0,astringent:0,body:5}, tags:["rarest class","deep sweetness","elegant","handpicked"], desc:"Ippodo's top special-class offering. Exceptionally limited, deeply shaded, and tuned for serene sweetness, density, and an almost effortless koicha texture.", src:"Ippodo Tea Japan Kanza page; Ippodo Tea Japan Kuon/Kanza note" },
+  { id:"ip03", name:"Ummon no Mukashi", kanji:"雲門の昔", aliases:["Ummon"], producer:"Ippodo Tea", category:"Ceremonial", sub:"Koicha/Usucha", school:"Urasenke · Konnichian line", grade:"Rich & Robust", price:"¥4320/20g", sizes:["20g"], status:"active", rating:4.8, notes:{umami:5,sweet:4,bitter:1,astringent:1,body:5}, tags:["rich","robust","bright fragrance","long finish","Urasenke line"], desc:"The richest standard Ippodo matcha. Full, fragrant, and unmistakably present, with strong umami and sweetness held in balance by a light, intentional astringent edge.", src:"Ippodo Tea US Ummon page; Ippodo Tea Japan Urasenke collection" },
+  { id:"ip04", name:"Shoin no Mukashi", kanji:"松韻の昔", aliases:["Shoin"], producer:"Ippodo Tea", category:"Ceremonial", sub:"Koicha/Usucha", school:"Omotesenke · Fushinan line", grade:"Rich & Velvety", price:"¥3240/20g", sizes:["20g"], status:"active", rating:4.7, notes:{umami:4,sweet:4,bitter:1,astringent:0,body:5}, tags:["velvety","weighty sweetness","mature","formal","Omotesenke line"], desc:"Ippodo ceremonial matcha tagged to the Omotesenke Fushinan line, with a velvety texture and mature, weighty sweetness. It feels softer and rounder than the forceful Ummon style.", src:"Ippodo Tea Japan Shoin no Mukashi page" },
+  { id:"ip05", name:"Sayaka no Mukashi", kanji:"明昔", aliases:["Sayaka"], producer:"Ippodo Tea", category:"Ceremonial", sub:"Koicha/Usucha", school:"Urasenke · Konnichian line", grade:"Rich & Smooth", price:"¥2376/20g", sizes:["20g"], status:"active", rating:4.5, notes:{umami:4,sweet:4,bitter:1,astringent:1,body:4}, tags:["smooth","beginner friendly","balanced richness","approachable","Urasenke line"], desc:"Ippodo's standard recommendation for a first premium matcha. Rich but easygoing, with smooth umami, gentle sweetness, and just enough bitterness to keep the cup lively.", src:"Ippodo Tea US Sayaka page; Ippodo Tea Japan Urasenke collection" },
+  { id:"ip06", name:"Kan no Shiro", kanji:"関の白", aliases:["Kan"], producer:"Ippodo Tea", category:"Ceremonial", sub:"Usucha", school:"Urasenke · Konnichian line", grade:"Balanced & Rounded", price:"¥1728/20g", sizes:["20g"], status:"active", rating:4.2, notes:{umami:3,sweet:4,bitter:2,astringent:1,body:3}, tags:["rounded","balanced","full sweetness","daily ceremonial","Urasenke line"], desc:"A fuller, rounded Ippodo usucha with noticeable sweetness and umami, but less gravity than the richer koicha-capable blends above it.", src:"Ippodo Tea Japan Urasenke collection" },
+  { id:"ip07", name:"Ikuyo no Mukashi", kanji:"幾世の昔", aliases:["Ikuyo"], producer:"Ippodo Tea", category:"Ceremonial", sub:"Usucha", school:"Urasenke · Konnichian line", grade:"Elegant & Calm", price:"¥1188/20g", sizes:["20g"], status:"active", rating:4.0, notes:{umami:3,sweet:2,bitter:2,astringent:2,body:3}, tags:["calm","clean","fresh aroma","measured","Urasenke line"], desc:"A quieter, more graceful bowl than Kan. The profile is balanced and refreshing, with a lighter body and a more visible astringent snap.", src:"Ippodo Tea Japan Urasenke collection" },
+  { id:"ip08", name:"Wakaki no Shiro", kanji:"若き白", aliases:["Wakaki"], producer:"Ippodo Tea", category:"Ceremonial", sub:"Usucha", school:"Urasenke · Konnichian line", grade:"Light & Easy", price:"¥864/20g", sizes:["20g"], status:"active", rating:3.8, notes:{umami:2,sweet:1,bitter:3,astringent:3,body:2}, tags:["light","brisk","easy daily bowl","casual","Urasenke line"], desc:"A lighter Ippodo matcha designed for easy daily drinking. The finish is short and clean, closer in feel to a brisk sencha mindset than to heavy ceremonial sweetness.", src:"Ippodo Tea Japan Wakaki no Shiro page; Ippodo Tea Japan Urasenke collection" },
+  { id:"ip09", name:"Hatsu no Mukashi", kanji:"初昔", aliases:["Hatsu"], producer:"Ippodo Tea", category:"Ceremonial", sub:"Usucha", school:null, grade:"Entry Matcha", price:"¥648/20g", sizes:["20g"], status:"active", rating:3.7, notes:{umami:2,sweet:1,bitter:4,astringent:3,body:2}, tags:["entry","sharp","refreshing","latte friendly"], desc:"The clearest entry point into Ippodo's matcha range. Sharper and more bitter than the richer ceremonial blends, but still clean enough to whisk straight or push into milk.", src:"Ippodo Tea Japan Hatsu no Mukashi page" },
+  { id:"ip10", name:"Organic Matcha", kanji:"オーガニック抹茶", aliases:["Organic"], producer:"Ippodo Tea", category:"Speciality", sub:"Organic", school:null, grade:"Organic Ceremonial", price:"¥1620/20g", sizes:["20g"], status:"active", rating:3.8, notes:{umami:2,sweet:1,bitter:3,astringent:3,body:2}, tags:["organic","grassy","sharp finish","soy latte friendly"], desc:"Organic Ippodo matcha with a greener, grassier expression and a sharper finish than the classic blends. Best for drinkers who enjoy a cleaner, more energetic edge.", src:"Ippodo Tea Japan Organic Matcha page" },
+];
+
+const TEAS = [...BASE_TEAS, ...EXTRA_SCHOOL_FAVORED_TEAS, ...IPPODO_TEAS].map(enrichTea);
 
 const CATS = ["All", "Ceremonial", "Tea School", "Culinary", "Speciality"];
-const PRODS = ["All", "Yamamasa Koyamaen", "Marukyu Koyamaen"];
+const PRODS = ["All", ...new Set(TEAS.map((tea) => tea.producer))];
 const PROFILE_ROWS = [
   ["Umami", "umami", "#5a8a3a"],
   ["Sweetness", "sweet", "#c4a040"],
@@ -776,8 +812,31 @@ function schoolFilterLabel(value) {
   return value === "San-Senke Favored" ? "San-Senke favored" : value;
 }
 
+function getProducerMeta(producer) {
+  return PRODUCER_META[producer] ?? {
+    short: producer,
+    compact: producer,
+    full: producer,
+    chipBg: "#5a4a30",
+    chipColor: "#f5eed8",
+  };
+}
+
 function producerLabel(producer) {
-  return producer === "Yamamasa Koyamaen" ? "山政 Yamamasa" : "丸久 Marukyu";
+  return getProducerMeta(producer).short;
+}
+
+function producerCompactLabel(producer) {
+  return getProducerMeta(producer).compact;
+}
+
+function producerFullLabel(producer) {
+  return getProducerMeta(producer).full;
+}
+
+function producerChipStyle(producer) {
+  const { chipBg, chipColor } = getProducerMeta(producer);
+  return { background: chipBg, color: chipColor };
 }
 
 function Stars({ r }) {
@@ -1001,11 +1060,10 @@ function ComparePanel({ teas, compareIds, onRemove, onClear, onCompareToggle }) 
                       fontSize: 10,
                       padding: "2px 8px",
                       borderRadius: 999,
-                      background: tea.producer === "Yamamasa Koyamaen" ? "#2d4a2d" : "#4a2d2d",
-                      color: "#f5eed8",
-                      fontWeight: 600,
-                    }}
-                  >
+                    ...producerChipStyle(tea.producer),
+                    fontWeight: 600,
+                  }}
+                >
                     {producerLabel(tea.producer)}
                   </span>
                   <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 999, background: "#e7d8bc", color: "#5a4529" }}>
@@ -1192,7 +1250,7 @@ function SimilarTeaList({ tea, compact = false, onTeaSelect, comparedTeaIds = []
                   {t.name}
                 </div>
                 <div style={{ fontSize: 9, color: "#8a7a5a", marginTop: 1 }}>
-                  {t.sub} · {t.producer === "Yamamasa Koyamaen" ? "Yamamasa" : "Marukyu"}
+                  {t.sub} · {producerCompactLabel(t.producer)}
                 </div>
               </button>
             ) : (
@@ -1201,7 +1259,7 @@ function SimilarTeaList({ tea, compact = false, onTeaSelect, comparedTeaIds = []
                   {t.name}
                 </div>
                 <div style={{ fontSize: 9, color: "#8a7a5a", marginTop: 1 }}>
-                  {t.sub} · {t.producer === "Yamamasa Koyamaen" ? "Yamamasa" : "Marukyu"}
+                  {t.sub} · {producerCompactLabel(t.producer)}
                 </div>
               </div>
             )}
@@ -1598,7 +1656,7 @@ function FlavorNetwork({ onTeaSelect }) {
               </div>
               <div style={{ fontSize: 13, color: "#8a7a5a", marginBottom: 2 }}>{selected.kanji}</div>
               <div style={{ fontSize: 11, color: "#6a5a3a", fontWeight: 600, marginBottom: 8 }}>
-                {selected.producer === "Yamamasa Koyamaen" ? "山政 Yamamasa Koyamaen" : "丸久 Marukyu Koyamaen"}
+                {producerFullLabel(selected.producer)}
               </div>
               <div style={{ display: "flex", gap: 5, marginBottom: 10, flexWrap: "wrap" }}>
                 <span
@@ -1696,8 +1754,7 @@ function Card({ tea, expanded, compared, compareIds, onToggle, onCompareToggle }
                 fontSize: 10,
                 padding: "1px 7px",
                 borderRadius: 10,
-                background: tea.producer === "Yamamasa Koyamaen" ? "#2d4a2d" : "#4a2d2d",
-                color: "#f5eed8",
+                ...producerChipStyle(tea.producer),
                 fontWeight: 600,
               }}
               >
@@ -2645,19 +2702,19 @@ export default function App() {
     });
     return c;
   }, []);
-  const favoredProducerCounts = useMemo(
-    () =>
-      filtered.reduce(
-        (acc, tea) => {
-          if (!tea.sanSenkeFavored) return acc;
-          if (tea.producer === "Yamamasa Koyamaen") acc.yamamasa += 1;
-          if (tea.producer === "Marukyu Koyamaen") acc.marukyu += 1;
-          return acc;
-        },
-        { yamamasa: 0, marukyu: 0 }
-      ),
-    [filtered]
-  );
+  const favoredProducerSummary = useMemo(() => {
+    const counts = filtered.reduce((acc, tea) => {
+      if (!tea.sanSenkeFavored) return acc;
+      acc[tea.producer] = (acc[tea.producer] ?? 0) + 1;
+      return acc;
+    }, {});
+
+    return PRODS
+      .slice(1)
+      .map((producer) => (counts[producer] ? `${counts[producer]} ${producerCompactLabel(producer)}` : null))
+      .filter(Boolean)
+      .join(" · ");
+  }, [filtered]);
 
   const comparedTeas = useMemo(
     () => compareIds.map((id) => TEAS.find((tea) => tea.id === id)).filter(Boolean),
@@ -2788,7 +2845,7 @@ export default function App() {
             抹茶 Matcha
           </h1>
           <div style={{ fontSize: 14, color: "#6a5a3a", fontStyle: "italic" }}>
-            Yamamasa Koyamaen · Marukyu Koyamaen
+            {PRODS.slice(1).map((producer) => producerFullLabel(producer)).join(" · ")}
           </div>
           <div style={{ fontSize: 11, color: "#9a8a6a", marginTop: 4 }}>
             {view === "teas"
@@ -2888,7 +2945,7 @@ export default function App() {
                       transition: "all .2s",
                     }}
                   >
-                    {value === "All" ? "Both Houses" : value === "Yamamasa Koyamaen" ? "山政 Yamamasa" : "丸久 Marukyu"}
+                    {value === "All" ? "All Producers" : producerLabel(value)}
                   </button>
                 ))}
               </div>
@@ -2941,7 +2998,7 @@ export default function App() {
               </div>
               {schoolFilter !== "All" && (
                 <div style={{ marginTop: -2, marginBottom: 10, fontSize: 11, color: "#667349", lineHeight: 1.45 }}>
-                  Current favored results: {favoredProducerCounts.yamamasa} Yamamasa · {favoredProducerCounts.marukyu} Marukyu
+                  Current favored results: {favoredProducerSummary || "None"}
                 </div>
               )}
 
