@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { MapContainer, TileLayer, CircleMarker, Tooltip } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -1176,7 +1177,7 @@ function ComparePanel({ teas, compareIds, onRemove, onClear, onCompareToggle }) 
       {infoTeaId && (() => {
         const infoTea = teas.find((t) => t.id === infoTeaId);
         if (!infoTea) return null;
-        return (
+        return createPortal(
           <div
             style={{ position: "fixed", inset: 0, background: "rgba(30,20,10,.45)", zIndex: 1200, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}
             onClick={() => setInfoTeaId(null)}
@@ -1202,7 +1203,8 @@ function ComparePanel({ teas, compareIds, onRemove, onClear, onCompareToggle }) 
               </div>
               <SimilarTeaList tea={infoTea} comparedTeaIds={compareIds} onCompareToggle={onCompareToggle} />
             </div>
-          </div>
+          </div>,
+          document.body
         );
       })()}
     </section>
