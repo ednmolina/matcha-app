@@ -1032,7 +1032,7 @@ function ComparePanel({ teas, compareIds, onRemove, onClear, onCompareToggle }) 
                         lineHeight: 1,
                       }}
                     >
-                      ℹ
+                      ℹ&#xFE0E;
                     </button>
                     <button
                       type="button"
