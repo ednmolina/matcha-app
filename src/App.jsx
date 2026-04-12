@@ -552,6 +552,7 @@ const REGION_PROFILE_ROWS = [
 ];
 
 const NOTES_FIELDS = ["umami", "sweet", "bitter", "astringent", "body"];
+const NETWORK_NOTES_FIELDS = ["umami", "sweet", "bitter", "aroma", "body"];
 const MAX_TEA_DIST = 9;
 const CAT_COLORS_GRAPH = {
   Ceremonial: "#5a8a3a",
@@ -564,6 +565,20 @@ function teaDist(a, b) {
   return Math.sqrt(
     NOTES_FIELDS.reduce((s, f) => s + Math.pow((a.notes?.[f] ?? 0) - (b.notes?.[f] ?? 0), 2), 0)
   );
+}
+
+function noteDist(a, b, fields) {
+  return Math.sqrt(
+    fields.reduce((s, f) => s + Math.pow((a.notes?.[f] ?? 0) - (b.notes?.[f] ?? 0), 2), 0)
+  );
+}
+
+function getSimilarItems(sourceItem, allItems, fields, n = 5) {
+  return allItems
+    .filter((item) => item.id !== sourceItem.id)
+    .map((item) => ({ item, dist: noteDist(sourceItem, item, fields) }))
+    .sort((a, b) => a.dist - b.dist)
+    .slice(0, n);
 }
 
 function getSimilarTeas(tea, allTeas, n = 5) {
@@ -1427,7 +1442,78 @@ function SimilarTeaList({ tea, compact = false, onTeaSelect, comparedTeaIds = []
   );
 }
 
-function FlavorNetwork({ onTeaSelect }) {
+function SimilarNetworkList({
+  item,
+  allItems,
+  noteFields,
+  subtitleFor,
+  compact = false,
+  maxDist = MAX_TEA_DIST,
+  onItemSelect,
+}) {
+  const similar = getSimilarItems(item, allItems, noteFields, 5);
+  return (
+    <div>
+      {similar.map(({ item: nextItem, dist }) => {
+        const pct = Math.max(0, Math.round((1 - dist / maxDist) * 100));
+        const interactive = typeof onItemSelect === "function";
+        return (
+          <div
+            key={nextItem.id}
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              padding: compact ? "3px 0" : "5px 0",
+              borderBottom: "1px solid #ece4d4",
+            }}
+          >
+            {interactive ? (
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onItemSelect(nextItem.id);
+                }}
+                style={{
+                  flex: 1,
+                  minWidth: 0,
+                  border: "none",
+                  background: "transparent",
+                  padding: 0,
+                  textAlign: "left",
+                  cursor: "pointer",
+                }}
+              >
+                <div style={{ fontSize: compact ? 10 : 11, color: "#3a2e1e", fontWeight: 600, lineHeight: 1.2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  {nextItem.name}
+                </div>
+                <div style={{ fontSize: 9, color: "#8a7a5a", marginTop: 1 }}>
+                  {subtitleFor(nextItem)}
+                </div>
+              </button>
+            ) : (
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: compact ? 10 : 11, color: "#3a2e1e", fontWeight: 600, lineHeight: 1.2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  {nextItem.name}
+                </div>
+                <div style={{ fontSize: 9, color: "#8a7a5a", marginTop: 1 }}>
+                  {subtitleFor(nextItem)}
+                </div>
+              </div>
+            )}
+            <div style={{ textAlign: "right", flexShrink: 0, marginLeft: 8 }}>
+              <div style={{ fontSize: compact ? 11 : 12, color: "#5a8a3a", fontWeight: 700 }}>{pct}%</div>
+              <div style={{ fontSize: 8, color: "#9a8a6a" }}>match</div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function FlavorNetwork({ mode = "teas", onModeChange, onTeaSelect }) {
   const canvasRef = useRef(null);
   const simRef = useRef(null);
   const rafRef = useRef(null);
@@ -1436,23 +1522,47 @@ function FlavorNetwork({ onTeaSelect }) {
   const [selected, setSelected] = useState(null);
   const [zoom, setZoom] = useState(1);
   const W = 820, H = 560;
-  const EDGE_THRESH = 2.5;
   const SIMILAR_HIGHLIGHT_COUNT = 5;
+  const items = mode === "cultivars" ? CULTIVARS : mode === "regions" ? MATCHA_REGIONS : TEAS;
+  const noteFields = mode === "teas" ? NOTES_FIELDS : NETWORK_NOTES_FIELDS;
+  const profileRows = mode === "cultivars" ? CULTIVAR_PROFILE_ROWS : mode === "regions" ? REGION_PROFILE_ROWS : PROFILE_ROWS;
+  const edgeThreshold = mode === "teas" ? 2.5 : 2.7;
+  const singularLabel = mode === "cultivars" ? "cultivar" : mode === "regions" ? "region" : "tea";
+  const pluralLabel = mode === "cultivars" ? "cultivars" : mode === "regions" ? "regions" : "teas";
+  const detailSubtitle =
+    mode === "cultivars"
+      ? (item) => item.origin
+      : mode === "regions"
+        ? (item) => `${item.subregion} · ${item.production} t tencha`
+        : (item) => producerFullLabel(item.producer);
+  const similarSubtitle =
+    mode === "cultivars"
+      ? (item) => item.origin
+      : mode === "regions"
+        ? (item) => `${item.subregion} · ${item.production} t`
+        : (item) => `${item.sub} · ${producerCompactLabel(item.producer)}`;
 
-  function getSimilarIdSet(teaId) {
-    const sourceTea = TEAS.find((tea) => tea.id === teaId);
-    if (!sourceTea) return new Set();
+  function getSimilarIdSet(itemId) {
+    const sourceItem = items.find((item) => item.id === itemId);
+    if (!sourceItem) return new Set();
     return new Set(
-      getSimilarTeas(sourceTea, TEAS, SIMILAR_HIGHLIGHT_COUNT).map(({ tea }) => tea.id)
+      getSimilarItems(sourceItem, items, noteFields, SIMILAR_HIGHLIGHT_COUNT).map(({ item }) => item.id)
     );
   }
 
   useEffect(() => {
-    const nodes = TEAS.map((tea, i) => ({
-      id: tea.id,
-      tea,
-      x: W / 2 + Math.cos((2 * Math.PI * i) / TEAS.length) * 240,
-      y: H / 2 + Math.sin((2 * Math.PI * i) / TEAS.length) * 200,
+    const itemCount = Math.max(1, items.length);
+    const orbitX = Math.max(180, Math.min(250, 125 + itemCount * 2.2));
+    const orbitY = Math.max(140, Math.min(210, 95 + itemCount * 1.8));
+    setSelected(null);
+    transformRef.current = { scale: 1, tx: 0, ty: 0 };
+    setZoom(1);
+
+    const nodes = items.map((item, i) => ({
+      id: item.id,
+      item,
+      x: W / 2 + Math.cos((2 * Math.PI * i) / itemCount) * orbitX,
+      y: H / 2 + Math.sin((2 * Math.PI * i) / itemCount) * orbitY,
       vx: 0,
       vy: 0,
     }));
@@ -1460,9 +1570,9 @@ function FlavorNetwork({ onTeaSelect }) {
     const edges = [];
     for (let i = 0; i < nodes.length; i++) {
       for (let j = i + 1; j < nodes.length; j++) {
-        const d = teaDist(nodes[i].tea, nodes[j].tea);
-        if (d <= EDGE_THRESH) {
-          edges.push({ i, j, d, strength: 1 - d / (EDGE_THRESH + 0.1) });
+        const d = noteDist(nodes[i].item, nodes[j].item, noteFields);
+        if (d <= edgeThreshold) {
+          edges.push({ i, j, d, strength: 1 - d / (edgeThreshold + 0.1) });
         }
       }
     }
@@ -1515,7 +1625,7 @@ function FlavorNetwork({ onTeaSelect }) {
           const fs = 11 * lw;
           ctx.font = `${isSel ? 700 : 500} ${fs}px Georgia,serif`;
           ctx.fillStyle = "#2a1e0e";
-          ctx.fillText(n.tea.name, n.x + 10 * lw, n.y + 4 * lw);
+          ctx.fillText(n.item.name, n.x + 10 * lw, n.y + 4 * lw);
         }
       }
       ctx.restore();
@@ -1570,8 +1680,11 @@ function FlavorNetwork({ onTeaSelect }) {
     }
 
     rafRef.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, []);
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+      simRef.current = null;
+    };
+  }, [items, noteFields, edgeThreshold]);
 
   // non-passive wheel listener so preventDefault works
   useEffect(() => {
@@ -1661,7 +1774,7 @@ function FlavorNetwork({ onTeaSelect }) {
         simRef.current.similarIds = node ? getSimilarIdSet(node.id) : new Set();
         simRef.current.draw(simRef.current.hovId, simRef.current.selId);
       }
-      setSelected(node?.tea || null);
+      setSelected(node?.item || null);
     }
     if (canvasRef.current) canvasRef.current.style.cursor = "grab";
   }
@@ -1702,7 +1815,7 @@ function FlavorNetwork({ onTeaSelect }) {
         simRef.current.similarIds = node ? getSimilarIdSet(node.id) : new Set();
         simRef.current.draw(simRef.current.hovId, simRef.current.selId);
       }
-      setSelected(node?.tea || null);
+      setSelected(node?.item || null);
     }
     dragRef.current = null;
   }
@@ -1731,11 +1844,42 @@ function FlavorNetwork({ onTeaSelect }) {
     borderRadius: 8, padding: "4px 10px", cursor: "pointer", fontSize: 13, fontWeight: 700,
     lineHeight: 1,
   };
+  const modeBtnStyle = (value) => ({
+    border: value === mode ? "2px solid #4a3a6a" : "1px solid #c8bca4",
+    background: value === mode ? "#4a3a6a" : "rgba(253,251,247,.9)",
+    color: value === mode ? "#f5eed8" : "#5a4a30",
+    borderRadius: 999,
+    padding: "6px 11px",
+    cursor: "pointer",
+    fontSize: 10,
+    fontWeight: 700,
+    letterSpacing: 0.8,
+    textTransform: "uppercase",
+    lineHeight: 1,
+  });
 
   return (
     <div style={{ marginTop: 8 }}>
       <div style={{ padding: "10px 14px", marginBottom: 12, borderRadius: 10, background: "rgba(253,251,247,.84)", border: "1px solid #d8cdb8", fontSize: 11, color: "#5a4a30", lineHeight: 1.5 }}>
-        Each node is a tea — positioned by flavor similarity. Edges connect closely similar teas. <strong>Scroll or pinch to zoom · drag to pan · click a node to explore.</strong>
+        Each node is a {singularLabel}, positioned by flavor-profile similarity. Edges connect close neighbors in the {pluralLabel} set. <strong>Scroll or pinch to zoom · drag to pan · click a node to explore.</strong>
+      </div>
+
+      <div style={{ display: "flex", gap: 6, marginBottom: 10, alignItems: "center", flexWrap: "wrap" }}>
+        <span style={{ fontSize: 10, color: "#7d6d50", fontWeight: 700, letterSpacing: 1 }}>NETWORK</span>
+        {[
+          { id: "teas", label: "Teas" },
+          { id: "cultivars", label: "Cultivars" },
+          { id: "regions", label: "Regions" },
+        ].map((option) => (
+          <button
+            key={option.id}
+            type="button"
+            style={modeBtnStyle(option.id)}
+            onClick={() => onModeChange?.(option.id)}
+          >
+            {option.label}
+          </button>
+        ))}
       </div>
 
       <div style={{ display: "flex", gap: 6, marginBottom: 10, alignItems: "center", flexWrap: "wrap" }}>
@@ -1785,41 +1929,68 @@ function FlavorNetwork({ onTeaSelect }) {
               </div>
               <div style={{ fontSize: 13, color: "#8a7a5a", marginBottom: 2 }}>{selected.kanji}</div>
               <div style={{ fontSize: 11, color: "#6a5a3a", fontWeight: 600, marginBottom: 8 }}>
-                {producerFullLabel(selected.producer)}
+                {detailSubtitle(selected)}
               </div>
-              <div style={{ display: "flex", gap: 5, marginBottom: 10, flexWrap: "wrap" }}>
-                <span
-                  style={{
-                    fontSize: 9,
-                    padding: "2px 7px",
-                    borderRadius: 999,
-                    background: CAT_COLORS_GRAPH[selected.category] + "22",
-                    color: CAT_COLORS_GRAPH[selected.category],
-                    border: `1px solid ${CAT_COLORS_GRAPH[selected.category]}55`,
-                    fontWeight: 700,
-                    letterSpacing: 0.5,
-                  }}
-                >
-                  {selected.category}
-                </span>
-                <span style={{ fontSize: 9, padding: "2px 7px", borderRadius: 999, background: "#ece4d4", color: "#5a4a30", border: "1px solid #d8ccb4" }}>
-                  {selected.sub}
-                </span>
-              </div>
+              {mode === "teas" ? (
+                <div style={{ display: "flex", gap: 5, marginBottom: 10, flexWrap: "wrap" }}>
+                  <span
+                    style={{
+                      fontSize: 9,
+                      padding: "2px 7px",
+                      borderRadius: 999,
+                      background: CAT_COLORS_GRAPH[selected.category] + "22",
+                      color: CAT_COLORS_GRAPH[selected.category],
+                      border: `1px solid ${CAT_COLORS_GRAPH[selected.category]}55`,
+                      fontWeight: 700,
+                      letterSpacing: 0.5,
+                    }}
+                  >
+                    {selected.category}
+                  </span>
+                  <span style={{ fontSize: 9, padding: "2px 7px", borderRadius: 999, background: "#ece4d4", color: "#5a4a30", border: "1px solid #d8ccb4" }}>
+                    {selected.sub}
+                  </span>
+                </div>
+              ) : mode === "cultivars" ? (
+                <div style={{ display: "flex", gap: 5, marginBottom: 10, flexWrap: "wrap" }}>
+                  <span style={{ fontSize: 9, padding: "2px 7px", borderRadius: 999, background: "#e6f0df", color: "#3f5a2d", border: "1px solid #c9ddb8", fontWeight: 700 }}>
+                    Cultivar
+                  </span>
+                  <span style={{ fontSize: 9, padding: "2px 7px", borderRadius: 999, background: "#ece4d4", color: "#5a4a30", border: "1px solid #d8ccb4" }}>
+                    {selected.style}
+                  </span>
+                </div>
+              ) : (
+                <div style={{ display: "flex", gap: 5, marginBottom: 10, flexWrap: "wrap" }}>
+                  <span style={{ fontSize: 9, padding: "2px 7px", borderRadius: 999, background: "#e1ecf5", color: "#3f5f7a", border: "1px solid #c9d9e7", fontWeight: 700 }}>
+                    Region
+                  </span>
+                  <span style={{ fontSize: 9, padding: "2px 7px", borderRadius: 999, background: "#ece4d4", color: "#5a4a30", border: "1px solid #d8ccb4" }}>
+                    {selected.style}
+                  </span>
+                </div>
+              )}
               <div style={{ fontSize: 10, color: "#8a7a5a", fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", marginBottom: 5 }}>
-                Taste Profile
+                Flavor Profile
               </div>
-              {PROFILE_ROWS.map(([label, key, color]) => (
+              {profileRows.map(([label, key, color]) => (
                 <Bar key={key} label={label} value={selected.notes[key]} color={color} />
               ))}
               <div style={{ fontSize: 10, color: "#8a7a5a", fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", marginTop: 12, marginBottom: 5 }}>
                 Most Similar
               </div>
-              <SimilarTeaList tea={selected} compact onTeaSelect={onTeaSelect} />
+              <SimilarNetworkList
+                item={selected}
+                allItems={items}
+                noteFields={noteFields}
+                compact
+                subtitleFor={similarSubtitle}
+                onItemSelect={mode === "teas" ? onTeaSelect : undefined}
+              />
             </>
           ) : (
             <div style={{ color: "#9a8a6a", fontSize: 12, fontStyle: "italic", textAlign: "center", marginTop: 40 }}>
-              Click a node to see details & similar teas
+              Click a node to see details and similar {pluralLabel}
             </div>
           )}
         </div>
@@ -2796,6 +2967,7 @@ export default function App() {
   const [regionSort, setRegionSort] = useState("production");
   const [regionOpen, setRegionOpen] = useState(null);
   const [regionCompareIds, setRegionCompareIds] = useState([]);
+  const [networkMode, setNetworkMode] = useState("teas");
 
   const filtered = useMemo(() => {
     const items = TEAS.filter((tea) => {
@@ -3012,7 +3184,11 @@ export default function App() {
               : view === "cultivars"
                 ? `${CULTIVARS.length} major matcha cultivars compared · guide mode`
                 : view === "network"
-                  ? `${TEAS.length} teas mapped by flavor similarity`
+                  ? networkMode === "cultivars"
+                    ? `${CULTIVARS.length} cultivars mapped by flavor similarity`
+                    : networkMode === "regions"
+                      ? `${MATCHA_REGIONS.length} regions mapped by flavor similarity`
+                      : `${TEAS.length} teas mapped by flavor similarity`
                   : `${MATCHA_REGIONS.length} current tencha-producing prefectures mapped`}
           </div>
         </div>
@@ -3216,7 +3392,7 @@ export default function App() {
               boxShadow: "0 10px 30px rgba(60,40,80,.07)",
             }}
           >
-            <FlavorNetwork onTeaSelect={focusTeaInCatalog} />
+            <FlavorNetwork mode={networkMode} onModeChange={setNetworkMode} onTeaSelect={focusTeaInCatalog} />
           </div>
         ) : view === "cultivars" ? (
           <>
@@ -3428,6 +3604,14 @@ export default function App() {
               <br />
               <span style={{ fontStyle: "italic" }}>
                 Cultivar traits are directional rather than absolute. Blending, shading, harvest timing, and milling style can shift the cup.
+              </span>
+            </>
+          ) : view === "network" ? (
+            <>
+              Flavor network uses the same tea, cultivar, and region profile datasets from the other tabs.
+              <br />
+              <span style={{ fontStyle: "italic" }}>
+                Similarity is profile-distance based (directional), intended for exploration rather than strict scientific ranking.
               </span>
             </>
           ) : (
