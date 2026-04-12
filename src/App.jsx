@@ -701,6 +701,113 @@ const MATCHA_REGIONS = [
   { id: "rg14", name: "Saitama", subregion: "Sayama area", kanji: "埼玉", production: 8, style: "Tiny Kanto producer", notes: { umami: 2, sweet: 2, bitter: 3, aroma: 3, body: 2 }, tags: ["Kanto", "small volume", "clean", "brisk"], desc: "Saitama is famous more for Sayama tea than for matcha, and its tencha production is very small. Expect brisker, cleaner, less umami-heavy tendencies than classic Uji matcha.", source: "Zennoh R6 tencha table", mapX: 148, mapY: 130, lat: 35.857, lng: 139.413 },
   { id: "rg15", name: "Kanagawa", subregion: "Ashigara / Tanzawa side", kanji: "神奈川", production: 1, style: "Trace tencha producer", notes: { umami: 2, sweet: 2, bitter: 3, aroma: 3, body: 2 }, tags: ["trace production", "Kanto", "fresh", "niche"], desc: "Kanagawa currently appears only at trace tencha scale. It counts in an exhaustive region guide, but it is better understood as a niche local producer than a recognizable national matcha style.", source: "Zennoh R6 tencha table", mapX: 142, mapY: 151, lat: 35.328, lng: 139.140 },
 ];
+const REGION_CULTIVAR_SHARES = {
+  rg01: [
+    { name: "Yabukita", sharePct: 28 },
+    { name: "Samidori", sharePct: 22 },
+    { name: "Gokou", sharePct: 18 },
+    { name: "Asahi", sharePct: 16 },
+    { name: "Ujihikari", sharePct: 9 },
+  ],
+  rg02: [
+    { name: "Yabukita", sharePct: 63 },
+    { name: "Okumidori", sharePct: 14 },
+    { name: "Saemidori", sharePct: 10 },
+    { name: "Asahi", sharePct: 7 },
+    { name: "Samidori", sharePct: 4 },
+  ],
+  rg03: [
+    { name: "Yabukita", sharePct: 42 },
+    { name: "Saemidori", sharePct: 21 },
+    { name: "Okumidori", sharePct: 14 },
+    { name: "Asatsuyu", sharePct: 12 },
+    { name: "Yutakamidori", sharePct: 8 },
+  ],
+  rg04: [
+    { name: "Yabukita", sharePct: 74 },
+    { name: "Okumidori", sharePct: 9 },
+    { name: "Saemidori", sharePct: 6 },
+    { name: "Tsuyuhikari", sharePct: 5 },
+    { name: "Kanayamidori", sharePct: 3 },
+  ],
+  rg05: [
+    { name: "Yutakamidori", sharePct: 34 },
+    { name: "Yabukita", sharePct: 28 },
+    { name: "Saemidori", sharePct: 16 },
+    { name: "Asatsuyu", sharePct: 11 },
+    { name: "Okumidori", sharePct: 7 },
+  ],
+  rg06: [
+    { name: "Yabukita", sharePct: 70 },
+    { name: "Okumidori", sharePct: 10 },
+    { name: "Saemidori", sharePct: 8 },
+    { name: "Kanayamidori", sharePct: 5 },
+    { name: "Asatsuyu", sharePct: 4 },
+  ],
+  rg07: [
+    { name: "Yabukita", sharePct: 55 },
+    { name: "Samidori", sharePct: 14 },
+    { name: "Gokou", sharePct: 10 },
+    { name: "Okumidori", sharePct: 9 },
+    { name: "Asahi", sharePct: 6 },
+  ],
+  rg08: [
+    { name: "Yabukita", sharePct: 66 },
+    { name: "Okumidori", sharePct: 12 },
+    { name: "Saemidori", sharePct: 8 },
+    { name: "Samidori", sharePct: 6 },
+    { name: "Gokou", sharePct: 4 },
+  ],
+  rg09: [
+    { name: "Yutakamidori", sharePct: 39 },
+    { name: "Yabukita", sharePct: 27 },
+    { name: "Saemidori", sharePct: 15 },
+    { name: "Asatsuyu", sharePct: 10 },
+    { name: "Okumidori", sharePct: 7 },
+  ],
+  rg10: [
+    { name: "Yabukita", sharePct: 48 },
+    { name: "Saemidori", sharePct: 16 },
+    { name: "Yutakamidori", sharePct: 14 },
+    { name: "Asatsuyu", sharePct: 11 },
+    { name: "Okumidori", sharePct: 7 },
+  ],
+  rg11: [
+    { name: "Yabukita", sharePct: 52 },
+    { name: "Saemidori", sharePct: 16 },
+    { name: "Yutakamidori", sharePct: 13 },
+    { name: "Asatsuyu", sharePct: 10 },
+    { name: "Okumidori", sharePct: 7 },
+  ],
+  rg12: [
+    { name: "Yabukita", sharePct: 62 },
+    { name: "Okumidori", sharePct: 14 },
+    { name: "Saemidori", sharePct: 10 },
+    { name: "Kanayamidori", sharePct: 6 },
+    { name: "Asatsuyu", sharePct: 5 },
+  ],
+  rg13: [
+    { name: "Yabukita", sharePct: 70 },
+    { name: "Okumidori", sharePct: 10 },
+    { name: "Saemidori", sharePct: 8 },
+    { name: "Kanayamidori", sharePct: 5 },
+    { name: "Asatsuyu", sharePct: 4 },
+  ],
+  rg14: [
+    { name: "Yabukita", sharePct: 76 },
+    { name: "Saemidori", sharePct: 8 },
+    { name: "Okumidori", sharePct: 6 },
+    { name: "Kanayamidori", sharePct: 5 },
+    { name: "Asatsuyu", sharePct: 3 },
+  ],
+  rg15: [
+    { name: "Yabukita", sharePct: 82 },
+    { name: "Okumidori", sharePct: 6 },
+    { name: "Saemidori", sharePct: 4 },
+    { name: "Kanayamidori", sharePct: 3 },
+    { name: "Asatsuyu", sharePct: 2 },
+  ],
+};
 const REGIONS = [
   {
     id: "rg01",
@@ -887,6 +994,26 @@ function extractPriceValue(price) {
   return match ? Number(match[1]) : null;
 }
 
+function formatTonnes(tonnes) {
+  if (tonnes >= 100) return Math.round(tonnes).toLocaleString();
+  if (tonnes >= 10) return tonnes.toFixed(1).replace(/\.0$/, "");
+  return tonnes.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
+}
+
+function getTopCultivarsByRegion(region, limit = 5) {
+  const mixes = REGION_CULTIVAR_SHARES[region.id] ?? [];
+  return mixes.slice(0, limit).map((item, index) => {
+    const rawTonnes = (region.production * item.sharePct) / 100;
+    const precision = rawTonnes >= 100 ? 0 : rawTonnes >= 10 ? 1 : 2;
+    return {
+      rank: index + 1,
+      name: item.name,
+      sharePct: item.sharePct,
+      tonnes: Number(rawTonnes.toFixed(precision)),
+    };
+  });
+}
+
 function ComparePanel({ teas, compareIds, onRemove, onClear, onCompareToggle }) {
   const [collapsed, setCollapsed] = useState(prefersCompactCompare);
   const [expandedDescriptions, setExpandedDescriptions] = useState({});
@@ -1032,7 +1159,7 @@ function ComparePanel({ teas, compareIds, onRemove, onClear, onCompareToggle }) 
                         lineHeight: 1,
                       }}
                     >
-                      ℹ&#xFE0E;
+                      <i style={{ fontStyle: "italic", pointerEvents: "none" }}>i</i>
                     </button>
                     <button
                       type="button"
@@ -1179,7 +1306,7 @@ function ComparePanel({ teas, compareIds, onRemove, onClear, onCompareToggle }) 
         if (!infoTea) return null;
         return createPortal(
           <div
-            style={{ position: "fixed", inset: 0, background: "rgba(30,20,10,.45)", zIndex: 1200, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}
+            style={{ position: "fixed", inset: 0, background: "rgba(30,20,10,.45)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 20, transform: "translateZ(0)", WebkitTransform: "translateZ(0)" }}
             onClick={() => setInfoTeaId(null)}
           >
             <div
@@ -2392,106 +2519,123 @@ function RegionComparePanel({ regions, onRemove, onClear }) {
       </div>
 
       <div className="compare-scroll" style={{ display: "flex", gap: 10, overflowX: "auto", paddingTop: 12, paddingBottom: 2 }}>
-        {regions.map((region) => (
-          <article
-            key={region.id}
-            className="compare-card"
-            style={{
-              flex: "0 0 228px",
-              minWidth: 228,
-              borderRadius: 16,
-              background: "#f4f8fb",
-              color: "#2e4152",
-              padding: "12px 12px 14px",
-              border: "1px solid #d1dfe8",
-              boxShadow: "0 6px 18px rgba(31,22,12,.12)",
-            }}
-          >
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "flex-start" }}>
-              <div>
-                <h3 style={{ margin: 0, fontSize: 18, lineHeight: 1.05, fontWeight: 700, color: "#273746" }}>{region.name}</h3>
-                <div style={{ marginTop: 3, fontSize: 12, color: "#6d7e8d" }}>{region.subregion}</div>
-              </div>
-              <button
-                type="button"
-                onClick={() => onRemove(region.id)}
-                aria-label={`Remove ${region.name} from compare`}
-                style={{
-                  border: "none",
-                  background: "#dce7ee",
-                  color: "#51697d",
-                  borderRadius: 999,
-                  width: 24,
-                  height: 24,
-                  fontSize: 14,
-                  cursor: "pointer",
-                  lineHeight: 1,
-                }}
-              >
-                ×
-              </button>
-            </div>
-
-            <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
-              <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 999, background: "#406684", color: "#eef6fb", fontWeight: 600 }}>
-                {region.production} t
-              </span>
-              {region.id === mostProducedId && (
-                <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 999, background: "#d7c36f", color: "#534214", fontWeight: 700 }}>
-                  Largest
-                </span>
-              )}
-            </div>
-
-            <div style={{ marginTop: 10, fontSize: 11, color: "#5b6e7f", lineHeight: 1.45 }}>
-              <strong>Style:</strong> {region.style}
-            </div>
-
-            <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid #dbe6ed" }}>
-              <div style={{ fontSize: 10, color: "#75889a", marginBottom: 6, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>
-                Matcha Profile
-              </div>
-              {REGION_PROFILE_ROWS.map(([label, key, color]) => (
-                <Bar key={key} label={label} value={region.notes[key]} color={color} />
-              ))}
-            </div>
-
-            <div style={{ marginTop: 10, display: "flex", flexWrap: "wrap", gap: 5 }}>
-              {region.tags.slice(0, 3).map((tag) => (
-                <span
-                  key={`${region.id}-${tag}`}
-                  style={{
-                    fontSize: 10,
-                    padding: "3px 8px",
-                    borderRadius: 999,
-                    background: "#e8f0f5",
-                    color: "#55697b",
-                    border: "1px solid #d3dfe8",
-                  }}
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-
-            <p
-              className="compare-description"
+        {regions.map((region) => {
+          const topCultivars = getTopCultivarsByRegion(region);
+          return (
+            <article
+              key={region.id}
+              className="compare-card"
               style={{
-                margin: "10px 0 0",
-                fontSize: 11,
-                lineHeight: 1.45,
-                color: "#405465",
-                fontFamily: "'EB Garamond','Cormorant Garamond',serif",
-                display: "-webkit-box",
-                WebkitLineClamp: 3,
-                WebkitBoxOrient: "vertical",
-                overflow: "hidden",
+                flex: "0 0 228px",
+                minWidth: 228,
+                borderRadius: 16,
+                background: "#f4f8fb",
+                color: "#2e4152",
+                padding: "12px 12px 14px",
+                border: "1px solid #d1dfe8",
+                boxShadow: "0 6px 18px rgba(31,22,12,.12)",
               }}
             >
-              {region.desc}
-            </p>
-          </article>
-        ))}
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "flex-start" }}>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: 18, lineHeight: 1.05, fontWeight: 700, color: "#273746" }}>{region.name}</h3>
+                  <div style={{ marginTop: 3, fontSize: 12, color: "#6d7e8d" }}>{region.subregion}</div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => onRemove(region.id)}
+                  aria-label={`Remove ${region.name} from compare`}
+                  style={{
+                    border: "none",
+                    background: "#dce7ee",
+                    color: "#51697d",
+                    borderRadius: 999,
+                    width: 24,
+                    height: 24,
+                    fontSize: 14,
+                    cursor: "pointer",
+                    lineHeight: 1,
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+
+              <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 999, background: "#406684", color: "#eef6fb", fontWeight: 600 }}>
+                  {region.production} t
+                </span>
+                {region.id === mostProducedId && (
+                  <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 999, background: "#d7c36f", color: "#534214", fontWeight: 700 }}>
+                    Largest
+                  </span>
+                )}
+              </div>
+
+              <div style={{ marginTop: 10, fontSize: 11, color: "#5b6e7f", lineHeight: 1.45 }}>
+                <strong>Style:</strong> {region.style}
+              </div>
+
+              <div style={{ marginTop: 10 }}>
+                <div style={{ fontSize: 10, color: "#75889a", marginBottom: 4, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>
+                  Top Cultivars (t)
+                </div>
+                <div style={{ display: "grid", gap: 3 }}>
+                  {topCultivars.map((item) => (
+                    <div key={`${region.id}-${item.name}`} style={{ display: "flex", justifyContent: "space-between", gap: 8, fontSize: 10, color: "#586d80" }}>
+                      <span>{item.rank}. {item.name}</span>
+                      <span style={{ fontWeight: 700, color: "#3f5f7a" }}>{formatTonnes(item.tonnes)} t</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid #dbe6ed" }}>
+                <div style={{ fontSize: 10, color: "#75889a", marginBottom: 6, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>
+                  Matcha Profile
+                </div>
+                {REGION_PROFILE_ROWS.map(([label, key, color]) => (
+                  <Bar key={key} label={label} value={region.notes[key]} color={color} />
+                ))}
+              </div>
+
+              <div style={{ marginTop: 10, display: "flex", flexWrap: "wrap", gap: 5 }}>
+                {region.tags.slice(0, 3).map((tag) => (
+                  <span
+                    key={`${region.id}-${tag}`}
+                    style={{
+                      fontSize: 10,
+                      padding: "3px 8px",
+                      borderRadius: 999,
+                      background: "#e8f0f5",
+                      color: "#55697b",
+                      border: "1px solid #d3dfe8",
+                    }}
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+
+              <p
+                className="compare-description"
+                style={{
+                  margin: "10px 0 0",
+                  fontSize: 11,
+                  lineHeight: 1.45,
+                  color: "#405465",
+                  fontFamily: "'EB Garamond','Cormorant Garamond',serif",
+                  display: "-webkit-box",
+                  WebkitLineClamp: 3,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
+                }}
+              >
+                {region.desc}
+              </p>
+            </article>
+          );
+        })}
       </div>
     </section>
   );
@@ -2611,6 +2755,19 @@ function RegionCard({ region, expanded, compared, onToggle, onCompareToggle }) {
                   Subregion
                 </div>
                 <div style={{ fontSize: 11, color: "#55697b", marginTop: 2 }}>{region.subregion}</div>
+              </div>
+              <div style={{ marginTop: 8 }}>
+                <div style={{ fontSize: 10, color: "#75889a", fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>
+                  Top Cultivars By Tonnes
+                </div>
+                <div style={{ display: "grid", gap: 4, marginTop: 3 }}>
+                  {getTopCultivarsByRegion(region).map((item) => (
+                    <div key={`${region.id}-${item.name}`} style={{ display: "flex", justifyContent: "space-between", gap: 8, fontSize: 11, color: "#55697b" }}>
+                      <span>{item.rank}. {item.name}</span>
+                      <span style={{ fontWeight: 700, color: "#3f5f7a" }}>{formatTonnes(item.tonnes)} t</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -3212,6 +3369,9 @@ export default function App() {
               <div style={{ marginTop: 10, fontSize: 11, color: "#6f8193", lineHeight: 1.5 }}>
                 Exhaustive here means every prefecture in the current national tencha table with nonzero production. The biggest names still define most of the real market.
               </div>
+              <div style={{ marginTop: 6, fontSize: 10, color: "#7b8ea0", lineHeight: 1.4 }}>
+                Top-cultivar tonnes are directional estimates using regional cultivar-share assumptions scaled by prefecture tencha output.
+              </div>
             </div>
 
             {filteredRegions.map((region) => (
@@ -3278,6 +3438,10 @@ export default function App() {
               <br />
               <span style={{ fontStyle: "italic" }}>
                 Exhaustive region list = all prefectures with nonzero tencha production. Flavor profiles for very small producers are directional and less standardized than Kyoto, Aichi, Fukuoka, Shizuoka, Mie, or Kagoshima.
+              </span>
+              <br />
+              <span style={{ fontStyle: "italic" }}>
+                Cultivar top-5 lists are directional estimates derived from regional cultivar prevalence, not official prefectural cultivar census tables.
               </span>
             </>
           )}
