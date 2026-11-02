@@ -142,12 +142,22 @@ export default function Sheet({ open, onClose, title, subtitle, accessory, size 
       if (event.key === "Escape") onClose?.();
     };
     window.addEventListener("keydown", onKey);
+    // Lock the page behind the sheet. overflow:hidden alone isn't honored by
+    // every iOS Safari version, so also stop overscroll from chaining and
+    // swallow any touch-move that doesn't start inside a scrollable sheet body.
     const root = document.documentElement;
-    const prevOverflow = root.style.overflow;
+    const prev = { overflow: root.style.overflow, overscroll: root.style.overscrollBehavior };
     root.style.overflow = "hidden";
+    root.style.overscrollBehavior = "none";
+    const blockPageScroll = (event) => {
+      if (!event.target.closest?.(".sheet-body")) event.preventDefault();
+    };
+    document.addEventListener("touchmove", blockPageScroll, { passive: false });
     return () => {
       window.removeEventListener("keydown", onKey);
-      root.style.overflow = prevOverflow;
+      document.removeEventListener("touchmove", blockPageScroll);
+      root.style.overflow = prev.overflow;
+      root.style.overscrollBehavior = prev.overscroll;
     };
   }, [mounted, onClose]);
 
@@ -167,6 +177,86 @@ export default function Sheet({ open, onClose, title, subtitle, accessory, size 
   }, [label]);
 
   // ---- Drag to dismiss (drawer only) -------------------------------------
+  // Decide from the projected resting point (momentum), not the release point.
+  const releaseDrag = useCallback(
+    (velocity) => {
+      const current = valueRef.current ?? 0;
+      const projected = current + project(velocity);
+      if (projected > height() * 0.5 && velocity > -50) {
+        releaseVelocityRef.current = velocity;
+        onClose?.();
+      } else {
+        // Settle back home, inheriting the finger's velocity; a little bounce
+        // only because the gesture itself carried momentum.
+        runTo(0, { velocity, damping: Math.abs(velocity) > 300 ? 0.82 : 1, response: 0.32 });
+      }
+    },
+    [onClose, runTo]
+  );
+
+  // The whole sheet is a drag surface, like iOS: when the content is scrolled
+  // to the top, pulling down moves the sheet instead of the content. At the
+  // bottom edge, pulling up is swallowed so it never scrolls the page behind.
+  useEffect(() => {
+    const body = bodyRef.current;
+    if (!mounted || sheetMode !== "drawer" || !body) return undefined;
+    let g = null;
+
+    const onStart = (event) => {
+      if (event.touches.length !== 1) {
+        g = null;
+        return;
+      }
+      const t = event.touches[0];
+      g = { x: t.clientX, y: t.clientY, mode: null, startY: 0, startValue: 0, history: [] };
+    };
+
+    const onMove = (event) => {
+      if (!g) return;
+      const t = event.touches[0];
+      const dx = t.clientX - g.x;
+      const dy = t.clientY - g.y;
+      if (!g.mode) {
+        if (Math.hypot(dx, dy) < 6) return; // hysteresis
+        if (Math.abs(dx) > Math.abs(dy)) {
+          g.mode = "native"; // horizontal: let rails/chips scroll
+        } else if (dy > 0 && body.scrollTop <= 0) {
+          g.mode = "sheet";
+          animRef.current?.stop();
+          g.startY = t.clientY;
+          g.startValue = valueRef.current ?? 0;
+        } else if (dy < 0 && body.scrollTop + body.clientHeight >= body.scrollHeight - 1) {
+          g.mode = "block"; // nothing left to scroll: don't chain to the page
+        } else {
+          g.mode = "native";
+        }
+      }
+      if (g.mode === "native") return;
+      event.preventDefault();
+      if (g.mode === "block") return;
+      g.history.push({ y: t.clientY, t: performance.now() });
+      if (g.history.length > 8) g.history.shift();
+      const raw = g.startValue + (t.clientY - g.startY);
+      apply(raw < 0 ? -rubberband(-raw, height()) : raw);
+    };
+
+    const onEnd = () => {
+      if (g?.mode === "sheet") releaseDrag(velocityFromHistory(g.history));
+      g = null;
+    };
+
+    body.addEventListener("touchstart", onStart, { passive: true });
+    body.addEventListener("touchmove", onMove, { passive: false });
+    body.addEventListener("touchend", onEnd);
+    body.addEventListener("touchcancel", onEnd);
+    return () => {
+      body.removeEventListener("touchstart", onStart);
+      body.removeEventListener("touchmove", onMove);
+      body.removeEventListener("touchend", onEnd);
+      body.removeEventListener("touchcancel", onEnd);
+    };
+  }, [mounted, sheetMode, apply, releaseDrag]);
+
   function onPointerDown(event) {
     if (sheetMode !== "drawer" || !open) return;
     if (event.pointerType === "mouse" && event.button !== 0) return;
@@ -201,18 +291,7 @@ export default function Sheet({ open, onClose, title, subtitle, accessory, size 
     const drag = dragRef.current;
     dragRef.current = null;
     if (!drag || !drag.active) return;
-    const velocity = velocityFromHistory(drag.history);
-    const current = valueRef.current ?? 0;
-    const projected = current + project(velocity);
-    const h = height();
-    if (projected > h * 0.5 && velocity > -50) {
-      releaseVelocityRef.current = velocity;
-      onClose?.();
-    } else {
-      // Settle back home, inheriting the finger's velocity; a little bounce
-      // only because the gesture itself carried momentum.
-      runTo(0, { velocity, damping: Math.abs(velocity) > 300 ? 0.82 : 1, response: 0.32 });
-    }
+    releaseDrag(velocityFromHistory(drag.history));
     try {
       event.currentTarget.releasePointerCapture(event.pointerId);
     } catch {
