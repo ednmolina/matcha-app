@@ -1603,3 +1603,18 @@
 .map-tiles-dark {
   filter: invert(1) hue-rotate(180deg) brightness(0.92) contrast(0.88) saturate(0.6);
 }
+
+/* Required map credit, kept small and on-theme. */
+.map-frame .leaflet-control-attribution {
+  font-size: 10px;
+  line-height: 1.5;
+  padding: 1px 6px;
+  border-top-left-radius: 6px;
+  background: var(--material);
+  color: var(--label-3);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+.map-frame .leaflet-control-attribution a {
+  color: var(--label-2);
+}

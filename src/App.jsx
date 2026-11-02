@@ -1325,6 +1325,44 @@ function FlavorNetwork({ mode, onOpenDetail }) {
 // Region map
 // ---------------------------------------------------------------------------
 
+// Base map tiles. Esri's gray canvas needs no API key and has a native dark
+// version. If its tiles fail to load, fall back to OpenStreetMap's own tiles.
+const TILE_SOURCES = {
+  esri: {
+    light: "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+    dark: "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+    attribution: "Tiles &copy; Esri &mdash; Esri, HERE, Garmin, &copy; OpenStreetMap contributors",
+    maxNativeZoom: 16,
+  },
+  osm: {
+    light: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+    dark: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxNativeZoom: 19,
+  },
+};
+
+function BaseTiles({ dark }) {
+  const [source, setSource] = useState("esri");
+  const failures = useRef(0);
+  const tiles = TILE_SOURCES[source];
+  return (
+    <TileLayer
+      key={`${source}-${dark ? "dark" : "light"}`}
+      className={dark && source === "osm" ? "map-tiles-dark" : undefined}
+      url={dark ? tiles.dark : tiles.light}
+      attribution={tiles.attribution}
+      maxNativeZoom={tiles.maxNativeZoom}
+      eventHandlers={{
+        tileerror: () => {
+          failures.current += 1;
+          if (source === "esri" && failures.current >= 3) setSource("osm");
+        },
+      }}
+    />
+  );
+}
+
 function JapanRegionMap({ regions, selectedIds, onSelect }) {
   const systemDark = useMediaQuery("(prefers-color-scheme: dark)");
   const forcedTheme = document.documentElement.dataset.theme;
@@ -1338,17 +1376,12 @@ function JapanRegionMap({ regions, selectedIds, onSelect }) {
           zoom={5}
           style={{ width: "100%", height: "100%" }}
           zoomControl={!coarse}
-          attributionControl={false}
+          attributionControl
           scrollWheelZoom={false}
           dragging={!coarse}
           touchZoom
         >
-          <TileLayer
-            className={dark ? "map-tiles-dark" : undefined}
-            key={dark ? "dark" : "light"}
-            url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-            attribution='&copy; OpenStreetMap contributors &copy; CARTO'
-          />
+          <BaseTiles dark={dark} />
           {regions.map((region) => {
             const selected = selectedIds.includes(region.id);
             const radius = Math.max(7, Math.min(18, 7 + Math.log10(region.production + 1) * 4));
