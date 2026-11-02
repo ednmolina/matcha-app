@@ -1375,11 +1375,14 @@ function JapanRegionMap({ regions, selectedIds, onSelect }) {
           center={[34.6, 135.4]}
           zoom={5}
           style={{ width: "100%", height: "100%" }}
-          zoomControl={!coarse}
+          zoomControl
           attributionControl
-          scrollWheelZoom={false}
-          dragging={!coarse}
+          scrollWheelZoom
+          wheelPxPerZoomLevel={80}
+          zoomSnap={0.25}
+          dragging
           touchZoom
+          bounceAtZoomLimits={false}
         >
           <BaseTiles dark={dark} />
           {regions.map((region) => {
@@ -1409,7 +1412,7 @@ function JapanRegionMap({ regions, selectedIds, onSelect }) {
         </MapContainer>
       </div>
       <p className="map-caption">
-        Tencha-producing prefectures, sized by output. {coarse ? "Pinch to zoom · tap" : "Tap"} a marker to open that region.
+        Tencha-producing prefectures, sized by output. {coarse ? "Pinch to zoom, drag to move. Tap" : "Scroll or pinch to zoom, drag to move. Click"} a marker to open that region.
       </p>
     </section>
   );
