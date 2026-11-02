@@ -69,8 +69,10 @@
   --safe-left: env(safe-area-inset-left, 0px);
 }
 
+/* Dark: follows the system unless a theme is forced with ?theme=light|dark */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
     --bg: #0e0e0c;
     --bg-elevated: #1c1c19;
     --surface: #1a1a17;
@@ -102,6 +104,44 @@
     --shadow-float: 0 0 0 0.5px rgba(255, 255, 255, 0.08), 0 10px 30px rgba(0, 0, 0, 0.5);
     --shadow-sheet: 0 0 0 0.5px rgba(255, 255, 255, 0.08), 0 30px 90px rgba(0, 0, 0, 0.6);
   }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0e0e0c;
+  --bg-elevated: #1c1c19;
+  --surface: #1a1a17;
+  --surface-2: #24241f;
+  --fill: rgba(232, 226, 205, 0.11);
+  --fill-2: rgba(232, 226, 205, 0.07);
+  --fill-strong: rgba(232, 226, 205, 0.18);
+
+  --label: #f3f1ea;
+  --label-2: rgba(238, 234, 222, 0.68);
+  --label-3: rgba(238, 234, 222, 0.42);
+  --separator: rgba(238, 234, 222, 0.12);
+
+  --matcha: #9ccc65;
+  --leaf: #86c97c;
+  --sky: #7db8e8;
+  --wisteria: #b7a1ec;
+  --gold: #e2b44c;
+  --warn: #ee9a6c;
+  --on-accent: #10180a;
+
+  --material: rgba(30, 30, 27, 0.7);
+  --material-thick: rgba(24, 24, 21, 0.9);
+  --material-edge: rgba(255, 255, 255, 0.08);
+  --scrim: rgba(0, 0, 0, 0.5);
+
+  --shadow-card: 0 0 0 0.5px rgba(255, 255, 255, 0.06), 0 2px 10px rgba(0, 0, 0, 0.3);
+  --shadow-raised: 0 0 0 0.5px rgba(255, 255, 255, 0.08), 0 12px 32px rgba(0, 0, 0, 0.45);
+  --shadow-float: 0 0 0 0.5px rgba(255, 255, 255, 0.08), 0 10px 30px rgba(0, 0, 0, 0.5);
+  --shadow-sheet: 0 0 0 0.5px rgba(255, 255, 255, 0.08), 0 30px 90px rgba(0, 0, 0, 0.6);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
 }
 
 /* Each section carries its own tint, the way Apple apps tint per context. */

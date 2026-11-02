@@ -1326,7 +1326,9 @@ function FlavorNetwork({ mode, onOpenDetail }) {
 // ---------------------------------------------------------------------------
 
 function JapanRegionMap({ regions, selectedIds, onSelect }) {
-  const dark = useMediaQuery("(prefers-color-scheme: dark)");
+  const systemDark = useMediaQuery("(prefers-color-scheme: dark)");
+  const forcedTheme = document.documentElement.dataset.theme;
+  const dark = forcedTheme ? forcedTheme === "dark" : systemDark;
   const coarse = useMediaQuery("(pointer: coarse)");
   return (
     <section className="map-card">
