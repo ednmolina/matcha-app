@@ -47,12 +47,11 @@
   display: none;
 }
 
-@media (min-width: 1024px) {
-  .app {
+[data-layout="sidebar"] .app {
     display: grid;
     grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
   }
-  .sidebar {
+[data-layout="sidebar"] .sidebar {
     position: sticky;
     top: 0;
     height: 100dvh;
@@ -63,15 +62,14 @@
     border-right: 0.5px solid var(--separator);
     overflow-y: auto;
   }
-  .main {
+[data-layout="sidebar"] .main {
     --gutter: 40px;
     padding-top: 36px;
     padding-bottom: 96px;
   }
-  .tabbar {
+[data-layout="sidebar"] .tabbar {
     display: none !important;
   }
-}
 
 .brand {
   display: flex;
@@ -170,8 +168,77 @@
 .sidebar-hint {
   margin-top: 10px;
 }
+[data-input="touch"] .sidebar-hint {
+  display: none;
+}
+
+/* Desktop browser at a narrow width: still a desktop app – keep a narrower
+   sidebar instead of falling back to the iPad tab bar. */
+@media (max-width: 1023px) {
+  [data-layout="sidebar"][data-input="pointer"] {
+    --sidebar-w: 216px;
+  }
+  [data-layout="sidebar"][data-input="pointer"] .main {
+    --gutter: 28px;
+  }
+}
+
+/* Desktop browser narrower than 720px: a top nav bar, never a phone tab bar. */
+.topnav {
+  display: none;
+}
+[data-layout="topnav"] .topnav {
+  display: flex;
+  gap: 2px;
+  margin: 12px 0 14px;
+  padding: 3px;
+  border-radius: 12px;
+  background: var(--fill);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.topnav-item {
+  flex: 1 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--label-2);
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.topnav-item svg {
+  width: 17px;
+  height: 17px;
+}
+.topnav-item.is-on {
+  background: var(--bg-elevated);
+  color: var(--label);
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1), 0 0 0 0.5px rgba(0, 0, 0, 0.04);
+}
+.topnav-item.is-on svg {
+  color: var(--accent);
+}
+@media (hover: hover) {
+  .topnav-item:not(.is-on):hover {
+    color: var(--label);
+  }
+}
+[data-layout="topnav"] .eyebrow {
+  display: block;
+}
 
 /* Tab bar (iPhone & iPad portrait): a floating glass capsule */
+:root:not([data-layout="tabs"]) .tabbar {
+  display: none !important;
+}
 .tabbar {
   position: fixed;
   z-index: 40;
@@ -236,15 +303,13 @@
   font-size: 0.9375rem;
   color: var(--label-2);
 }
-@media (min-width: 1024px) {
-  .eyebrow {
+[data-layout="sidebar"] .eyebrow {
     display: none;
   }
-  .large-title {
+[data-layout="sidebar"] .large-title {
     font-size: 2.5rem;
     letter-spacing: -0.026em;
   }
-}
 
 /* ---- Sticky toolbar with a scroll-edge material ------------------------ */
 .toolbar-sentinel {
@@ -280,11 +345,9 @@
 .toolbar.is-stuck::after {
   opacity: 1;
 }
-@media (min-width: 1024px) {
-  .toolbar {
+[data-layout="sidebar"] .toolbar {
     padding-top: 12px;
   }
-}
 .toolbar-row {
   display: flex;
   align-items: center;
@@ -456,8 +519,7 @@
 .chip-scroller::-webkit-scrollbar {
   display: none;
 }
-@media (min-width: 1024px) {
-  .chip-scroller {
+[data-input="pointer"] .chip-scroller {
     flex-wrap: wrap;
     overflow: visible;
     margin-right: 0;
@@ -465,7 +527,6 @@
     -webkit-mask-image: none;
     mask-image: none;
   }
-}
 .filter-chip {
   flex-shrink: 0;
   display: inline-flex;
@@ -516,11 +577,9 @@
   gap: 12px;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
 }
-@media (min-width: 1024px) {
-  .grid {
+[data-layout="sidebar"] .grid {
     gap: 16px;
   }
-}
 
 .card {
   position: relative;
@@ -843,20 +902,18 @@
   background: color-mix(in srgb, var(--on-accent) 22%, transparent);
   font-variant-numeric: tabular-nums;
 }
-@media (min-width: 1024px) {
-  .compare-fab {
+:root:not([data-layout="tabs"]) .compare-fab {
     left: auto;
     right: 32px;
     bottom: 28px;
     transform: translateY(14px) scale(0.9);
   }
-  .compare-fab.is-visible {
+:root:not([data-layout="tabs"]) .compare-fab.is-visible {
     transform: none;
   }
-  .compare-fab.is-visible:active {
+:root:not([data-layout="tabs"]) .compare-fab.is-visible:active {
     transform: scale(0.96);
   }
-}
 
 /* ==========================================================================
    Sheets
@@ -1505,10 +1562,8 @@
     transform: translateX(-50%);
     transition: opacity 200ms ease;
   }
-  @media (min-width: 1024px) {
-    .compare-fab {
-      transform: none;
-    }
+  :root:not([data-layout="tabs"]) .compare-fab {
+    transform: none;
   }
 }
 
@@ -1531,5 +1586,14 @@
   }
   .card.is-compared {
     box-shadow: 0 0 0 3px var(--accent);
+  }
+}
+
+:root:not([data-layout="tabs"]) .main {
+  padding-bottom: 96px;
+}
+@media (max-width: 599px) {
+  .sheet-host--panel {
+    padding: 16px;
   }
 }

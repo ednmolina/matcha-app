@@ -1449,6 +1449,27 @@ function TabBar({ view, onChange }) {
   );
 }
 
+// Narrow desktop browser windows: a segmented nav in the header (never the phone tab bar).
+function TopNav({ view, onChange }) {
+  return (
+    <nav className="topnav" aria-label="Sections">
+      {SECTIONS.map(({ id, tab, icon }) => (
+        <button
+          key={id}
+          type="button"
+          className={`topnav-item pressable${view === id ? " is-on" : ""}`}
+          aria-current={view === id ? "page" : undefined}
+          data-section={id}
+          onClick={() => onChange(id)}
+        >
+          {icon}
+          <span>{tab}</span>
+        </button>
+      ))}
+    </nav>
+  );
+}
+
 function CompareFab({ count, onClick, label }) {
   const visible = count > 0;
   return (
@@ -1730,6 +1751,7 @@ export default function App() {
       <main className="main">
         <header className="page-header">
           <div className="eyebrow">抹茶 Matcha Compendium</div>
+          <TopNav view={view} onChange={changeView} />
           <h1 className="large-title">{section.title}</h1>
           <p className="page-subtitle">{subtitle}</p>
         </header>

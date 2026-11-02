@@ -2,6 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import { createPortal } from "react-dom";
 import { animateSpring, project, rubberband, velocityFromHistory, prefersReducedMotion } from "./motion.js";
 import { CloseIcon } from "./icons.jsx";
+import { isTouchInput } from "./device.js";
 
 // Remember where the last press happened so a sheet can grow out of the thing
 // that opened it (spatial consistency: things emerge from where they came).
@@ -18,11 +19,13 @@ if (typeof window !== "undefined") {
 
 const COMPACT_QUERY = "(max-width: 699px)";
 
+// A draggable bottom sheet only makes sense on a phone-sized touch screen.
+// A narrow desktop browser window still gets the centered panel.
 function useIsCompact() {
-  const [compact, setCompact] = useState(() => window.matchMedia(COMPACT_QUERY).matches);
+  const [compact, setCompact] = useState(() => isTouchInput() && window.matchMedia(COMPACT_QUERY).matches);
   useEffect(() => {
     const mq = window.matchMedia(COMPACT_QUERY);
-    const onChange = () => setCompact(mq.matches);
+    const onChange = () => setCompact(isTouchInput() && mq.matches);
     mq.addEventListener("change", onChange);
     return () => mq.removeEventListener("change", onChange);
   }, []);

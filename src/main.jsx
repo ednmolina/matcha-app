@@ -2,6 +2,10 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
+import { installDeviceLayout } from './device.js'
+
+// Pick Mac/desktop vs iPad/iPhone layout before the first paint.
+installDeviceLayout()
 
 // Optional ?theme=light|dark override (system setting otherwise).
 const theme = new URLSearchParams(window.location.search).get('theme')
