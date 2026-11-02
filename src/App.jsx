@@ -1344,8 +1344,9 @@ function JapanRegionMap({ regions, selectedIds, onSelect }) {
           touchZoom
         >
           <TileLayer
+            className={dark ? "map-tiles-dark" : undefined}
             key={dark ? "dark" : "light"}
-            url={`https://{s}.basemaps.cartocdn.com/${dark ? "dark_all" : "rastertiles/voyager"}/{z}/{x}/{y}{r}.png`}
+            url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
             attribution='&copy; OpenStreetMap contributors &copy; CARTO'
           />
           {regions.map((region) => {
