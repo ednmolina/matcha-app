@@ -86,11 +86,11 @@
     --label-3: rgba(238, 234, 222, 0.42);
     --separator: rgba(238, 234, 222, 0.12);
 
-    --matcha: #a7b88a; /* dusty matcha, not neon */
-    --leaf: #9cb592;
-    --sky: #93b2cc;
-    --wisteria: #b3a6cf;
-    --gold: #d4b062;
+    --matcha: #9cc06d; /* fresh matcha: lively, not neon */
+    --leaf: #8bbb81;
+    --sky: #8db1ce;
+    --wisteria: #b3a4d6;
+    --gold: #dab35a;
     --warn: #ee9a6c;
     --on-accent: #171a12;
 
@@ -121,11 +121,11 @@
   --label-3: rgba(238, 234, 222, 0.42);
   --separator: rgba(238, 234, 222, 0.12);
 
-  --matcha: #a7b88a; /* dusty matcha, not neon */
-  --leaf: #9cb592;
-  --sky: #93b2cc;
-  --wisteria: #b3a6cf;
-  --gold: #d4b062;
+  --matcha: #9cc06d; /* fresh matcha: lively, not neon */
+  --leaf: #8bbb81;
+  --sky: #8db1ce;
+  --wisteria: #b3a4d6;
+  --gold: #dab35a;
   --warn: #ee9a6c;
   --on-accent: #171a12;
 
