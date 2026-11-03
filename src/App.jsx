@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, CircleMarker, Tooltip } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "./App.css";
 import Sheet from "./Sheet.jsx";
+import MapGestures from "./MapGestures.jsx";
 import { tick } from "./motion.js";
 import {
   CheckIcon,
@@ -1377,13 +1378,14 @@ function JapanRegionMap({ regions, selectedIds, onSelect }) {
           style={{ width: "100%", height: "100%" }}
           zoomControl
           attributionControl
-          scrollWheelZoom
-          wheelPxPerZoomLevel={80}
-          zoomSnap={0.25}
+          scrollWheelZoom={false}
+          touchZoom={false}
+          zoomSnap={0}
+          zoomDelta={1}
           dragging
-          touchZoom
-          bounceAtZoomLimits={false}
+          inertiaDeceleration={2200}
         >
+          <MapGestures minZoom={4} maxZoom={13} />
           <BaseTiles dark={dark} />
           {regions.map((region) => {
             const selected = selectedIds.includes(region.id);

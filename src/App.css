@@ -1618,3 +1618,8 @@
 .map-frame .leaflet-control-attribution a {
   color: var(--label-2);
 }
+
+/* Pinch is handled in MapGestures; stop the browser zooming the page instead. */
+.map-frame .leaflet-container {
+  touch-action: none;
+}
